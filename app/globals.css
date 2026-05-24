@@ -1,0 +1,39 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;500;600;700&display=swap");
+@import "../src/styles/tokens.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    background-color: var(--navy-deep);
+    color: var(--text-primary);
+    font-family: var(--font-latin);
+}
+
+/* Custom scrollbar to match dark navy theme */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--navy-deep);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--navy-border);
+    border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--navy-hover);
+}
+
+/* Leaflet maps custom sizing and styling fallback */
+.leaflet-container {
+    width: 100%;
+    height: 100%;
+    border-radius: var(--radius-md);
+    z-index: 10;
+}

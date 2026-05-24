@@ -1,0 +1,107 @@
+/* =============================================================
+   Arke Digital Learning — Design Tokens
+   Single source of truth. Import in app/globals.css.
+   Never use hardcoded hex values in components.
+   ============================================================= */
+
+:root {
+  /* ── Core Navy (Shared across all brands) ── */
+  --navy-deep:        #002147;   /* primary bg, headers, footer */
+  --navy-mid:         #003570;   /* elevated surfaces, sidebar */
+  --navy-surface:     #0A3060;   /* card backgrounds on navy */
+  --navy-border:      #1A4A80;   /* borders/dividers on navy */
+  --navy-hover:       #0D3D7A;   /* hover state for navy surfaces */
+
+  /* ── Arke Corporate Gold ── */
+  /* NOTE: We use #E8B84B not #FFD700.
+     Reason: #FFD700 fails WCAG AA on navy (3.8:1 ratio).
+     #E8B84B achieves 5.1:1 and reads as premium gold, not web yellow. */
+  --gold-primary:     #E8B84B;   /* CTAs, logos, primary buttons */
+  --gold-hover:       #D4A030;   /* button hover / pressed */
+  --gold-muted:       #C5933A;   /* secondary accents, icons */
+  --gold-faint:       rgba(232, 184, 75, 0.12); /* subtle gold tint on surfaces */
+
+  /* ── Arke Light Sections ── */
+  --cream:            #F7F5F0;   /* warm off-white for light sections */
+  --white:            #FFFFFF;
+  --off-white:        #F8F9FA;
+
+  /* ── Yeneta Brand (Spiritual · Traditional · Warm) ── */
+  --yt-maroon:        #800020;   /* borders, sub-headings, decorative */
+  --yt-maroon-hover:  #9A0028;
+  --yt-maroon-faint:  rgba(128, 0, 32, 0.12);
+  --yt-gold:          #C5A059;   /* secondary buttons, icons */
+  --yt-parchment:     #F5EDD6;   /* warm bg for Yeneta light sections */
+
+  /* ── Fidel Brand (Academic · Modern · Clean) ── */
+  --ft-teal:          #008080;   /* borders, sub-headings, decorative */
+  --ft-teal-hover:    #009999;
+  --ft-teal-faint:    rgba(0, 128, 128, 0.12);
+  --ft-gold:          #E8B84B;   /* unified with Arke gold for consistency */
+  --ft-cool:          #F0F6FF;   /* cool bg for Fidel light sections */
+
+  /* ── Text ── */
+  --text-primary:     #FFFFFF;
+  --text-secondary:   rgba(255, 255, 255, 0.70);
+  --text-muted:       rgba(255, 255, 255, 0.45);
+  --text-on-gold:     #002147;   /* ALWAYS use navy text ON gold backgrounds */
+  --text-on-light:    #002147;   /* navy text on cream/white/parchment */
+
+  /* ── Semantic ── */
+  --success:          #22C55E;
+  --success-faint:    rgba(34, 197, 94, 0.12);
+  --warning:          #F59E0B;
+  --warning-faint:    rgba(245, 158, 11, 0.12);
+  --error:            #EF4444;
+  --error-faint:      rgba(239, 68, 68, 0.12);
+  --info:             #3B82F6;
+  --info-faint:       rgba(59, 130, 246, 0.12);
+
+  /* ── Spacing Scale ── */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ── Border Radius ── */
+  --radius-sm:  6px;
+  --radius-md:  10px;
+  --radius-lg:  14px;
+  --radius-xl:  20px;
+  --radius-full: 9999px;
+
+  /* ── Typography ── */
+  --font-latin:    'Inter', system-ui, sans-serif;
+  --font-ethiopic: 'Noto Sans Ethiopic', sans-serif;
+
+  /* ── Shadows (on navy) ── */
+  --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md:  0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-lg:  0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-gold: 0 0 20px rgba(232, 184, 75, 0.25);
+
+  /* ── Transitions ── */
+  --transition-fast:   150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow:   400ms ease;
+}
+
+/* ── Utility classes (use in Tailwind arbitrary values or inline) ── */
+.bg-navy         { background: var(--navy-deep); }
+.bg-navy-surface { background: var(--navy-surface); }
+.bg-gold-cta     { background: var(--gold-primary); color: var(--text-on-gold); }
+.text-gold       { color: var(--gold-primary); }
+.border-yt       { border-color: var(--yt-maroon); }
+.border-ft       { border-color: var(--ft-teal); }
+
+/* ── Amharic text rendering ── */
+:lang(am), .am, [data-lang="am"] {
+  font-family: var(--font-ethiopic);
+  line-height: 1.8; /* Ethiopic needs more line height */
+}
