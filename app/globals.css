@@ -37,3 +37,93 @@ body {
     border-radius: var(--radius-md);
     z-index: 10;
 }
+
+/* ── Custom Animations & Effects for Premium UI ── */
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px) scale(1); }
+    50% { transform: translateY(-10px) scale(1.05); }
+}
+
+@keyframes pulse-glow {
+    0%, 100% { opacity: 0.2; transform: scale(1); }
+    50% { opacity: 0.45; transform: scale(1.15); }
+}
+
+@keyframes border-glow {
+    0%, 100% { border-color: var(--navy-border); }
+    50% { border-color: var(--gold-primary); }
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+    animation: pulse-glow 8s ease-in-out infinite;
+}
+
+.animate-border-glow {
+    animation: border-glow 4s infinite alternate;
+}
+
+/* Glass card utility */
+.glass-panel {
+    background: rgba(10, 48, 96, 0.55);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(26, 74, 128, 0.4);
+}
+
+/* Premium radial gradient text mask */
+.text-gold-gradient {
+    background: linear-gradient(135deg, #FFEAB5 0%, var(--gold-primary) 50%, var(--gold-muted) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Dot grid background pattern */
+.bg-grid-pattern {
+    background-size: 24px 24px;
+    background-image: radial-gradient(circle, rgba(26, 74, 128, 0.15) 1px, transparent 1px);
+}
+
+/* Popping Button Animations & Entrance */
+@keyframes pop-up-entrance {
+    0% { transform: translateY(24px) scale(0.92); opacity: 0; }
+    60% { transform: translateY(-4px) scale(1.03); opacity: 0.9; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.animate-pop-up {
+    animation: pop-up-entrance 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Popping button hover effects */
+.btn-pop-gold {
+    box-shadow: 0 0 15px rgba(232, 184, 75, 0.25);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.btn-pop-gold:hover {
+    transform: translateY(-4px) scale(1.06);
+    box-shadow: 0 0 30px rgba(232, 184, 75, 0.55), 0 5px 15px rgba(0, 0, 0, 0.4);
+}
+.btn-pop-gold:active {
+    transform: translateY(1px) scale(0.97);
+}
+
+.btn-pop-teal {
+    box-shadow: 0 0 15px rgba(0, 128, 128, 0.15);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.btn-pop-teal:hover {
+    transform: translateY(-4px) scale(1.06);
+    box-shadow: 0 0 30px rgba(0, 128, 128, 0.45), 0 5px 15px rgba(0, 0, 0, 0.4);
+    border-color: var(--gold-primary);
+    color: var(--gold-primary);
+}
+.btn-pop-teal:active {
+    transform: translateY(1px) scale(0.97);
+}
+
+

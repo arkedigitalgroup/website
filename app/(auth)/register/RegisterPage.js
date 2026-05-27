@@ -10,6 +10,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { auth, db, storage } from "../../../src/lib/firebase";
 import { useLanguage } from "../../../src/context/LanguageContext";
 import { useAuth } from "../../../src/context/AuthContext";
+import AuthNavbar from "../../../src/components/layout/AuthNavbar";
 import MapPicker from "../../../src/components/ui/MapPicker";
 
 export default function RegisterPage() {
@@ -204,6 +205,12 @@ export default function RegisterPage() {
                         ? "ይህ ኢሜል ቀደም ሲል በሌላ ሰው ተመዝግቧል።"
                         : "This email is already in use.",
                 );
+            } else if (err.code === "auth/configuration-not-found" || err.message?.includes("configuration-not-found")) {
+                setError(
+                    lang === "am"
+                        ? "የኢሜል/ይለፍ ቃል አገልግሎት በFirebase አልነቃም። እባክዎ Firebase Console → Authentication → Sign-in method ውስጥ 'Email/Password' ያብሩ።"
+                        : "Email/Password sign-in method is disabled in Firebase. Please open Firebase Console → Authentication → Sign-in method and enable 'Email/Password' to test registration.",
+                );
             } else {
                 setError(
                     err.message ||
@@ -217,8 +224,10 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="min-h-screen py-12 px-4 flex items-center justify-center">
-            <div className="max-w-xl w-full bg-navy-surface border border-navy-border rounded-2xl p-8 sm:p-12 shadow-lg space-y-6 relative overflow-hidden">
+        <div className="min-h-screen flex flex-col bg-navy-deep">
+            <AuthNavbar />
+            <div className="flex-grow py-12 px-4 flex items-center justify-center">
+                <div className="max-w-xl w-full bg-navy-surface border border-navy-border rounded-2xl p-8 sm:p-12 shadow-lg space-y-6 relative overflow-hidden">
                 {/* Branding badge top */}
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-yt-maroon to-ft-teal" />
 
@@ -576,5 +585,6 @@ export default function RegisterPage() {
                 </form>
             </div>
         </div>
+    </div>
     );
 }

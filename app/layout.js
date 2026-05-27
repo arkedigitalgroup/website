@@ -15,7 +15,10 @@ export const viewport = {
 };
 
 export const metadata = {
-    title: "አርኬ ዲጂታል / Arke Digital Learning",
+    title: "Arke Digital Learning",
+    icons: {
+        icon: "/arkelogo.png",
+    },
     description:
         "Bilingual (Amharic + English) Educational Platform connecting students and verified tutors in Ethiopia. Fusing Excellence with Ethics!",
 };
