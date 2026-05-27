@@ -12,6 +12,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, db } from "../../../src/lib/firebase";
 import { useLanguage } from "../../../src/context/LanguageContext";
 import { useAuth } from "../../../src/context/AuthContext";
+import AuthNavbar from "../../../src/components/layout/AuthNavbar";
 
 export default function LoginPage() {
     const { t, lang } = useLanguage();
@@ -51,6 +52,12 @@ export default function LoginPage() {
                     lang === "am"
                         ? "የተሳሳተ ኢሜል ወይም የይለፍ ቃል።"
                         : "Invalid email or password.",
+                );
+            } else if (err.code === "auth/configuration-not-found" || err.message?.includes("configuration-not-found")) {
+                setError(
+                    lang === "am"
+                        ? "የኢሜል/ይለፍ ቃል አገልግሎት በFirebase አልነቃም። እባክዎ Firebase Console → Authentication → Sign-in method ውስጥ 'Email/Password' ያብሩ።"
+                        : "Email/Password sign-in method is disabled in Firebase. Please open Firebase Console → Authentication → Sign-in method and enable 'Email/Password' to test login.",
                 );
             } else {
                 setError(err.message || "Login failed. Please try again.");
@@ -194,8 +201,10 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen py-12 px-4 flex items-center justify-center">
-            <div className="max-w-md w-full bg-navy-surface border border-navy-border rounded-2xl p-8 sm:p-12 shadow-lg space-y-6 relative overflow-hidden">
+        <div className="min-h-screen flex flex-col bg-navy-deep">
+            <AuthNavbar />
+            <div className="flex-grow py-12 px-4 flex items-center justify-center">
+                <div className="max-w-md w-full bg-navy-surface border border-navy-border rounded-2xl p-8 sm:p-12 shadow-lg space-y-6 relative overflow-hidden">
                 {/* Decorative gold/teal line */}
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-yt-maroon to-ft-teal" />
 
@@ -419,5 +428,6 @@ export default function LoginPage() {
                 </div>
             </div>
         </div>
+    </div>
     );
 }
