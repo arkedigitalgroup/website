@@ -42,13 +42,32 @@ export default function YenetaPage() {
     return (
         <div className="space-y-16 pb-20">
             {/* Hero section with Yeneta Maroon styling */}
-            <section className="relative bg-gradient-to-b from-yt-maroon to-navy-deep py-20 px-4 text-center border-b border-yt-maroon">
-                <div className="max-w-4xl mx-auto space-y-6">
-                    <span className="px-4 py-1.5 rounded-full bg-yt-maroon-faint border border-yt-maroon text-gold-primary text-sm font-semibold uppercase tracking-wider">
-                        {lang === "am"
-                            ? "የየኔታ አስጠኚ"
-                            : "Yeneta Spiritual Tutors"}
-                    </span>
+            <section className="relative bg-gradient-to-b from-yt-maroon/20 to-navy-deep py-20 px-4 text-center border-b border-yt-maroon overflow-hidden">
+                {/* Giant elegant watermark logo */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0 flex items-center justify-center">
+                    <img 
+                        src="/yenetalogo.png" 
+                        alt="" 
+                        className="w-[450px] h-[450px] sm:w-[650px] sm:h-[650px] object-contain opacity-[0.05] pointer-events-none select-none transform rotate-12 scale-110" 
+                    />
+                </div>
+
+                <div className="max-w-4xl mx-auto space-y-6 relative z-10">
+                    <div className="flex flex-col items-center gap-4 mb-2">
+                        <div className="relative group">
+                            <div className="absolute inset-0 bg-gold-primary/25 rounded-full blur-2xl group-hover:blur-3xl transition-all duration-300"></div>
+                            <img 
+                                src="/yenetalogo.png" 
+                                alt="Yeneta Logo" 
+                                className="relative w-20 h-20 sm:w-24 sm:h-24 object-contain transition-transform duration-500 group-hover:scale-110 select-none pointer-events-none" 
+                            />
+                        </div>
+                        <span className="px-4 py-1.5 rounded-full bg-yt-maroon-faint border border-yt-maroon text-gold-primary text-sm font-semibold uppercase tracking-wider">
+                            {lang === "am"
+                                ? "የየኔታ አስጠኚ"
+                                : "Yeneta Spiritual Tutors"}
+                        </span>
+                    </div>
                     <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white font-ethiopic leading-snug">
                         {lang === "am"
                             ? "መንፈሳዊና ባህላዊ የቤት ውስጥ ትምህርቶች"
