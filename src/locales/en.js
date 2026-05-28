@@ -88,7 +88,7 @@ export const en = {
         "Sacred Scriptures and History – Bible studies, Church and Ethiopian history",
         "Ethiopian Orthodox Tewahedo Creed – the fundamentals of our faith",
         "Christian Ethics and Behavior – moral guidelines for everyday life",
-        "Liturgical Knowledge and Rituals – detailed study of worship practices",
+        "The Five Heavenly Mysteries, The Seven Sacraments of the Church, The Faith of the Fathers, The Teaching of the Faith, The Order of the Church, The Word of God, The Word of Christ, The Word of Mary, The Creed",
         "Prayer Books and Practices – daily spiritual exercises and prayers",
     ],
     package2: "ቋንቋና ዜማ (Quanquanna Zema)",

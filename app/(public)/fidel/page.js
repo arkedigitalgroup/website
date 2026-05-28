@@ -80,16 +80,37 @@ export default function FidelPage() {
       </div> */}
 
             {/* Hero section with Fidel Teal styling */}
-            <section className="relative bg-gradient-to-b from-ft-teal to-navy-deep py-20 px-4 text-center border-b border-ft-teal">
-                {/* Semi-transparent coming soon huge text behind */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white/5 text-7xl sm:text-9xl font-extrabold uppercase select-none pointer-events-none z-0">
-                    {t("comingSoon")}
+            <section className="relative bg-gradient-to-b from-ft-teal/20 to-navy-deep py-20 px-4 text-center border-b border-ft-teal overflow-hidden">
+                {/* Giant elegant watermark logo */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0 flex items-center justify-center">
+                    <img
+                        src="/fidellogo.png"
+                        alt=""
+                        className="w-[450px] h-[450px] sm:w-[650px] sm:h-[650px] object-contain opacity-[0.05] pointer-events-none select-none transform rotate-12 scale-110"
+                    />
                 </div>
 
+                {/* Semi-transparent coming soon huge text behind */}
+                {/* <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white/5 text-7xl sm:text-9xl font-extrabold uppercase select-none pointer-events-none z-0">
+                    {t("comingSoon")}
+                </div> */}
+
                 <div className="max-w-4xl mx-auto space-y-6 relative z-10">
-                    <span className="px-4 py-1.5 rounded-full bg-ft-teal-faint border border-ft-teal text-gold-primary text-sm font-semibold uppercase tracking-wider">
-                        {lang === "am" ? "የፊደል አስጠኚ" : "Fidel Academic Tutors"}
-                    </span>
+                    <div className="flex flex-col items-center gap-4 mb-2">
+                        <div className="relative group">
+                            <div className="absolute inset-0 bg-ft-teal/25 rounded-full blur-2xl group-hover:blur-3xl transition-all duration-300"></div>
+                            <img
+                                src="/fidellogo.png"
+                                alt="Fidel Logo"
+                                className="relative w-20 h-20 sm:w-24 sm:h-24 object-contain transition-transform duration-500 group-hover:scale-110 select-none pointer-events-none"
+                            />
+                        </div>
+                        <span className="px-4 py-1.5 rounded-full bg-ft-teal-faint border border-ft-teal text-gold-primary text-sm font-semibold uppercase tracking-wider">
+                            {lang === "am"
+                                ? "የፊደል አስጠኚ"
+                                : "Fidel Academic Tutors"}
+                        </span>
+                    </div>
                     <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white font-ethiopic leading-snug">
                         {lang === "am"
                             ? "ዘመናዊ አካዳሚክ አስጠኚ ለልጆችዎ"
