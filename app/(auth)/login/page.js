@@ -8,7 +8,7 @@ import {
     sendPasswordResetEmail,
     signInWithEmailAndPassword,
 } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { auth, db } from "../../../src/lib/firebase";
 import { useLanguage } from "../../../src/context/LanguageContext";
 import { useAuth } from "../../../src/context/AuthContext";
@@ -20,15 +20,8 @@ export default function LoginPage() {
     const router = useRouter();
 
     // Inputs
-    const [email, setEmail] = useState("");
+    const [emailOrPhone, setEmailOrPhone] = useState("");
     const [password, setPassword] = useState("");
-
-    // Phone OTP mock flow states
-    const [isPhoneAuth, setIsPhoneAuth] = useState(false);
-    const [phoneNumber, setPhoneNumber] = useState("");
-    const [verificationCode, setVerificationCode] = useState("");
-    const [otpSent, setOtpSent] = useState(false);
-    const [mockOtp, setMockOtp] = useState("");
 
     // Statuses
     const [loading, setLoading] = useState(false);
@@ -40,7 +33,54 @@ export default function LoginPage() {
         setError("");
         setLoading(true);
         try {
-            await loginWithEmail(email, password);
+            const input = emailOrPhone.trim();
+            // Simple check: if it contains only digits, +, -, spaces, or parentheses, or doesn't have '@', we treat it as a phone number
+            const isPhone = /^[+\d\s()-]+$/.test(input) || !input.includes('@');
+            let loginEmail = input;
+            
+            if (isPhone) {
+                // Clean phone number (remove spaces, dashes, parentheses)
+                const cleanPhone = input.replace(/[^\d+]/g, "");
+                
+                // 1. Search in /students
+                const studentsQuery = query(collection(db, "students"), where("phone", "==", cleanPhone));
+                const studentDocs = await getDocs(studentsQuery);
+                let foundUid = null;
+
+                if (!studentDocs.empty) {
+                    foundUid = studentDocs.docs[0].id;
+                } else {
+                    // 2. Search in /teachers
+                    const teachersQuery = query(collection(db, "teachers"), where("phone", "==", cleanPhone));
+                    const teacherDocs = await getDocs(teachersQuery);
+                    if (!teacherDocs.empty) {
+                        foundUid = teacherDocs.docs[0].id;
+                    }
+                }
+
+                if (foundUid) {
+                    const userDocSnap = await getDoc(doc(db, "users", foundUid));
+                    if (userDocSnap.exists()) {
+                        loginEmail = userDocSnap.data().email;
+                    } else {
+                        throw new Error(
+                            lang === "am"
+                                ? "የተጠቃሚ መለያ በሲስተሙ ውስጥ አልተገኘም።"
+                                : "User profile not found in system."
+                        );
+                    }
+                } else {
+                    throw new Error(
+                        lang === "am"
+                            ? "በዚህ ስልክ ቁጥር የተመዘገበ አካውንት የለም።"
+                            : "No account found with this phone number."
+                    );
+                }
+            } else {
+                loginEmail = input.toLowerCase();
+            }
+
+            await loginWithEmail(loginEmail, password);
         } catch (err) {
             console.error("Login error:", err);
             if (
@@ -50,8 +90,8 @@ export default function LoginPage() {
             ) {
                 setError(
                     lang === "am"
-                        ? "የተሳሳተ ኢሜል ወይም የይለፍ ቃል።"
-                        : "Invalid email or password.",
+                        ? "የተሳሳተ ኢሜል/ስልክ ወይም የይለፍ ቃል።"
+                        : "Invalid email/phone or password.",
                 );
             } else if (err.code === "auth/configuration-not-found" || err.message?.includes("configuration-not-found")) {
                 setError(
@@ -80,101 +120,18 @@ export default function LoginPage() {
         }
     };
 
-    // Mock Phone OTP flow because free-tier Firebase phone OTP has billing constraints
-    const handleSendOTP = (e) => {
-        e.preventDefault();
-        if (!phoneNumber) return;
-        setLoading(true);
-
-        // Generate a random 6 digit mock code
-        const randomCode = Math.floor(
-            100000 + Math.random() * 900000,
-        ).toString();
-        setMockOtp(randomCode);
-
-        setTimeout(() => {
-            setLoading(false);
-            setOtpSent(true);
-            setSuccessMsg(
-                lang === "am"
-                    ? `የማረጋገጫ ኮድ ወደ ${phoneNumber} ተልኳል! [የሙከራ ኮድ፡ ${randomCode}]`
-                    : `Verification code sent to ${phoneNumber}! [Test Code: ${randomCode}]`,
-            );
-        }, 1200);
-    };
-
-    const handleVerifyOTP = async (e) => {
-        e.preventDefault();
-        if (!verificationCode) return;
-        setLoading(true);
-        setError("");
-
-        try {
-            if (verificationCode !== mockOtp && verificationCode !== "123456") {
-                throw new Error(t("invalidCodeError"));
-            }
-
-            // In a mock phone authentication, we simulate generating a firebase UID or logging in a generic phone user
-            const mockUid = `phone-${phoneNumber.replace(/\s+/g, "")}`;
-
-            // Check if user exists in Firestore `/users/{uid}`
-            const userDocRef = doc(db, "users", mockUid);
-            const userSnap = await getDoc(userDocRef);
-            let uProfile = null;
-
-            if (userSnap.exists()) {
-                uProfile = userSnap.data();
-            } else {
-                // Create new student profile if not exist
-                const serviceId = `SY-${Math.floor(100 + Math.random() * 900)}`;
-                uProfile = {
-                    id: mockUid,
-                    role: "student",
-                    serviceId: serviceId,
-                    serviceLine: "yeneta",
-                    email: `${phoneNumber}@arke.mock`,
-                    status: "active",
-                    createdAt: new Date(),
-                };
-                await setDoc(userDocRef, uProfile);
-
-                // Student details in /students
-                await setDoc(doc(db, "students", mockUid), {
-                    id: mockUid,
-                    fullName: `User ${phoneNumber}`,
-                    christianName: "",
-                    age: 18,
-                    gender: "male",
-                    phone: phoneNumber,
-                    locationPin: { lat: 9.03, lng: 38.74 },
-                    courseId: "meserete-imnet",
-                    assignedTeacherId: null,
-                    registrationFeePaid: true,
-                    serviceId: serviceId,
-                    serviceLine: "yeneta",
-                    dashboardLocked: false,
-                });
-            }
-
-            setProfile(uProfile);
-            setSuccessMsg(
-                lang === "am" ? "በተሳሳተ መንገድ ገብተዋል!" : "Logged in successfully!",
-            );
-
-            // Redirect
-            if (uProfile.role === "admin") router.push("/admin");
-            else if (uProfile.role === "teacher") router.push("/teacher");
-            else if (uProfile.role === "student") router.push("/student");
-        } catch (err) {
-            console.error("Phone verification error:", err);
-            setError(err.message || "OTP verification failed.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const handleForgotPassword = async () => {
-        if (!email) {
+        const input = emailOrPhone.trim();
+        const isPhone = /^[+\d\s()-]+$/.test(input) || !input.includes('@');
+        if (isPhone) {
+            setError(
+                lang === "am"
+                    ? "እባክዎ የይለፍ ቃል ለማደስ ኢሜልዎን ይጠቀሙ።"
+                    : "Please enter an email address to reset password.",
+            );
+            return;
+        }
+        if (!input) {
             setError(
                 lang === "am"
                     ? "እባክዎ መጀመሪያ የኢሜል አድራሻዎን ያስገቡ።"
@@ -186,7 +143,7 @@ export default function LoginPage() {
         setError("");
         setSuccessMsg("");
         try {
-            await sendPasswordResetEmail(auth, email);
+            await sendPasswordResetEmail(auth, input.toLowerCase());
             setSuccessMsg(
                 lang === "am"
                     ? "የይለፍ ቃል ማደሻ ሊንክ ወደ ኢሜልዎ ተልኳል!"
@@ -217,169 +174,56 @@ export default function LoginPage() {
                     </p>
                 </div>
 
-                {/* Tab selector for Email vs Phone OTP */}
-                <div className="grid grid-cols-2 gap-2 bg-navy-mid p-1 rounded-lg border border-navy-border text-xs font-semibold">
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setIsPhoneAuth(false);
-                            setError("");
-                            setSuccessMsg("");
-                        }}
-                        className={`py-2 rounded-md transition-colors ${
-                            !isPhoneAuth
-                                ? "bg-gold-primary text-navy-deep"
-                                : "text-text-secondary hover:text-white"
-                        }`}
-                    >
-                        Email Login
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setIsPhoneAuth(true);
-                            setError("");
-                            setSuccessMsg("");
-                        }}
-                        className={`py-2 rounded-md transition-colors ${
-                            isPhoneAuth
-                                ? "bg-gold-primary text-navy-deep"
-                                : "text-text-secondary hover:text-white"
-                        }`}
-                    >
-                        Phone Code (OTP)
-                    </button>
-                </div>
-
                 {/* Form Container */}
-                {!isPhoneAuth ? (
-                    /* EMAIL LOGIN FORM */
-                    <form onSubmit={handleEmailLogin} className="space-y-4">
-                        <div className="space-y-1">
-                            <label className="text-xs text-text-secondary font-semibold uppercase">
-                                Email Address
-                            </label>
-                            <input
-                                type="email"
-                                required
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="w-full px-4 py-3 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
-                            />
-                        </div>
-
-                        <div className="space-y-1">
-                            <div className="flex justify-between items-center">
-                                <label className="text-xs text-text-secondary font-semibold uppercase">
-                                    {t("passwordLabel")}
-                                </label>
-                                <button
-                                    type="button"
-                                    onClick={handleForgotPassword}
-                                    className="text-xs text-gold-primary hover:underline font-semibold"
-                                >
-                                    {t("forgotPasswordLink")}
-                                </button>
-                            </div>
-                            <input
-                                type="password"
-                                required
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full px-4 py-3 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
-                            />
-                        </div>
-
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full py-3.5 font-bold rounded-md bg-gold-primary text-navy-deep hover:bg-gold-hover shadow-gold transition-all duration-200 disabled:opacity-50 text-sm"
-                        >
-                            {loading
-                                ? lang === "am"
-                                    ? "በማረጋገጥ ላይ..."
-                                    : "Verifying..."
-                                : t("btnLoginSubmit")}
-                        </button>
-                    </form>
-                ) : (
-                    /* PHONE OTP FORM (SSR & FREE-TIER MOCK METHOD) */
-                    <div className="space-y-4">
-                        {!otpSent ? (
-                            <form
-                                onSubmit={handleSendOTP}
-                                className="space-y-4"
-                            >
-                                <div className="space-y-1">
-                                    <label className="text-xs text-text-secondary font-semibold uppercase">
-                                        {t("phoneLabel")}
-                                    </label>
-                                    <input
-                                        type="tel"
-                                        required
-                                        placeholder="0911000000"
-                                        value={phoneNumber}
-                                        onChange={(e) =>
-                                            setPhoneNumber(e.target.value)
-                                        }
-                                        className="w-full px-4 py-3 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
-                                    />
-                                </div>
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    className="w-full py-3.5 font-bold rounded-md bg-gold-primary text-navy-deep hover:bg-gold-hover shadow-gold transition-all duration-200 disabled:opacity-50 text-sm"
-                                >
-                                    {loading ? "Sending..." : t("btnSendOTP")}
-                                </button>
-                            </form>
-                        ) : (
-                            <form
-                                onSubmit={handleVerifyOTP}
-                                className="space-y-4"
-                            >
-                                <div className="space-y-1">
-                                    <label className="text-xs text-text-secondary font-semibold uppercase">
-                                        Enter 6-digit Code
-                                    </label>
-                                    <input
-                                        type="text"
-                                        required
-                                        maxLength="6"
-                                        placeholder="123456"
-                                        value={verificationCode}
-                                        onChange={(e) =>
-                                            setVerificationCode(e.target.value)
-                                        }
-                                        className="w-full px-4 py-3 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-center tracking-widest font-mono text-lg"
-                                    />
-                                </div>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setOtpSent(false);
-                                            setSuccessMsg("");
-                                            setError("");
-                                        }}
-                                        className="py-3 font-semibold rounded-md border border-navy-border text-text-secondary hover:bg-navy-mid text-xs"
-                                    >
-                                        Resend SMS
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        disabled={loading}
-                                        className="py-3 font-bold rounded-md bg-gold-primary text-navy-deep hover:bg-gold-hover shadow-gold text-xs"
-                                    >
-                                        {loading
-                                            ? "Verifying..."
-                                            : t("btnVerifyOTP")}
-                                    </button>
-                                </div>
-                            </form>
-                        )}
+                <form onSubmit={handleEmailLogin} className="space-y-4">
+                    <div className="space-y-1">
+                        <label className="text-xs text-text-secondary font-semibold uppercase">
+                            {lang === "am" ? "ኢሜል ወይም ስልክ ቁጥር" : "Email Address or Phone Number"}
+                        </label>
+                        <input
+                            type="text"
+                            required
+                            placeholder={lang === "am" ? "ኢሜል ወይም 0911000000" : "email@example.com or 0911000000"}
+                            value={emailOrPhone}
+                            onChange={(e) => setEmailOrPhone(e.target.value)}
+                            className="w-full px-4 py-3 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
+                        />
                     </div>
-                )}
+
+                    <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                            <label className="text-xs text-text-secondary font-semibold uppercase">
+                                {t("passwordLabel")}
+                            </label>
+                            <button
+                                type="button"
+                                onClick={handleForgotPassword}
+                                className="text-xs text-gold-primary hover:underline font-semibold"
+                            >
+                                {t("forgotPasswordLink")}
+                            </button>
+                        </div>
+                        <input
+                            type="password"
+                            required
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="w-full px-4 py-3 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
+                        />
+                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full py-3.5 font-bold rounded-md bg-gold-primary text-navy-deep hover:bg-gold-hover shadow-gold transition-all duration-200 disabled:opacity-50 text-sm"
+                    >
+                        {loading
+                            ? lang === "am"
+                                ? "በማረጋገጥ ላይ..."
+                                : "Verifying..."
+                            : t("btnLoginSubmit")}
+                    </button>
+                                </form>
 
                 {/* Google Continue (Unified) */}
                 <div className="relative flex py-2 items-center">
