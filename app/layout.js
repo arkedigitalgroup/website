@@ -15,12 +15,26 @@ export const viewport = {
 };
 
 export const metadata = {
-    title: "Arke Digital Learning",
+    metadataBase: new URL("https://www.arke-group.com"),
+    title: {
+        default: "Arke Digital Learning | ዕውቀት ለስኬት፣ ሥነ-ምግባር ለሕይወት",
+        template: "%s | Arke Digital Learning",
+    },
+    description:
+        "የኦርቶዶክስ መንፈሳዊና አካዳሚክ አስጠኚ — Connecting Ethiopian students with verified, church-certified tutors for Geez, Qidasse, Zema, and academic subjects.",
+    openGraph: {
+        siteName: "Arke Digital Learning",
+        locale: "am_ET",
+        alternateLocale: "en_US",
+        type: "website",
+    },
+    robots: {
+        index: true,
+        follow: true,
+    },
     icons: {
         icon: "/arkelogo.png",
     },
-    description:
-        "Bilingual (Amharic + English) Educational Platform connecting students and verified tutors in Ethiopia. Fusing Excellence with Ethics!",
 };
 
 export default function RootLayout({ children }) {
