@@ -84,6 +84,9 @@ export default function AboutPageClient() {
             <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
               {t('yenetaDesc')}
             </p>
+            {/* <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
+              {t('aboutIdentityTitleYeneta')}
+            </p> */}
           </div>
 
           {/* Fidel */}
@@ -93,6 +96,9 @@ export default function AboutPageClient() {
             </h3>
             <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
               {t('fidelDesc')}
+            </p>
+            <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
+              {t('aboutIdentityTitleFidel')}
             </p>
           </div>
 

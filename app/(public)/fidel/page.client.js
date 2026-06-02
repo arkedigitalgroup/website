@@ -97,8 +97,8 @@ export default function FidelPageClient() {
                         </div>
                         <span className="px-4 py-1.5 rounded-full bg-ft-teal-faint border border-ft-teal text-gold-primary text-sm font-semibold uppercase tracking-wider">
                             {lang === "am"
-                                ? "የፊደል አስጠኚ"
-                                : "Fidel Academic Tutors"}
+                                ? "የፊደል አስጠኚ | ለብሩህ ትውልድ፣ ብቁ አስጠኚ!"
+                                : "Fidel Academic Tutors | Quality Tutors for a Brighter Generation!"}
                         </span>
                     </div>
                     <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white font-ethiopic leading-snug">
@@ -108,13 +108,18 @@ export default function FidelPageClient() {
                     </h1>
                     <p className="text-base sm:text-xl text-text-secondary max-w-2xl mx-auto font-medium">
                         {lang === "am"
+                            ? "ትምህርት ቤቶች በብዛት ተማሪ ስለሚይዙ ለእያንዳንዱ ተማሪ ትኩረት ለመስጠት አዳጋች ሆኗል። እኛ መምህራኑን ቤት ድረስ በመላክ፣ ተማሪው በአለማዊ ትምህርቱ ውጤታማ እንዲሆን እና በሱስ እንዳይጠመድ የቅርብ ክትትል እና የምክር አገልግሎት እንሰጣለን። "
+                            : "Overcrowded schools often fail to provide individual attention. We  bring elite educators directly to your home, ensuring students excel in their secular education while receiving mentorship to stay protected from negative influences."}
+                    </p>
+                    <p className="text-sm text-gold-primary max-w-3xl mx-auto font-medium">
+                        {lang === "am"
                             ? "የክፍል ትምህርትን የሚያግዝ፣ በሂሳብ፣ ሳይንስ፣ እንግሊዝኛ እና ሌሎች ቋንቋዎች ከፍተኛ ውጤት እንዲያመጡ የሚያግዝ ብቁ የአካዳሚክ አስተማሪዎች ስብስብ።"
                             : "Secure, high-quality, in-home academic tutoring covering school curriculum, STEM subjects, and languages to boost student performance."}
                     </p>
                 </div>
             </section>
 
-            {/* Waitlist capture Form */}
+            {/* Waitlist capture Form
             <section className="max-w-3xl mx-auto px-4 relative z-10">
                 <div className="bg-navy-surface border border-navy-border rounded-2xl p-8 sm:p-12 shadow-lg relative overflow-hidden text-center space-y-6">
                     <div className="absolute top-0 left-0 w-2 h-full bg-ft-teal" />
@@ -166,15 +171,15 @@ export default function FidelPageClient() {
                         </p>
                     )}
                 </div>
-            </section>
+            </section> */}
 
             {/* Course previews (coming soon) */}
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 relative z-10 opacity-70">
                 <div className="text-center">
                     <h2 className="text-2xl font-bold text-white font-ethiopic">
                         {lang === "am"
-                            ? "የትምህርት ጥቅሎች ቅድመ-እይታ"
-                            : "Upcoming Academic Packages Preview"}
+                            ? "የትምህርት ጥቅሎች"
+                            : "Academic Packages"}
                     </h2>
                 </div>
 

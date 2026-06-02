@@ -64,20 +64,26 @@ export default function YenetaPageClient() {
                         </div>
                         <span className="px-4 py-1.5 rounded-full bg-yt-maroon-faint border border-yt-maroon text-gold-primary text-sm font-semibold uppercase tracking-wider">
                             {lang === "am"
-                                ? "የየኔታ አስጠኚ"
-                                : "Yeneta Spiritual Tutors"}
+                                ? "የየኔታ አስጠኚ | ጥበብን ከምንጩ፣ ስነ-ምግባርን ከቤቱ!"
+                                : "Yeneta Spiritual Tutors | Wisdom from the Source, Ethics from the Home!"}
                         </span>
                     </div>
                     <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white font-ethiopic leading-snug">
                         {lang === "am"
-                            ? "መንፈሳዊና ባህላዊ የቤት ውስጥ ትምህርቶች"
-                            : "Spiritual & Traditional Home Tutoring"}
+                            ? "መንፈሳዊ የቤት ውስጥ ትምህርቶች"
+                            : "Spiritual Home Tutoring"}
                     </h1>
                     <p className="text-base sm:text-xl text-text-secondary max-w-2xl mx-auto font-medium">
                         {lang === "am"
-                            ? "በቤተክርስቲያን የተመሰከረላቸውን ብቁ የኔታዎች ከተማሪዎች ጋር በማገናኘት፣ በቤቶት ሆነው ግዕዝ፣ ቅዳሴ፣ ዜማ እና ስነ-ምግባርን ያስተምሩ።"
-                            : "Empowering the next generation with deep cultural identity, liturgical chants, Ge'ez literacy, and traditional Orthodox theology from vetted tutors in your home."}
+                            ? "ልጆች በባዕድ ባህል እንዳይበከሉ መንፈሳዊ እውቀትን (ግዕዝ፣ ዜማ፣ ስነ-ምግባር) በቤታቸው እንዲማሩ በማድረግ፣ ውስጣዊ ማንነታቸውን እንዲያውቁ፣ ወላጆቻቸውን እንዲያከብሩ እና ከክፉ ድርጊቶች እንዲርቁ እናደርጋለን። "
+                            : " To prevent children from losing their roots to foreign cultural erosion, Yeneta Tutors provides spiritual and traditional wisdom (Ge’ez, Zema, and Ethics) at home. This ensures they grow up respecting their heritage and their parents."}
                     </p>
+                    <p className="text-sm text-gold-primary max-w-3xl mx-auto font-medium">
+                        {lang === "am"
+                            ? "በቤተክርስቲያን የተመሰከረላቸውን ብቁ የኔታዎች ከተማሪዎች ጋር በማገናኘት፣ በቤቶት ሆነው ግዕዝ፣ ቅዳሴ፣ ዜማ እና ስነ-ምግባርን ይማሩ።"
+                            : "Empowering the next generation with deep cultural identity, liturgical chants, Ge'ez literacy, and Orthodox theology from vetted tutors in your home."}
+                    </p>
+
                 </div>
             </section>
 

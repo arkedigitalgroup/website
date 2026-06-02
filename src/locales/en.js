@@ -22,9 +22,9 @@ export const en = {
 
     // Service Cards
     serviceTitle: "Our Services",
-    yenetaTitle: "Yeneta Tutors (Spiritual & Traditional)",
+    yenetaTitle: "Yeneta Tutors (Spiritual)",
     yenetaDesc:
-        "Teach your children traditional and spiritual values, Ge'ez language, Liturgical chants (Zema), and ethics with certified Yenetas at your home. Active Now.",
+        "Teach your children spiritual values, Ge'ez language, Liturgical chants (Zema), and ethics with certified Yenetas at your home. Active Now.",
     fidelTitle: "Fidel Tutors (Academic Tutoring)",
     fidelDesc:
         "Modern academic tutoring reinforcing school subjects, including Mathematics, Sciences, and languages. Coming Soon.",
@@ -59,20 +59,28 @@ export const en = {
 
     // About Page
     aboutTitle: "About Arke Digital",
-    aboutEssenceTitle: "The Essence of Arke",
+    aboutEssenceTitle: "The Essence and Calling of Arke",
     aboutEssenceDesc:
-        "Arke Digital is an educational platform that integrates moral ethics with modern learning. We connect students with verified tutors to preserve indigenous wisdom and achieve academic excellence.",
-    aboutBeliefTitle: "Core Belief",
+        "Arke Digital Learning is more than just an educational institution; it is a center of transformation dedicated to writing a new chapter in Ethiopia’s educational and moral landscape. The word \"Arke\" stems from the ancient Ge’ez term for \"Faithful Friend.\" In a world where the younger generation is tossed by the waves of modern distraction, our company stands as a modern \"Noah’s Ark\"—committed to rescuing knowledge and integrity from the storms of the 21st century.",
+    aboutBeliefTitle: "Our Core Belief",
     aboutBeliefDesc:
-        "Knowledge without ethics is dry and fruitless; ethics without knowledge is incomplete. True success lies in fusing both.",
+        "Knowledge for Success, Ethics for Life; Arke for the Generation!",
     aboutVisionTitle: "Vision 2035",
     aboutVisionDesc:
-        "To become the leading personalized education provider in East Africa by 2035, nurturing over 1 million ethical, high-achieving future leaders.",
+        "By 2035, our goal is to become the \"Golden Standard\" for Ethiopians at home and abroad, providing digital and physical learning experiences that build both intellect and character for thousands of young scholars, priests, and deacons.",
     aboutMissionTitle: "Mission",
     aboutMissionDesc:
-        "To harness modern technology in order to securely match qualified educators with families, maintaining complete progress transparency.",
-
-    // Yeneta Packages
+        "🫳Technological Excellence: Utilizing advanced GPS and database technology to make elite educators accessible directly to parents.\n🫳Guardian of the Generation: Actively combating addiction, moral erosion, and negative social influences through knowledge and professional guidance.🫳Economic Empowerment: Creating prestigious career opportunities and reliable income.",
+    aboutIdentityTitleYeneta: "Yeneta Tutors Identity Anchor",
+    aboutIdentityDescYeneta:
+        "To prevent children from losing their roots to foreign cultural erosion, Yeneta Tutors provides spiritual and traditional wisdom (Ge’ez, Zema, and Ethics) at home. This ensures they grow up respecting their heritage, their parents, and themselves.",   
+    aboutIdentityTitleFidel: "Fidel Tutors Identity Anchor",
+    aboutIdentityDescFidel:
+        "Fidel Tutors, a flagship project under Arke Group, serves as a technologically advanced educational bridge designed to elevate learning standards in Ethiopia while creating prestigious career opportunities for young graduates.",
+    
+    
+    
+        // Yeneta Packages
     yenetaPackagesTitle: "Yeneta Tutors Course Packages",
     yenetaPackagesSub:
         "Select the perfect package for your child. Prices shown represent the total monthly cost (including the 100 ETB service fee).",

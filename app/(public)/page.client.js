@@ -340,10 +340,10 @@ export default function HomePageClient() {
             </section>
 
             {/* 5. Founders' Brotherhood Section */}
-            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-20">
-                <div className="glass-panel rounded-3xl p-8 sm:p-16 max-w-4xl mx-auto relative overflow-hidden border border-navy-border/60 shadow-xl hover:border-gold-primary/30 transition-all duration-300">
+            {/* <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-20">
+                <div className="glass-panel rounded-3xl p-8 sm:p-16 max-w-4xl mx-auto relative overflow-hidden border border-navy-border/60 shadow-xl hover:border-gold-primary/30 transition-all duration-300"> */}
                     {/* Subtle gold glow behind */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gold-faint rounded-full filter blur-[80px] pointer-events-none" />
+                    {/* <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gold-faint rounded-full filter blur-[80px] pointer-events-none" />
 
                     <div className="relative z-10 space-y-8">
                         <div className="space-y-3">
@@ -366,9 +366,9 @@ export default function HomePageClient() {
                                 {lang === "am" ? "ዮናስ" : "Yonas"}
                             </span>
                         </div>
-                    </div>
-                </div>
-            </section>
+                    </div> */}
+                {/* </div> */}
+            {/* </section> */}
         </div>
     );
 }
