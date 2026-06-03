@@ -10,12 +10,13 @@ import {
     collection,
     updateDoc,
 } from "firebase/firestore";
-import { db } from "../../../src/lib/firebase";
+import { db, auth } from "../../../src/lib/firebase";
 import { useAuth } from "../../../src/context/AuthContext";
 import { useLanguage } from "../../../src/context/LanguageContext";
+import { sendEmailVerification } from "firebase/auth";
 
 export default function StudentHome() {
-    const { user } = useAuth();
+    const { user, profile } = useAuth();
     const { t, lang } = useLanguage();
 
     const [student, setStudent] = useState(null);
@@ -107,6 +108,75 @@ export default function StudentHome() {
                 <p className="text-text-secondary text-sm animate-pulse">
                     Loading parent/student dashboard...
                 </p>
+            </div>
+        );
+    }
+
+    // Firebase Email Verification Check
+    if (user && !user.emailVerified) {
+        return (
+            <div className="min-h-[80vh] flex items-center justify-center p-4">
+                <div className="max-w-xl w-full bg-navy-surface border border-gold-primary/30 rounded-2xl p-8 sm:p-12 shadow-2xl space-y-6 relative overflow-hidden text-center">
+                    <div className="absolute top-0 left-0 w-full h-2 bg-gold-primary" />
+                    <span className="text-5xl block animate-pulse">📧</span>
+                    <h1 className="text-2xl sm:text-3xl font-extrabold text-gold-primary font-ethiopic">
+                        {lang === "am" ? "እባክዎ ኢሜልዎን ያረጋግጡ" : "Verify Your Email Address"}
+                    </h1>
+                    <p className="text-sm text-text-secondary leading-relaxed">
+                        {lang === "am"
+                            ? `ወደ ኢሜልዎ (${user.email}) ማረጋገጫ ሊንክ ልከናል። እባክዎ ኢሜልዎን ያረጋግጡ።`
+                            : `We have sent a verification link to your email (${user.email}). Please verify your email to access your dashboard.`}
+                    </p>
+                    <div className="pt-4 flex flex-col sm:flex-row justify-center gap-3">
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="px-6 py-2.5 rounded bg-gold-primary text-navy-deep font-bold text-sm hover:bg-gold-hover shadow-gold transition-all"
+                        >
+                            {lang === "am" ? "አረጋግጫለሁ (እንደገና ጫን)" : "I've Verified (Refresh)"}
+                        </button>
+                        <button
+                            onClick={async () => {
+                                try {
+                                    await sendEmailVerification(user);
+                                    alert(lang === "am" ? "የማረጋገጫ ኢሜል ተልኳል!" : "Verification email sent!");
+                                } catch (e) {
+                                    console.error(e);
+                                }
+                            }}
+                            className="px-6 py-2.5 rounded border border-navy-border text-white font-bold text-sm hover:bg-navy-mid transition-all"
+                        >
+                            {lang === "am" ? "ድጋሚ ላክ" : "Resend Email"}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Verification status check
+    if (profile?.status !== "active") {
+        return (
+            <div className="min-h-[80vh] flex items-center justify-center p-4">
+                <div className="max-w-xl w-full bg-navy-surface border border-gold-primary/30 rounded-2xl p-8 sm:p-12 shadow-2xl space-y-6 relative overflow-hidden text-center">
+                    <div className="absolute top-0 left-0 w-full h-2 bg-gold-primary" />
+                    <span className="text-5xl block animate-pulse">⏳</span>
+                    <h1 className="text-2xl sm:text-3xl font-extrabold text-gold-primary font-ethiopic">
+                        {lang === "am" ? "የመለያ ማረጋገጫ በመጠባበቅ ላይ" : "Account Verification Pending"}
+                    </h1>
+                    <p className="text-sm text-text-secondary leading-relaxed">
+                        {lang === "am"
+                            ? "የመለያዎ ምዝገባ በመታየት ላይ ነው። በአስተዳዳሪው ሲፈቀድ መግባት ይችላሉ።"
+                            : "Your parent/student registration is currently being processed. Access will be granted once your account status is activated by the admin."}
+                    </p>
+                    <div className="pt-4">
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="px-6 py-2.5 rounded bg-gold-primary text-navy-deep font-bold text-xs hover:bg-gold-hover shadow-gold transition-all"
+                        >
+                            {lang === "am" ? "እንደገና ጫን" : "Refresh Status"}
+                        </button>
+                    </div>
+                </div>
             </div>
         );
     }

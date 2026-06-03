@@ -66,8 +66,8 @@ export default function RegisterPage() {
                 : selectedLine === "yeneta"
                   ? "SY"
                   : "SF";
-        const randomNum = Math.floor(100 + Math.random() * 900);
-        return `${prefix}-${randomNum}`;
+
+        return `${prefix}-${uid.slice(0, 6).toUpperCase()}`;
     };
 
     const handleRegister = async (e) => {
@@ -205,7 +205,10 @@ export default function RegisterPage() {
                         ? "ይህ ኢሜል ቀደም ሲል በሌላ ሰው ተመዝግቧል።"
                         : "This email is already in use.",
                 );
-            } else if (err.code === "auth/configuration-not-found" || err.message?.includes("configuration-not-found")) {
+            } else if (
+                err.code === "auth/configuration-not-found" ||
+                err.message?.includes("configuration-not-found")
+            ) {
                 setError(
                     lang === "am"
                         ? "የኢሜል/ይለፍ ቃል አገልግሎት በFirebase አልነቃም። እባክዎ Firebase Console → Authentication → Sign-in method ውስጥ 'Email/Password' ያብሩ።"
@@ -228,363 +231,392 @@ export default function RegisterPage() {
             <AuthNavbar />
             <div className="flex-grow py-12 px-4 flex items-center justify-center">
                 <div className="max-w-xl w-full bg-navy-surface border border-navy-border rounded-2xl p-8 sm:p-12 shadow-lg space-y-6 relative overflow-hidden">
-                {/* Branding badge top */}
-                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-yt-maroon to-ft-teal" />
+                    {/* Branding badge top */}
+                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-yt-maroon to-ft-teal" />
 
-                <div className="text-center space-y-2">
-                    <h1 className="text-3xl font-extrabold text-gold-primary font-ethiopic leading-snug">
-                        {t("registerTitle")}
-                    </h1>
-                    <p className="text-sm text-text-secondary">
-                        {t("registerSub")}
-                    </p>
-                </div>
-
-                {/* Form selection tabs */}
-                <div className="grid grid-cols-2 gap-2 bg-navy-mid p-1 rounded-lg border border-navy-border">
-                    <button
-                        type="button"
-                        onClick={() => setRole("student")}
-                        className={`py-2 text-sm font-semibold rounded-md transition-colors ${
-                            role === "student"
-                                ? "bg-gold-primary text-navy-deep"
-                                : "text-text-secondary hover:text-white"
-                        }`}
-                    >
-                        {t("studentRole")}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => setRole("teacher")}
-                        className={`py-2 text-sm font-semibold rounded-md transition-colors ${
-                            role === "teacher"
-                                ? "bg-gold-primary text-navy-deep"
-                                : "text-text-secondary hover:text-white"
-                        }`}
-                    >
-                        {t("teacherRole")}
-                    </button>
-                </div>
-
-                <form onSubmit={handleRegister} className="space-y-4">
-                    {/* General Fields: Full Name & Christian Name */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                            <label className="text-xs text-text-secondary font-semibold uppercase">
-                                {t("fullNameLabel")}
-                            </label>
-                            <input
-                                type="text"
-                                required
-                                value={fullName}
-                                onChange={(e) => setFullName(e.target.value)}
-                                className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
-                            />
-                        </div>
-                        <div className="space-y-1">
-                            <label className="text-xs text-text-secondary font-semibold uppercase">
-                                {t("christianNameLabel")}
-                            </label>
-                            <input
-                                type="text"
-                                required
-                                value={christianName}
-                                onChange={(e) =>
-                                    setChristianName(e.target.value)
-                                }
-                                className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Email & Password */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                            <label className="text-xs text-text-secondary font-semibold uppercase">
-                                {lang === "am" ? "ኢሜል" : "Email Address"}
-                            </label>
-                            <input
-                                type="email"
-                                required
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
-                            />
-                        </div>
-                        <div className="space-y-1">
-                            <label className="text-xs text-text-secondary font-semibold uppercase">
-                                {t("passwordLabel")}
-                            </label>
-                            <input
-                                type="password"
-                                required
-                                minLength="8"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Gender & Phone */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                            <label className="text-xs text-text-secondary font-semibold uppercase">
-                                {t("genderLabel")}
-                            </label>
-                            <select
-                                value={gender}
-                                onChange={(e) => setGender(e.target.value)}
-                                className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
-                            >
-                                <option value="male">{t("maleOpt")}</option>
-                                <option value="female">{t("femaleOpt")}</option>
-                            </select>
-                        </div>
-                        <div className="space-y-1">
-                            <label className="text-xs text-text-secondary font-semibold uppercase">
-                                {t("phoneLabel")}
-                            </label>
-                            <input
-                                type="tel"
-                                required
-                                value={phone}
-                                onChange={(e) => setPhone(e.target.value)}
-                                placeholder="0911000000"
-                                className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Service Line Toggle for Teacher / Student */}
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1 col-span-2">
-                            <label className="text-xs text-text-secondary font-semibold uppercase block">
-                                Service Line
-                            </label>
-                            <div className="flex gap-4">
-                                <label className="flex items-center space-x-2 text-sm cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        name="serviceLine"
-                                        value="yeneta"
-                                        checked={serviceLine === "yeneta"}
-                                        onChange={() =>
-                                            setServiceLine("yeneta")
-                                        }
-                                        className="accent-gold-primary"
-                                    />
-                                    <span>Yeneta Brand (Spiritual)</span>
-                                </label>
-                                <label className="flex items-center space-x-2 text-sm cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        name="serviceLine"
-                                        value="fidel"
-                                        checked={serviceLine === "fidel"}
-                                        onChange={() => setServiceLine("fidel")}
-                                        className="accent-gold-primary"
-                                    />
-                                    <span>Fidel Brand (Academic)</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* STUDENT FORM SPECIFIC */}
-                    {role === "student" && (
-                        <div className="space-y-4 pt-2 border-t border-navy-border">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="space-y-1">
-                                    <label className="text-xs text-text-secondary font-semibold uppercase">
-                                        {t("ageLabel")}
-                                    </label>
-                                    <input
-                                        type="number"
-                                        min="4"
-                                        max="99"
-                                        required
-                                        value={age}
-                                        onChange={(e) => setAge(e.target.value)}
-                                        className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
-                                    />
-                                </div>
-
-                                {/* Course Pack selection */}
-                                <div className="space-y-1">
-                                    <label className="text-xs text-text-secondary font-semibold uppercase">
-                                        {lang === "am"
-                                            ? "የትምህርት ጥቅል"
-                                            : "Course package"}
-                                    </label>
-                                    <select
-                                        value={courseId}
-                                        onChange={(e) =>
-                                            setCourseId(e.target.value)
-                                        }
-                                        className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
-                                    >
-                                        <option value="meserete-imnet">
-                                            {t("package1")} (4,200 ETB)
-                                        </option>
-                                        <option value="quanquanna-zema">
-                                            {t("package2")} (4,200 ETB)
-                                        </option>
-                                        <option value="diquna-zegajat">
-                                            {t("package3")} (4,700 ETB)
-                                        </option>
-                                        <option value="all-courses">
-                                            {t("package4")} (7,100 ETB)
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            {/* Registration Fee Payment Overlay */}
-                            <div className="bg-navy-mid border border-gold-primary/30 p-4 rounded-xl space-y-2">
-                                <div className="flex justify-between items-center text-sm">
-                                    <span className="font-semibold text-white">
-                                        {lang === "am"
-                                            ? "የምዝገባ ክፍያ"
-                                            : "Registration Fee"}
-                                    </span>
-                                    <span className="font-extrabold text-gold-primary">
-                                        400 ETB
-                                    </span>
-                                </div>
-                                <p className="text-xs text-text-secondary">
-                                    {lang === "am"
-                                        ? "አካውንት ለመክፈት አንድ ጊዜ ብቻ የሚከፈል የምዝገባ ክፍያ ነው። ለሙከራ እንዲመች አሁን በራስ-ሰር ተከፍሏል ተብሎ ይመዘገባል።"
-                                        : "This is a one-time registration fee required to activate student profiles. Mock payment is automatically authorized."}
-                                </p>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* TEACHER FORM SPECIFIC */}
-                    {role === "teacher" && (
-                        <div className="space-y-4 pt-2 border-t border-navy-border">
-                            {/* Profile Photo & Church Doc */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="space-y-1">
-                                    <label className="text-xs text-text-secondary font-semibold uppercase">
-                                        {lang === "am"
-                                            ? "የፎቶ ምስል (JPG)"
-                                            : "Profile Photo (JPG)"}
-                                    </label>
-                                    <input
-                                        type="file"
-                                        accept="image/jpeg,image/png"
-                                        onChange={(e) =>
-                                            setProfilePhoto(e.target.files[0])
-                                        }
-                                        className="w-full text-xs text-text-secondary border border-navy-border rounded bg-navy-mid px-2 py-1.5 focus:outline-none"
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-xs text-text-secondary font-semibold uppercase">
-                                        {t("churchDocLabel")}
-                                    </label>
-                                    <input
-                                        type="file"
-                                        accept="application/pdf"
-                                        onChange={(e) =>
-                                            setChurchDoc(e.target.files[0])
-                                        }
-                                        className="w-full text-xs text-text-secondary border border-navy-border rounded bg-navy-mid px-2 py-1.5 focus:outline-none"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Bank Provider & Account */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="space-y-1">
-                                    <label className="text-xs text-text-secondary font-semibold uppercase">
-                                        {t("bankNameLabel")}
-                                    </label>
-                                    <select
-                                        value={bankProvider}
-                                        onChange={(e) =>
-                                            setBankProvider(e.target.value)
-                                        }
-                                        className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
-                                    >
-                                        <option value="CBE">
-                                            Commercial Bank of Ethiopia (CBE)
-                                        </option>
-                                        <option value="BOA">
-                                            Bank of Abyssinia (BOA)
-                                        </option>
-                                        <option value="Telebirr">
-                                            Telebirr Wallet
-                                        </option>
-                                    </select>
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-xs text-text-secondary font-semibold uppercase">
-                                        {t("bankAccountLabel")}
-                                    </label>
-                                    <input
-                                        type="text"
-                                        required
-                                        value={bankAccount}
-                                        onChange={(e) =>
-                                            setBankAccount(e.target.value)
-                                        }
-                                        className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Location Pin Picker */}
-                    <div className="pt-2 border-t border-navy-border">
-                        <MapPicker
-                            value={locationPin}
-                            onChange={setLocationPin}
-                            label={t("locationLabel")}
-                        />
-                    </div>
-
-                    {/* Error Message */}
-                    {error && (
-                        <p className="text-error text-xs font-semibold bg-error-faint p-2.5 rounded border border-error">
-                            ❌ {error}
+                    <div className="text-center space-y-2">
+                        <h1 className="text-3xl font-extrabold text-gold-primary font-ethiopic leading-snug">
+                            {t("registerTitle")}
+                        </h1>
+                        <p className="text-sm text-text-secondary">
+                            {t("registerSub")}
                         </p>
-                    )}
+                    </div>
 
-                    {/* Upload Status */}
-                    {uploadStatus && (
-                        <p className="text-gold-primary text-xs font-semibold animate-pulse text-center">
-                            ⏳ {uploadStatus}
-                        </p>
-                    )}
-
-                    {/* Submit button */}
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full py-4 font-bold rounded-md bg-gold-primary text-navy-deep hover:bg-gold-hover shadow-gold hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-50 text-sm"
-                    >
-                        {loading
-                            ? lang === "am"
-                                ? "በመመዝገብ ላይ..."
-                                : "Registering..."
-                            : t("btnRegisterSubmit")}
-                    </button>
-
-                    <div className="text-center pt-2 text-xs">
-                        <Link
-                            href="/login"
-                            className="text-gold-primary hover:underline font-semibold"
+                    {/* Form selection tabs */}
+                    <div className="grid grid-cols-2 gap-2 bg-navy-mid p-1 rounded-lg border border-navy-border">
+                        <button
+                            type="button"
+                            onClick={() => setRole("student")}
+                            className={`py-2 text-sm font-semibold rounded-md transition-colors ${
+                                role === "student"
+                                    ? "bg-gold-primary text-navy-deep"
+                                    : "text-text-secondary hover:text-white"
+                            }`}
                         >
-                            {t("alreadyHaveAccount")}
-                        </Link>
+                            {t("studentRole")}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setRole("teacher")}
+                            className={`py-2 text-sm font-semibold rounded-md transition-colors ${
+                                role === "teacher"
+                                    ? "bg-gold-primary text-navy-deep"
+                                    : "text-text-secondary hover:text-white"
+                            }`}
+                        >
+                            {t("teacherRole")}
+                        </button>
                     </div>
-                </form>
+
+                    <form onSubmit={handleRegister} className="space-y-4">
+                        {/* General Fields: Full Name & Christian Name */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                                <label className="text-xs text-text-secondary font-semibold uppercase">
+                                    {t("fullNameLabel")}
+                                </label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={fullName}
+                                    onChange={(e) =>
+                                        setFullName(e.target.value)
+                                    }
+                                    className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-xs text-text-secondary font-semibold uppercase">
+                                    {t("christianNameLabel")}
+                                </label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={christianName}
+                                    onChange={(e) =>
+                                        setChristianName(e.target.value)
+                                    }
+                                    className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Email & Password */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                                <label className="text-xs text-text-secondary font-semibold uppercase">
+                                    {lang === "am" ? "ኢሜል" : "Email Address"}
+                                </label>
+                                <input
+                                    type="email"
+                                    required
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-xs text-text-secondary font-semibold uppercase">
+                                    {t("passwordLabel")}
+                                </label>
+                                <input
+                                    type="password"
+                                    required
+                                    minLength="8"
+                                    value={password}
+                                    onChange={(e) =>
+                                        setPassword(e.target.value)
+                                    }
+                                    className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Gender & Phone */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                                <label className="text-xs text-text-secondary font-semibold uppercase">
+                                    {t("genderLabel")}
+                                </label>
+                                <select
+                                    value={gender}
+                                    onChange={(e) => setGender(e.target.value)}
+                                    className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
+                                >
+                                    <option value="male">{t("maleOpt")}</option>
+                                    <option value="female">
+                                        {t("femaleOpt")}
+                                    </option>
+                                </select>
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-xs text-text-secondary font-semibold uppercase">
+                                    {t("phoneLabel")}
+                                </label>
+                                <input
+                                    type="tel"
+                                    required
+                                    value={phone}
+                                    onChange={(e) => setPhone(e.target.value)}
+                                    placeholder="0911000000"
+                                    className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Service Line Toggle for Teacher / Student */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1 col-span-2">
+                                <label className="text-xs text-text-secondary font-semibold uppercase block">
+                                    Service Line
+                                </label>
+                                <div className="flex gap-4">
+                                    <label className="flex items-center space-x-2 text-sm cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="serviceLine"
+                                            value="yeneta"
+                                            checked={serviceLine === "yeneta"}
+                                            onChange={() =>
+                                                setServiceLine("yeneta")
+                                            }
+                                            className="accent-gold-primary"
+                                        />
+                                        <span>Yeneta Brand (Spiritual)</span>
+                                    </label>
+                                    <label className="flex items-center space-x-2 text-sm cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="serviceLine"
+                                            value="fidel"
+                                            checked={serviceLine === "fidel"}
+                                            onChange={() =>
+                                                setServiceLine("fidel")
+                                            }
+                                            className="accent-gold-primary"
+                                        />
+                                        <span>Fidel Brand (Academic)</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* STUDENT FORM SPECIFIC */}
+                        {role === "student" && (
+                            <div className="space-y-4 pt-2 border-t border-navy-border">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="space-y-1">
+                                        <label className="text-xs text-text-secondary font-semibold uppercase">
+                                            {t("ageLabel")}
+                                        </label>
+                                        <input
+                                            type="number"
+                                            min="4"
+                                            max="99"
+                                            required
+                                            value={age}
+                                            onChange={(e) =>
+                                                setAge(e.target.value)
+                                            }
+                                            className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
+                                        />
+                                    </div>
+
+                                    {/* Course Pack selection */}
+                                    <div className="space-y-1">
+                                        <label className="text-xs text-text-secondary font-semibold uppercase">
+                                            {lang === "am"
+                                                ? "የትምህርት ጥቅል"
+                                                : "Course package"}
+                                        </label>
+                                        <select
+                                            value={courseId}
+                                            onChange={(e) =>
+                                                setCourseId(e.target.value)
+                                            }
+                                            className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
+                                        >
+                                            <option value="meserete-imnet">
+                                                {t("package1")}
+                                            </option>
+                                            <option value="quanquanna-zema">
+                                                {t("package2")}
+                                            </option>
+                                            <option value="diquna-zegajat">
+                                                {t("package3")}
+                                            </option>
+                                            <option value="begena">
+                                                {t("package5")}
+                                            </option>
+                                            <option value="all-courses">
+                                                {t("package4")}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {/* Registration Fee Payment Overlay */}
+                                <div className="bg-navy-mid border border-gold-primary/30 p-4 rounded-xl space-y-2">
+                                    <div className="flex justify-between items-center text-sm">
+                                        <span className="font-semibold text-white">
+                                            {lang === "am"
+                                                ? "የምዝገባ ክፍያ"
+                                                : "Registration Fee"}
+                                        </span>
+                                        <span className="font-extrabold text-gold-primary">
+                                            400 ETB
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-text-secondary">
+                                        {lang === "am"
+                                            ? "አካውንት ለመክፈት አንድ ጊዜ ብቻ የሚከፈል የምዝገባ ክፍያ ነው። ለሙከራ እንዲመች አሁን በራስ-ሰር ተከፍሏል ተብሎ ይመዘገባል።"
+                                            : "This is a one-time registration fee required to activate student profiles. Mock payment is automatically authorized."}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* TEACHER FORM SPECIFIC */}
+                        {role === "teacher" && (
+                            <div className="space-y-4 pt-2 border-t border-navy-border">
+                                {/* Profile Photo & Church Doc */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="space-y-1">
+                                        <label className="text-xs text-text-secondary font-semibold uppercase">
+                                            {lang === "am"
+                                                ? "የፎቶ ምስል (JPG)"
+                                                : "Profile Photo (JPG)"}
+                                        </label>
+                                        <input
+                                            type="file"
+                                            accept="image/jpeg,image/png"
+                                            onChange={(e) =>
+                                                setProfilePhoto(
+                                                    e.target.files[0],
+                                                )
+                                            }
+                                            className="w-full text-xs text-text-secondary border border-navy-border rounded bg-navy-mid px-2 py-1.5 focus:outline-none"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-xs text-text-secondary font-semibold uppercase">
+                                            {t("churchDocLabel")}
+                                        </label>
+                                        <input
+                                            type="file"
+                                            accept="application/pdf"
+                                            onChange={(e) =>
+                                                setChurchDoc(e.target.files[0])
+                                            }
+                                            className="w-full text-xs text-text-secondary border border-navy-border rounded bg-navy-mid px-2 py-1.5 focus:outline-none"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-xs text-text-secondary font-semibold uppercase">
+                                            {t("kebeleId")}
+                                        </label>
+                                        <input
+                                            type="file"
+                                            accept="application/pdf"
+                                            onChange={(e) =>
+                                                setChurchDoc(e.target.files[0])
+                                            }
+                                            className="w-full text-xs text-text-secondary border border-navy-border rounded bg-navy-mid px-2 py-1.5 focus:outline-none"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Bank Provider & Account */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="space-y-1">
+                                        <label className="text-xs text-text-secondary font-semibold uppercase">
+                                            {t("bankNameLabel")}
+                                        </label>
+                                        <select
+                                            value={bankProvider}
+                                            onChange={(e) =>
+                                                setBankProvider(e.target.value)
+                                            }
+                                            className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
+                                        >
+                                            <option value="CBE">
+                                                Commercial Bank of Ethiopia
+                                                (CBE)
+                                            </option>
+                                            <option value="BOA">
+                                                Bank of Abyssinia (BOA)
+                                            </option>
+                                            <option value="Telebirr">
+                                                Telebirr Wallet
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-xs text-text-secondary font-semibold uppercase">
+                                            {t("bankAccountLabel")}
+                                        </label>
+                                        <input
+                                            type="text"
+                                            required
+                                            value={bankAccount}
+                                            onChange={(e) =>
+                                                setBankAccount(e.target.value)
+                                            }
+                                            className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Location Pin Picker */}
+                        <div className="pt-2 border-t border-navy-border">
+                            <MapPicker
+                                value={locationPin}
+                                onChange={setLocationPin}
+                                label={t("locationLabel")}
+                            />
+                        </div>
+
+                        {/* Error Message */}
+                        {error && (
+                            <p className="text-error text-xs font-semibold bg-error-faint p-2.5 rounded border border-error">
+                                ❌ {error}
+                            </p>
+                        )}
+
+                        {/* Upload Status */}
+                        {uploadStatus && (
+                            <p className="text-gold-primary text-xs font-semibold animate-pulse text-center">
+                                ⏳ {uploadStatus}
+                            </p>
+                        )}
+
+                        {/* Submit button */}
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full py-4 font-bold rounded-md bg-gold-primary text-navy-deep hover:bg-gold-hover shadow-gold hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-50 text-sm"
+                        >
+                            {loading
+                                ? lang === "am"
+                                    ? "በመመዝገብ ላይ..."
+                                    : "Registering..."
+                                : t("btnRegisterSubmit")}
+                        </button>
+
+                        <div className="text-center pt-2 text-xs">
+                            <Link
+                                href="/login"
+                                className="text-gold-primary hover:underline font-semibold"
+                            >
+                                {t("alreadyHaveAccount")}
+                            </Link>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
     );
 }

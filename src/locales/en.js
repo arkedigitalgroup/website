@@ -61,26 +61,24 @@ export const en = {
     aboutTitle: "About Arke Digital",
     aboutEssenceTitle: "The Essence and Calling of Arke",
     aboutEssenceDesc:
-        "Arke Digital Learning is more than just an educational institution; it is a center of transformation dedicated to writing a new chapter in Ethiopia’s educational and moral landscape. The word \"Arke\" stems from the ancient Ge’ez term for \"Faithful Friend.\" In a world where the younger generation is tossed by the waves of modern distraction, our company stands as a modern \"Noah’s Ark\"—committed to rescuing knowledge and integrity from the storms of the 21st century.",
+        'Arke Digital Learning is more than just an educational institution; it is a center of transformation dedicated to writing a new chapter in Ethiopia’s educational and moral landscape. The word "Arke" stems from the ancient Ge’ez term for "Faithful Friend." In a world where the younger generation is tossed by the waves of modern distraction, our company stands as a modern "Noah’s Ark"—committed to rescuing knowledge and integrity from the storms of the 21st century.',
     aboutBeliefTitle: "Our Core Belief",
     aboutBeliefDesc:
         "Knowledge for Success, Ethics for Life; Arke for the Generation!",
     aboutVisionTitle: "Vision 2035",
     aboutVisionDesc:
-        "By 2035, our goal is to become the \"Golden Standard\" for Ethiopians at home and abroad, providing digital and physical learning experiences that build both intellect and character for thousands of young scholars, priests, and deacons.",
+        'By 2035, our goal is to become the "Golden Standard" for Ethiopians at home and abroad, providing digital and physical learning experiences that build both intellect and character for thousands of young scholars, priests, and deacons.',
     aboutMissionTitle: "Mission",
     aboutMissionDesc:
         "🫳Technological Excellence: Utilizing advanced GPS and database technology to make elite educators accessible directly to parents.\n🫳Guardian of the Generation: Actively combating addiction, moral erosion, and negative social influences through knowledge and professional guidance.🫳Economic Empowerment: Creating prestigious career opportunities and reliable income.",
     aboutIdentityTitleYeneta: "Yeneta Tutors Identity Anchor",
     aboutIdentityDescYeneta:
-        "To prevent children from losing their roots to foreign cultural erosion, Yeneta Tutors provides spiritual and traditional wisdom (Ge’ez, Zema, and Ethics) at home. This ensures they grow up respecting their heritage, their parents, and themselves.",   
+        "To prevent children from losing their roots to foreign cultural erosion, Yeneta Tutors provides spiritual and traditional wisdom (Ge’ez, Zema, and Ethics) at home. This ensures they grow up respecting their heritage, their parents, and themselves.",
     aboutIdentityTitleFidel: "Fidel Tutors Identity Anchor",
     aboutIdentityDescFidel:
         "Fidel Tutors, a flagship project under Arke Group, serves as a technologically advanced educational bridge designed to elevate learning standards in Ethiopia while creating prestigious career opportunities for young graduates.",
-    
-    
-    
-        // Yeneta Packages
+
+    // Yeneta Packages
     yenetaPackagesTitle: "Yeneta Tutors Course Packages",
     yenetaPackagesSub:
         "Select the perfect package for your child. Prices shown represent the total monthly cost (including the 100 ETB service fee).",
@@ -131,6 +129,16 @@ export const en = {
         "Church service system knowledge – complete instruction within both packages",
         "Practical systems for daily spiritual life – spiritual practices and exercises",
     ],
+    package5: "Begena Tutoring Course",
+    package5Desc:
+        "The Begena is more than an instrument; it is a companion for prayer, a healing melody for the soul, and a profound pillar of the Ethiopian Orthodox Tewahedo Church. At Yeneta, we guide students to master the art of the Begena, blending skill, rhythm, and spiritual depth.",
+    package5Syllabus: [
+        "Foundations of Begena: History of the Begena, the spiritual significance of King David’s Harp, and the sacred symbolism of the instrument's anatomy.",
+        "Tuning & Technique: Mastering tonal quality, precise tuning, and proper finger positioning techniques.",
+        "Melodic Mastery: Developing finger dexterity, fundamental melodic building blocks, and the art of sound coordination.",
+        "Hymns & Liturgical Chants: Playing the Psalms of David, traditional church chants, and learning to accompany the liturgy (Qidase) with the Begena.",
+        "Advanced Expressive Harmony: Expressing emotions through melody (gratitude, joy, contemplation) and harmonizing personal vocal chants with the Begena for a complete spiritual performance.",
+    ],
 
     // Fidel waitlist
     fidelWaitlistTitle: "Fidel Academic Tutors",
@@ -167,7 +175,8 @@ export const en = {
     ageLabel: "Age",
     locationLabel: "Location Pin",
     locationPickerBtn: "Pin My Current Location",
-    churchDocLabel: "Church Recommendation Letter (PDF)",
+    churchDocLabel: "Educational Credentials (PDF)",
+    kebeleId: "Identification Card",
     bankNameLabel: "Bank Provider",
     bankAccountLabel: "Bank Account Number",
     passwordLabel: "Password",
