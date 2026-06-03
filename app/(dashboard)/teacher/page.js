@@ -82,6 +82,54 @@ export default function TeacherHome() {
     );
   }
 
+  // Phone Verification Check
+  if (user && !user.phoneNumber) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center p-4">
+        <div className="max-w-xl w-full bg-navy-surface border border-gold-primary/30 rounded-2xl p-8 sm:p-12 shadow-2xl space-y-6 relative overflow-hidden text-center">
+          <div className="absolute top-0 left-0 w-full h-2 bg-gold-primary" />
+          <span className="text-5xl block animate-pulse">📱</span>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-gold-primary font-ethiopic">
+            {lang === "am" ? "የስልክ ቁጥር ማረጋገጫ ያስፈልጋል" : "Phone Verification Required"}
+          </h1>
+          <p className="text-sm text-text-secondary leading-relaxed">
+            {lang === "am"
+              ? "የአስተማሪ መለያ ለመጠቀም ስልክ ቁጥርዎ መረጋገጥ አለበት።"
+              : "Your phone number must be verified to access the teacher dashboard."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Verification status check
+  if (profile?.status !== "active") {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center p-4">
+        <div className="max-w-xl w-full bg-navy-surface border border-gold-primary/30 rounded-2xl p-8 sm:p-12 shadow-2xl space-y-6 relative overflow-hidden text-center">
+          <div className="absolute top-0 left-0 w-full h-2 bg-gold-primary" />
+          <span className="text-5xl block animate-pulse">⏳</span>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-gold-primary font-ethiopic">
+            {lang === "am" ? "የመለያ ማረጋገጫ በመጠባበቅ ላይ" : "Account Verification Pending"}
+          </h1>
+          <p className="text-sm text-text-secondary leading-relaxed">
+            {lang === "am"
+              ? "የኔታ አስተማሪ መለያዎ በአድሚን እየተገመገመ ነው። እባክዎ በትዕግስት ይጠብቁ፤ መለያዎ ሲረጋገጥ በኤስኤምኤስ እናሳውቅዎታለን።"
+              : "Your Arke teacher account is currently under review by our administration team. We will notify you via SMS once your verification is complete."}
+          </p>
+          <div className="pt-4">
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-2.5 rounded bg-gold-primary text-navy-deep font-bold text-xs hover:bg-gold-hover shadow-gold transition-all"
+            >
+              {lang === "am" ? "እንደገና ጫን" : "Refresh Status"}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       
