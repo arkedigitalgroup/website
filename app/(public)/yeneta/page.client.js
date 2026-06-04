@@ -4,47 +4,11 @@
 import React from "react";
 import Link from "next/link";
 import { useLanguage } from "../../../src/context/LanguageContext";
+import { getYenetaCourses } from "../../../assets/yenetaCourse";
 
 export default function YenetaPageClient() {
     const { t, lang } = useLanguage();
-
-    const packages = [
-        {
-            id: "meserete-imnet",
-            name: t("package1"),
-            desc: t("package1Desc"),
-            syllabus: t("package1Syllabus"),
-            price: 4199,
-        },
-        {
-            id: "quanquanna-zema",
-            name: t("package2"),
-            desc: t("package2Desc"),
-            syllabus: t("package2Syllabus"),
-            price: 5499,
-        },
-        {
-            id: "diquna-zegajat",
-            name: t("package3"),
-            desc: t("package3Desc"),
-            syllabus: t("package3Syllabus"),
-            price: 5999,
-        },
-        {
-            id: "begena",
-            name: t("package5"),
-            desc: t("package5Desc"),
-            syllabus: t("package5Syllabus"),
-            price: 6099,
-        },
-        {
-            id: "all-courses",
-            name: t("package4"),
-            desc: t("package4Desc"),
-            syllabus: t("package4Syllabus"),
-            price: 7999,
-        },
-    ];
+    const packages = getYenetaCourses(t);
 
     return (
         <div className="space-y-16 pb-20">
@@ -101,6 +65,9 @@ export default function YenetaPageClient() {
                     </h2>
                     <p className="text-sm text-text-secondary">
                         {t("yenetaPackagesSub")}
+                    </p>
+                    <p className="text-sm text-text-secondary">
+                        የሚፈልጉትን ት/ት መርጠው ለአስተማር ወይም ለመማር ይመዝገቡ
                     </p>
                 </div>
 

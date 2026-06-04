@@ -32,6 +32,9 @@ export interface TeacherProfile {
   phone: string
   locationPin: { lat: number; lng: number }
   churchDocUrl: string
+  profilePhotoUrl?: string
+  idCardUrl?: string          // government-issued ID scan URL
+  educationCertUrl?: string   // educational certificate / diploma URL
   bankProvider: BankProvider
   bankAccount: string      // stored as string, never process as number
   verified: boolean
