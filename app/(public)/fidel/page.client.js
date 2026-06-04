@@ -1,10 +1,223 @@
 // app/(public)/fidel/page.client.js
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "../../../src/lib/firebase";
 import { useLanguage } from "../../../src/context/LanguageContext";
+import fidelCourseData from "../../../assets/fidelCourse.json";
+
+const courses = fidelCourseData.courses;
+
+// Extract unique subjects and formats for filters
+const allSubjects = [...new Set(courses.map((c) => c.subject))];
+const allFormats = [...new Set(courses.map((c) => c.format))];
+
+function CourseCard({ course, lang }) {
+    const [expanded, setExpanded] = useState(false);
+    const pricing = course.pricing;
+    const institution = course.institution;
+
+    const priceLabel =
+        pricing.price === 0
+            ? lang === "am"
+                ? "ነጻ"
+                : "Free"
+            : pricing.price === pricing.price_max
+              ? `${pricing.price.toLocaleString()} ETB`
+              : `${pricing.price.toLocaleString()} – ${pricing.price_max.toLocaleString()} ETB`;
+
+    const formatBadgeColor = {
+        "In-Person": "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+        Online: "bg-blue-500/15 text-blue-400 border-blue-500/30",
+        Hybrid: "bg-purple-500/15 text-purple-400 border-purple-500/30",
+        Platform: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+    };
+
+    return (
+        <div className="group bg-navy-surface border border-navy-border rounded-xl overflow-hidden hover:border-ft-teal/50 transition-all duration-300 hover:shadow-lg hover:shadow-ft-teal/5 flex flex-col">
+            {/* Teal accent bar */}
+            <div className="h-1 bg-gradient-to-r from-ft-teal to-ft-teal/40" />
+
+            <div className="p-5 sm:p-6 flex flex-col flex-grow">
+                {/* Header: institution + format badge */}
+                <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="flex-1 min-w-0">
+                        {institution?.name && (
+                            <p className="text-xs font-semibold text-ft-teal uppercase tracking-wide mb-1 truncate">
+                                {institution.name}
+                            </p>
+                        )}
+                        <h3 className="text-base sm:text-lg font-bold text-white leading-snug">
+                            {course.course_name}
+                        </h3>
+                    </div>
+                    <span
+                        className={`shrink-0 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full border ${formatBadgeColor[course.format] || "bg-gray-500/15 text-gray-400 border-gray-500/30"}`}
+                    >
+                        {course.format}
+                    </span>
+                </div>
+
+                {/* Quick info pills */}
+                <div className="flex flex-wrap gap-2 mb-3">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-navy-deep/60 rounded text-[11px] text-text-secondary">
+                        📚 {course.subject}
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-navy-deep/60 rounded text-[11px] text-text-secondary">
+                        🎓{" "}
+                        {lang === "am"
+                            ? `ክፍል ${course.grade_range}`
+                            : `Grade ${course.grade_range}`}
+                    </span>
+                    {institution?.rating && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gold-primary/10 rounded text-[11px] text-gold-primary">
+                            ⭐ {institution.rating}
+                            {institution.total_reviews && (
+                                <span className="text-text-muted">
+                                    ({institution.total_reviews.toLocaleString()}
+                                    )
+                                </span>
+                            )}
+                        </span>
+                    )}
+                </div>
+
+                {/* Description */}
+                <p className="text-xs sm:text-sm text-text-secondary leading-relaxed mb-4 line-clamp-3">
+                    {course.description}
+                </p>
+
+                {/* Expandable details */}
+                {expanded && (
+                    <div className="space-y-4 mb-4 animate-fadeIn">
+                        {/* Features */}
+                        {course.features?.length > 0 && (
+                            <div>
+                                <p className="text-xs font-semibold text-white/80 uppercase tracking-wide mb-2">
+                                    {lang === "am" ? "ባህሪያት" : "Features"}
+                                </p>
+                                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                    {course.features.map((feat, i) => (
+                                        <li
+                                            key={i}
+                                            className="flex items-start gap-1.5 text-xs text-text-secondary"
+                                        >
+                                            <span className="text-ft-teal mt-0.5 shrink-0">
+                                                ✓
+                                            </span>
+                                            {feat}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+
+                        {/* Learning outcomes */}
+                        {course.learning_outcomes?.length > 0 && (
+                            <div>
+                                <p className="text-xs font-semibold text-white/80 uppercase tracking-wide mb-2">
+                                    {lang === "am"
+                                        ? "የመማሪያ ውጤቶች"
+                                        : "Learning Outcomes"}
+                                </p>
+                                <ul className="space-y-1">
+                                    {course.learning_outcomes.map(
+                                        (outcome, i) => (
+                                            <li
+                                                key={i}
+                                                className="flex items-start gap-1.5 text-xs text-text-secondary"
+                                            >
+                                                <span className="text-gold-primary mt-0.5 shrink-0">
+                                                    →
+                                                </span>
+                                                {outcome}
+                                            </li>
+                                        ),
+                                    )}
+                                </ul>
+                            </div>
+                        )}
+
+                        {/* Session details */}
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div className="bg-navy-deep/40 rounded-lg p-2.5">
+                                <p className="text-text-muted mb-0.5">
+                                    {lang === "am" ? "ክፍለ ጊዜ" : "Session"}
+                                </p>
+                                <p className="text-white font-medium">
+                                    {course.duration_per_session}
+                                </p>
+                            </div>
+                            <div className="bg-navy-deep/40 rounded-lg p-2.5">
+                                <p className="text-text-muted mb-0.5">
+                                    {lang === "am" ? "ዓይነት" : "Type"}
+                                </p>
+                                <p className="text-white font-medium">
+                                    {course.session_type}
+                                </p>
+                            </div>
+                            <div className="bg-navy-deep/40 rounded-lg p-2.5">
+                                <p className="text-text-muted mb-0.5">
+                                    {lang === "am" ? "አቅርቦት" : "Delivery"}
+                                </p>
+                                <p className="text-white font-medium">
+                                    {course.delivery_mode}
+                                </p>
+                            </div>
+                            <div className="bg-navy-deep/40 rounded-lg p-2.5">
+                                <p className="text-text-muted mb-0.5">
+                                    {lang === "am" ? "መርሃ ግብር" : "Schedule"}
+                                </p>
+                                <p className="text-white font-medium">
+                                    {course.schedule_flexibility}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Contact / enrollment link */}
+                        {course.enrollment?.registration_url && (
+                            <a
+                                href={course.enrollment.registration_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="block w-full text-center px-4 py-2.5 bg-ft-teal/15 border border-ft-teal/40 text-ft-teal font-semibold text-sm rounded-lg hover:bg-ft-teal/25 transition-colors"
+                            >
+                                {lang === "am"
+                                    ? "ድረገጽ ይጎብኙ →"
+                                    : "Visit Provider →"}
+                            </a>
+                        )}
+                    </div>
+                )}
+
+                {/* Footer: price + expand toggle */}
+                <div className="mt-auto pt-4 border-t border-navy-border flex items-center justify-between">
+                    <div>
+                        <p className="text-lg font-bold text-gold-primary">
+                            {priceLabel}
+                        </p>
+                        <p className="text-[10px] text-text-muted">
+                            {pricing.pricing_model}
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => setExpanded(!expanded)}
+                        className="px-3 py-1.5 text-xs font-semibold rounded-md border border-navy-border text-text-secondary hover:text-white hover:border-ft-teal/50 transition-colors"
+                    >
+                        {expanded
+                            ? lang === "am"
+                                ? "ዝጋ"
+                                : "Less"
+                            : lang === "am"
+                              ? "ተጨማሪ"
+                              : "Details"}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
 
 export default function FidelPageClient() {
     const { t, lang } = useLanguage();
@@ -13,6 +226,30 @@ export default function FidelPageClient() {
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState("");
 
+    // Filters
+    const [searchQuery, setSearchQuery] = useState("");
+    const [selectedSubject, setSelectedSubject] = useState("");
+    const [selectedFormat, setSelectedFormat] = useState("");
+
+    const filteredCourses = useMemo(() => {
+        return courses.filter((course) => {
+            const q = searchQuery.toLowerCase();
+            const matchesSearch =
+                !q ||
+                course.course_name.toLowerCase().includes(q) ||
+                course.description.toLowerCase().includes(q) ||
+                course.institution?.name?.toLowerCase().includes(q) ||
+                course.subject.toLowerCase().includes(q);
+
+            const matchesSubject =
+                !selectedSubject || course.subject === selectedSubject;
+            const matchesFormat =
+                !selectedFormat || course.format === selectedFormat;
+
+            return matchesSearch && matchesSubject && matchesFormat;
+        });
+    }, [searchQuery, selectedSubject, selectedFormat]);
+
     const handleWaitlistSubmit = async (e) => {
         e.preventDefault();
         if (!email) return;
@@ -20,7 +257,6 @@ export default function FidelPageClient() {
         setLoading(true);
         setError("");
         try {
-            // Use setDoc with the email as key to prevent duplicate email entries
             const waitlistDocRef = doc(
                 db,
                 "waitlist",
@@ -44,33 +280,6 @@ export default function FidelPageClient() {
             setLoading(false);
         }
     };
-
-    const samplePackages = [
-        {
-            id: "fidel-math",
-            name:
-                lang === "am"
-                    ? "መሠረተ-ሂሳብ (Mathematics)"
-                    : "Fundamental Mathematics",
-            desc:
-                lang === "am"
-                    ? "ለልጆችዎ የሂሳብ መሰረታዊ እውቀት፣ ስሌት እና አመክንዮ በቤቶት ማስተማር።"
-                    : "Core mathematics tutoring covering basic arithmetic, logic, and problem-solving.",
-            price: 4500,
-        },
-        {
-            id: "fidel-science",
-            name:
-                lang === "am"
-                    ? "የተፈጥሮ ሳይንስ (General Science)"
-                    : "General Science",
-            desc:
-                lang === "am"
-                    ? "ፊዚክስ፣ ኬሚስትሪ እና ባዮሎጂን ያካተተ የተግባር ሳይንስ ድጋፍ።"
-                    : "Introduction to physics, chemistry, and biology tailored for primary and secondary students.",
-            price: 4800,
-        },
-    ];
 
     return (
         <div className="relative space-y-16 pb-20">
@@ -119,7 +328,7 @@ export default function FidelPageClient() {
                 </div>
             </section>
 
-            {/* Waitlist capture Form
+            {/* Waitlist capture Form */}
             <section className="max-w-3xl mx-auto px-4 relative z-10">
                 <div className="bg-navy-surface border border-navy-border rounded-2xl p-8 sm:p-12 shadow-lg relative overflow-hidden text-center space-y-6">
                     <div className="absolute top-0 left-0 w-2 h-full bg-ft-teal" />
@@ -171,45 +380,109 @@ export default function FidelPageClient() {
                         </p>
                     )}
                 </div>
-            </section> */}
+            </section>
 
-            {/* Course previews (coming soon) */}
-            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 relative z-10 opacity-70">
-                <div className="text-center">
-                    <h2 className="text-2xl font-bold text-white font-ethiopic">
+            {/* Course catalog */}
+            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 relative z-10">
+                {/* Section header */}
+                <div className="text-center space-y-2">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-white font-ethiopic">
                         {lang === "am"
                             ? "የትምህርት ጥቅሎች"
                             : "Academic Packages"}
                     </h2>
+                    <p className="text-sm text-text-secondary max-w-xl mx-auto">
+                        {lang === "am"
+                            ? `${courses.length} ኮርሶች ከተለያዩ ተቋማት`
+                            : `${courses.length} courses from verified tutoring providers across Addis Ababa`}
+                    </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                    {samplePackages.map((pkg) => (
-                        <div
-                            key={pkg.id}
-                            className="bg-navy-surface border border-navy-border rounded-xl p-6 flex flex-col justify-between"
-                        >
-                            <div className="space-y-3">
-                                <div className="flex justify-between items-center">
-                                    <h3 className="text-lg font-bold text-white font-ethiopic">
-                                        {pkg.name}
-                                    </h3>
-                                    <span className="text-lg font-bold text-gold-primary">
-                                        {pkg.price.toLocaleString()} ETB
-                                    </span>
-                                </div>
-                                <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
-                                    {pkg.desc}
-                                </p>
-                            </div>
-                            <div className="mt-4 pt-4 border-t border-navy-border flex justify-end">
-                                <span className="text-xs font-semibold text-warning uppercase">
-                                    {t("comingSoon")}
-                                </span>
-                            </div>
-                        </div>
-                    ))}
+                {/* Search & filters */}
+                <div className="flex flex-col sm:flex-row gap-3 max-w-3xl mx-auto">
+                    <input
+                        type="text"
+                        placeholder={
+                            lang === "am"
+                                ? "ኮርስ ወይም ተቋም ፈልግ..."
+                                : "Search courses or providers..."
+                        }
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="flex-grow px-4 py-2.5 bg-navy-surface border border-navy-border rounded-lg text-white placeholder-text-muted text-sm focus:outline-none focus:border-ft-teal transition-colors"
+                    />
+                    <select
+                        value={selectedSubject}
+                        onChange={(e) => setSelectedSubject(e.target.value)}
+                        className="px-3 py-2.5 bg-navy-surface border border-navy-border rounded-lg text-sm text-text-secondary focus:outline-none focus:border-ft-teal transition-colors cursor-pointer"
+                    >
+                        <option value="">
+                            {lang === "am" ? "ሁሉም ትምህርቶች" : "All Subjects"}
+                        </option>
+                        {allSubjects.map((s) => (
+                            <option key={s} value={s}>
+                                {s}
+                            </option>
+                        ))}
+                    </select>
+                    <select
+                        value={selectedFormat}
+                        onChange={(e) => setSelectedFormat(e.target.value)}
+                        className="px-3 py-2.5 bg-navy-surface border border-navy-border rounded-lg text-sm text-text-secondary focus:outline-none focus:border-ft-teal transition-colors cursor-pointer"
+                    >
+                        <option value="">
+                            {lang === "am" ? "ሁሉም ቅርጾች" : "All Formats"}
+                        </option>
+                        {allFormats.map((f) => (
+                            <option key={f} value={f}>
+                                {f}
+                            </option>
+                        ))}
+                    </select>
                 </div>
+
+                {/* Results count */}
+                {(searchQuery || selectedSubject || selectedFormat) && (
+                    <p className="text-center text-xs text-text-muted">
+                        {lang === "am"
+                            ? `${filteredCourses.length} ውጤቶች ተገኝተዋል`
+                            : `${filteredCourses.length} result${filteredCourses.length !== 1 ? "s" : ""} found`}
+                    </p>
+                )}
+
+                {/* Course grid */}
+                {filteredCourses.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {filteredCourses.map((course) => (
+                            <CourseCard
+                                key={course.course_id}
+                                course={course}
+                                lang={lang}
+                            />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-16 space-y-3">
+                        <p className="text-4xl">📭</p>
+                        <p className="text-text-secondary text-sm">
+                            {lang === "am"
+                                ? "ምንም ኮርሶች አልተገኙም። ፍለጋዎን ይቀይሩ።"
+                                : "No courses match your filters. Try adjusting your search."}
+                        </p>
+                        <button
+                            onClick={() => {
+                                setSearchQuery("");
+                                setSelectedSubject("");
+                                setSelectedFormat("");
+                            }}
+                            className="text-xs text-ft-teal hover:underline"
+                        >
+                            {lang === "am"
+                                ? "ማጣሪያዎችን ያጽዱ"
+                                : "Clear all filters"}
+                        </button>
+                    </div>
+                )}
             </section>
         </div>
     );

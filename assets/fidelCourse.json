@@ -53,7 +53,7 @@
                 "trial_lesson": false
             },
             "instructor": {
-                "name": "Certified Meftihe Tutor",
+                "name": "Certified Arke Tutor",
                 "qualification": "Rigorously tested and certified",
                 "experience_years": "8+",
                 "specialization": "Varies by subject assignment",
@@ -70,12 +70,12 @@
                 "status": "Open",
                 "max_students_per_session": 1,
                 "group_option_max": 4,
-                "registration_url": "https://meftihetutors.com.et/",
+                "registration_url": "https://arke-group.com/",
                 "booking_method": "Website or Phone"
             },
             "contact": {
-                "phone": ["+251 96 314 0137", "+251 99 743 8155"],
-                "email": "contact@meftihetutors.com.et"
+                "phone": ["+251 990285748", "+251 900161140"],
+                "email": "info@arke-group.com"
             },
             "tags": [
                 "home-tutoring",
@@ -90,17 +90,9 @@
             "last_updated": "2026-06-02"
         },
         {
-            "course_id": "MT-002",
+            "course_id": "Fidel-002",
             "course_slug": "grade-8-national-exam-prep-online",
             "course_name": "Grade 8 National Exam Preparation (Online)",
-            "institution": {
-                "name": "Meftihe Tutors",
-                "website": "https://meftihetutors.com.et/",
-                "logo_url": "",
-                "verified": true,
-                "rating": 4.8,
-                "total_reviews": 50
-            },
             "subject": "Multi-Subject (Exam Prep)",
             "subjects_covered": [
                 "Mathematics",
@@ -133,8 +125,8 @@
                 "trial_lesson": false
             },
             "instructor": {
-                "name": "Expert Exam Prep Tutor",
-                "qualification": "Certified in Ethiopian national curriculum",
+                "name": "Certified Arke Tutor",
+                "qualification": "Rigorously tested and certified",
                 "experience_years": "5+",
                 "specialization": "Grade 8 National Exam",
                 "background_check": true
@@ -150,12 +142,12 @@
                 "status": "Open",
                 "max_students_per_session": 20,
                 "group_option_max": 20,
-                "registration_url": "https://meftihetutors.com.et/",
-                "booking_method": "Website"
+                "registration_url": "https://arke-group.com/",
+                "booking_method": "Website or Phone"
             },
             "contact": {
-                "phone": ["+251 96 314 0137", "+251 99 743 8155"],
-                "email": "contact@meftihetutors.com.et"
+                "phone": ["+251 990285748", "+251 900161140"],
+                "email": "info@arke-group.com"
             },
             "tags": [
                 "exam-prep",
@@ -170,17 +162,9 @@
             "last_updated": "2026-06-02"
         },
         {
-            "course_id": "EHT-001",
+            "course_id": "Fidel-003",
             "course_slug": "excellence-home-tutoring-all-subjects",
             "course_name": "Excellence Home Tutoring - Comprehensive Subject Support",
-            "institution": {
-                "name": "Excellence Home Tutor",
-                "website": "https://www.excellencehometutor.com/",
-                "logo_url": "",
-                "verified": true,
-                "rating": 4.7,
-                "total_reviews": 200
-            },
             "subject": "Multi-Subject",
             "subjects_covered": [
                 "Mathematics",
@@ -224,8 +208,8 @@
                 "trial_lesson": true
             },
             "instructor": {
-                "name": "Expert Home Tutor",
-                "qualification": "Experienced educator",
+                "name": "Certified Arke Tutor",
+                "qualification": "Rigorously tested and certified",
                 "experience_years": "5+",
                 "specialization": "Varies by subject",
                 "background_check": true
@@ -242,12 +226,12 @@
                 "status": "Open",
                 "max_students_per_session": 1,
                 "group_option_max": 1,
-                "registration_url": "https://www.excellencehometutor.com/",
+                "registration_url": "https://arke-group.com/",
                 "booking_method": "Website or Phone"
             },
             "contact": {
-                "phone": ["+251 956 358 473"],
-                "email": "alazeralphilo@gmail.com"
+                "phone": ["+251 990285748", "+251 900161140"],
+                "email": "info@arke-group.com"
             },
             "tags": [
                 "home-tutoring",
@@ -262,103 +246,11 @@
             "certificate": false,
             "last_updated": "2026-06-02"
         },
+
         {
-            "course_id": "LIQ-001",
-            "course_slug": "liq-home-online-tutoring",
-            "course_name": "LIQ Home & Online Tutoring - Smart Match",
-            "institution": {
-                "name": "LIQ Tutors",
-                "website": "https://liqtutor.com/",
-                "logo_url": "",
-                "verified": true,
-                "rating": 4.6,
-                "total_reviews": 8000
-            },
-            "subject": "Multi-Subject",
-            "subjects_covered": ["All Core Subjects"],
-            "grade_levels": [
-                "Grade 5",
-                "Grade 6",
-                "Grade 7",
-                "Grade 8",
-                "Grade 9",
-                "Grade 10",
-                "Grade 11",
-                "Grade 12"
-            ],
-            "grade_range": "5-12",
-            "curriculum": "Ethiopian National Curriculum",
-            "description": "Vetted home and online tutors matched intelligently to student needs. Access to 3,000+ verified tutors across Addis Ababa with gamified learning experience.",
-            "learning_outcomes": [
-                "Matched with ideal tutor based on learning style",
-                "Consistent academic support",
-                "Access to digital learning tools",
-                "Exam preparation support"
-            ],
-            "format": "Hybrid",
-            "delivery_mode": "Home or Online",
-            "session_type": "One-on-One or Group",
-            "duration_per_session": "1-2 hours",
-            "schedule_flexibility": "Flexible",
-            "pricing": {
-                "price": 300,
-                "price_max": 800,
-                "currency": "ETB",
-                "pricing_model": "Per Hour",
-                "payment_options": ["Per Session", "Package"],
-                "trial_lesson": true
-            },
-            "instructor": {
-                "name": "LIQ Vetted Tutor",
-                "qualification": "Verified and background-checked",
-                "experience_years": "3+",
-                "specialization": "Matched by AI algorithm",
-                "background_check": true
-            },
-            "features": [
-                "Smart AI tutor matching",
-                "3,000+ vetted tutors",
-                "Home and online options",
-                "Gamified learning experience",
-                "Verified tutor profiles with reviews",
-                "Flexible scheduling"
-            ],
-            "enrollment": {
-                "status": "Open",
-                "max_students_per_session": 1,
-                "group_option_max": 6,
-                "registration_url": "https://liqtutor.com/",
-                "booking_method": "Website Platform"
-            },
-            "contact": {
-                "phone": ["+251 963 696 363"],
-                "email": "Contact via website"
-            },
-            "tags": [
-                "smart-match",
-                "hybrid",
-                "vetted",
-                "gamified",
-                "ai-matching",
-                "flexible"
-            ],
-            "language": ["English", "Amharic"],
-            "prerequisites": "None",
-            "certificate": false,
-            "last_updated": "2026-06-02"
-        },
-        {
-            "course_id": "LIQ-002",
-            "course_slug": "liq-grade-12-eslce-prep",
+            "course_id": "Fidel-005",
+            "course_slug": "fidel-grade-12-eslce-prep",
             "course_name": "Grade 12 ESLCE / University Entrance Exam Prep",
-            "institution": {
-                "name": "LIQ Tutors",
-                "website": "https://liqtutor.com/",
-                "logo_url": "",
-                "verified": true,
-                "rating": 4.8,
-                "total_reviews": 1200
-            },
             "subject": "Multi-Subject (Exam Prep)",
             "subjects_covered": [
                 "Mathematics",
@@ -392,8 +284,8 @@
                 "trial_lesson": true
             },
             "instructor": {
-                "name": "ESLCE Specialist Tutor",
-                "qualification": "ESLCE exam expert",
+                "name": "Certified Arke Tutor",
+                "qualification": "Rigorously tested and certified",
                 "experience_years": "7+",
                 "specialization": "Grade 12 University Entrance Exam",
                 "background_check": true
@@ -410,12 +302,12 @@
                 "status": "Open",
                 "max_students_per_session": 15,
                 "group_option_max": 15,
-                "registration_url": "https://liqtutor.com/",
-                "booking_method": "Website"
+                "registration_url": "https://arke-group.com/",
+                "booking_method": "Website or Phone"
             },
             "contact": {
-                "phone": ["+251 963 696 363"],
-                "email": "Contact via website"
+                "phone": ["+251 990285748", "+251 900161140"],
+                "email": "info@arke-group.com"
             },
             "tags": [
                 "eslce",
@@ -429,103 +321,11 @@
             "certificate": false,
             "last_updated": "2026-06-02"
         },
+
         {
-            "course_id": "EI-001",
-            "course_slug": "ethio-iq-home-virtual-tutoring",
-            "course_name": "Ethio IQ 1-on-1 Home & Virtual Tutoring",
-            "institution": {
-                "name": "Ethio IQ",
-                "website": "https://ethioiq.com/",
-                "logo_url": "",
-                "verified": true,
-                "rating": 4.7,
-                "total_reviews": 300
-            },
-            "subject": "Multi-Subject",
-            "subjects_covered": ["All School Subjects"],
-            "grade_levels": [
-                "Grade 5",
-                "Grade 6",
-                "Grade 7",
-                "Grade 8",
-                "Grade 9",
-                "Grade 10",
-                "Grade 11",
-                "Grade 12"
-            ],
-            "grade_range": "5-12",
-            "curriculum": "Ethiopian National Curriculum",
-            "description": "One-on-one home or virtual tutoring with trained tutors. Includes need assessment before tutoring begins, progress reports, and access to Yene Sekay study app with flash cards and model exams.",
-            "learning_outcomes": [
-                "Personalized learning plan after need assessment",
-                "Regular progress reports for parents",
-                "Access to digital study tools (Yene Sekay app)",
-                "Exam preparation with model exams"
-            ],
-            "format": "Hybrid",
-            "delivery_mode": "Home or Virtual",
-            "session_type": "One-on-One",
-            "duration_per_session": "1.5-2 hours",
-            "schedule_flexibility": "Flexible",
-            "pricing": {
-                "price": 400,
-                "price_max": 800,
-                "currency": "ETB",
-                "pricing_model": "Per Hour",
-                "payment_options": ["Per Session", "Monthly"],
-                "trial_lesson": false
-            },
-            "instructor": {
-                "name": "Trained Ethio IQ Tutor",
-                "qualification": "University teacher or expert",
-                "experience_years": "5+",
-                "specialization": "Varies by subject",
-                "background_check": true
-            },
-            "features": [
-                "Need assessment before starting",
-                "Progress reports for tracking",
-                "Yene Sekay mobile study app",
-                "Flash cards and model exams",
-                "Home or virtual options",
-                "Prepared by university teachers"
-            ],
-            "enrollment": {
-                "status": "Open",
-                "max_students_per_session": 1,
-                "group_option_max": 1,
-                "registration_url": "https://ethioiq.com/",
-                "booking_method": "Website or Phone"
-            },
-            "contact": {
-                "phone": ["+251 910 999 546", "+251 988 434 329"],
-                "email": "hello@ethioiq.com",
-                "address": "Bole Japan, Saay Building, 3rd Floor, Addis Ababa"
-            },
-            "tags": [
-                "hybrid",
-                "one-on-one",
-                "progress-reports",
-                "study-app",
-                "assessment"
-            ],
-            "language": ["English", "Amharic"],
-            "prerequisites": "None",
-            "certificate": false,
-            "last_updated": "2026-06-02"
-        },
-        {
-            "course_id": "EI-002",
-            "course_slug": "ethio-iq-local-languages",
+            "course_id": "Fidel-007",
+            "course_slug": "fidel-local-languages",
             "course_name": "Local Language Classes - Amharic, Afaan Oromo, Tigrinya",
-            "institution": {
-                "name": "Ethio IQ",
-                "website": "https://ethioiq.com/",
-                "logo_url": "",
-                "verified": true,
-                "rating": 4.5,
-                "total_reviews": 80
-            },
             "subject": "Languages",
             "subjects_covered": ["Amharic", "Afaan Oromo", "Tigrinya"],
             "grade_levels": [
@@ -561,8 +361,8 @@
                 "trial_lesson": true
             },
             "instructor": {
-                "name": "Native Language Tutor",
-                "qualification": "Language educator",
+                "name": "Certified Arke Tutor",
+                "qualification": "Rigorously tested and certified",
                 "experience_years": "4+",
                 "specialization": "Amharic / Afaan Oromo / Tigrinya",
                 "background_check": true
@@ -578,12 +378,12 @@
                 "status": "Open",
                 "max_students_per_session": 8,
                 "group_option_max": 8,
-                "registration_url": "https://ethioiq.com/",
-                "booking_method": "Website"
+                "registration_url": "https://arke-group.com/",
+                "booking_method": "Website or Phone"
             },
             "contact": {
-                "phone": ["+251 910 999 546", "+251 988 434 329"],
-                "email": "hello@ethioiq.com"
+                "phone": ["+251 990285748", "+251 900161140"],
+                "email": "info@arke-group.com"
             },
             "tags": [
                 "languages",
@@ -599,371 +399,9 @@
             "last_updated": "2026-06-02"
         },
         {
-            "course_id": "KT-001",
-            "course_slug": "kelem-mentorship-home-tutoring",
-            "course_name": "Kelem Mentorship & In-Home Tutoring",
-            "institution": {
-                "name": "Kelem Tutors",
-                "website": "https://kelemtutors.com/",
-                "logo_url": "",
-                "verified": true,
-                "rating": 4.8,
-                "total_reviews": 60
-            },
-            "subject": "Multi-Subject",
-            "subjects_covered": ["All Academic Subjects"],
-            "grade_levels": [
-                "Grade 5",
-                "Grade 6",
-                "Grade 7",
-                "Grade 8",
-                "Grade 9",
-                "Grade 10",
-                "Grade 11",
-                "Grade 12"
-            ],
-            "grade_range": "5-12",
-            "curriculum": "Ethiopian National Curriculum",
-            "description": "Tailored in-home tutorial services with a unique mentor-and-mentee model. Integrates personal development with academic support, cultivating vital study and life skills alongside subject mastery.",
-            "learning_outcomes": [
-                "Academic excellence in all subjects",
-                "Development of study skills and habits",
-                "Life skills and personal growth",
-                "Long-term mentorship relationship"
-            ],
-            "format": "Hybrid",
-            "delivery_mode": "Home or Online",
-            "session_type": "One-on-One (Mentorship Model)",
-            "duration_per_session": "1.5-2 hours",
-            "schedule_flexibility": "Flexible",
-            "pricing": {
-                "price": 400,
-                "price_max": 700,
-                "currency": "ETB",
-                "pricing_model": "Per Hour",
-                "payment_options": ["Per Session", "Monthly"],
-                "trial_lesson": false
-            },
-            "instructor": {
-                "name": "Kelem Mentor-Tutor",
-                "qualification": "Experienced educator and mentor",
-                "experience_years": "6+",
-                "specialization": "Holistic academic and personal development",
-                "background_check": true
-            },
-            "features": [
-                "Mentor-and-mentee relationship model",
-                "Holistic approach: academics + life skills",
-                "Customized to individual needs",
-                "Study skills development",
-                "Personal growth focus",
-                "Both online and in-person"
-            ],
-            "enrollment": {
-                "status": "Open",
-                "max_students_per_session": 1,
-                "group_option_max": 1,
-                "registration_url": "https://kelemtutors.com/",
-                "booking_method": "Website or Phone"
-            },
-            "contact": {
-                "phone": ["+251 964 653 247"],
-                "email": "info@kelemtutors.com",
-                "address": "Ejigayehu Dibaba Building Office 802, CMC, Yetebaberut, Addis Ababa"
-            },
-            "tags": [
-                "mentorship",
-                "holistic",
-                "life-skills",
-                "home-tutoring",
-                "personal-development"
-            ],
-            "language": ["English", "Amharic"],
-            "prerequisites": "None",
-            "certificate": false,
-            "last_updated": "2026-06-02"
-        },
-        {
-            "course_id": "KH-001",
-            "course_slug": "kihloot-tutor-marketplace",
-            "course_name": "Kihloot Tutor Marketplace - Find Your Perfect Tutor",
-            "institution": {
-                "name": "Kihloot",
-                "website": "https://kihlot.et/instructor-finder",
-                "logo_url": "",
-                "verified": true,
-                "rating": 4.4,
-                "total_reviews": 150
-            },
-            "subject": "Multi-Subject",
-            "subjects_covered": ["All Subjects"],
-            "grade_levels": [
-                "Grade 5",
-                "Grade 6",
-                "Grade 7",
-                "Grade 8",
-                "Grade 9",
-                "Grade 10",
-                "Grade 11",
-                "Grade 12"
-            ],
-            "grade_range": "5-12",
-            "curriculum": "Ethiopian National Curriculum",
-            "description": "Digital marketplace connecting students and parents with verified Ethiopian tutors. Search by subject, location, and language. View reviews and ratings before booking.",
-            "learning_outcomes": [
-                "Find specialized tutor for any subject",
-                "Compare tutor qualifications and reviews",
-                "Book sessions with verified educators",
-                "Personalized matching based on needs"
-            ],
-            "format": "Platform",
-            "delivery_mode": "Varies by Tutor",
-            "session_type": "Varies by Tutor",
-            "duration_per_session": "1-2 hours",
-            "schedule_flexibility": "Varies by Tutor",
-            "pricing": {
-                "price": 200,
-                "price_max": 1000,
-                "currency": "ETB",
-                "pricing_model": "Per Hour (Varies)",
-                "payment_options": ["Per Session"],
-                "trial_lesson": true
-            },
-            "instructor": {
-                "name": "Verified Kihloot Tutor",
-                "qualification": "Verified through platform",
-                "experience_years": "Varies",
-                "specialization": "Searchable by subject",
-                "background_check": true
-            },
-            "features": [
-                "Search by subject, location, language",
-                "Reviews and ratings system",
-                "Verified tutor profiles",
-                "Personalized matching",
-                "Wide price range options",
-                "Trial lessons available"
-            ],
-            "enrollment": {
-                "status": "Open",
-                "max_students_per_session": 1,
-                "group_option_max": 10,
-                "registration_url": "https://kihlot.et/instructor-finder",
-                "booking_method": "Website Platform"
-            },
-            "contact": {
-                "phone": ["Contact via website"],
-                "email": "Contact via website"
-            },
-            "tags": [
-                "marketplace",
-                "verified",
-                "searchable",
-                "reviews",
-                "flexible-pricing"
-            ],
-            "language": ["English", "Amharic", "Afaan Oromo", "Tigrinya"],
-            "prerequisites": "None",
-            "certificate": false,
-            "last_updated": "2026-06-02"
-        },
-        {
-            "course_id": "TP-001",
-            "course_slug": "tutopiya-online-igcse-ib",
-            "course_name": "Tutopiya Online Tutoring - IGCSE, IB & A-Levels",
-            "institution": {
-                "name": "Tutopiya",
-                "website": "https://www.tutopiya.com/",
-                "logo_url": "",
-                "verified": true,
-                "rating": 4.5,
-                "total_reviews": 500
-            },
-            "subject": "Multi-Subject (International)",
-            "subjects_covered": [
-                "Mathematics",
-                "Physics",
-                "Chemistry",
-                "Biology",
-                "English",
-                "Economics",
-                "Business Studies",
-                "History",
-                "Geography"
-            ],
-            "grade_levels": ["Grade 9", "Grade 10", "Grade 11", "Grade 12"],
-            "grade_range": "9-12",
-            "curriculum": "IGCSE / IB / A-Levels",
-            "description": "Affordable online one-on-one tutoring for international curriculum students. Perfect for those attending international schools in Addis Ababa. Only ~700 ETB per year for comprehensive access.",
-            "learning_outcomes": [
-                "IGCSE subject mastery and exam readiness",
-                "IB diploma subject support",
-                "A-Level preparation for university",
-                "International standard academic excellence"
-            ],
-            "format": "Online",
-            "delivery_mode": "Live Virtual Sessions",
-            "session_type": "One-on-One",
-            "duration_per_session": "1 hour",
-            "schedule_flexibility": "Flexible",
-            "pricing": {
-                "price": 700,
-                "price_max": 700,
-                "currency": "ETB",
-                "pricing_model": "Per Year",
-                "payment_options": ["Annual"],
-                "trial_lesson": true
-            },
-            "instructor": {
-                "name": "International Curriculum Tutor",
-                "qualification": "IGCSE/IB/A-Level certified",
-                "experience_years": "5+",
-                "specialization": "International curricula",
-                "background_check": true
-            },
-            "features": [
-                "Extremely affordable (~700 ETB/year)",
-                "International curriculum focus (IGCSE, IB, A-Levels)",
-                "One-on-one personalized tutoring",
-                "Flexible online scheduling",
-                "University preparation focus"
-            ],
-            "enrollment": {
-                "status": "Open",
-                "max_students_per_session": 1,
-                "group_option_max": 1,
-                "registration_url": "https://www.tutopiya.com/",
-                "booking_method": "Website"
-            },
-            "contact": {
-                "phone": ["Contact via website"],
-                "email": "Contact via website"
-            },
-            "tags": [
-                "online",
-                "international",
-                "igcse",
-                "ib",
-                "a-levels",
-                "affordable",
-                "university-prep"
-            ],
-            "language": ["English"],
-            "prerequisites": "Enrolled in international curriculum school",
-            "certificate": false,
-            "last_updated": "2026-06-02"
-        },
-        {
-            "course_id": "DT-001",
-            "course_slug": "desk-tutorial-online-all-subjects",
-            "course_name": "Desk Tutorial - Online All-Subject Tutoring",
-            "institution": {
-                "name": "Desk Tutorial",
-                "website": "https://www.desktutorial.com/",
-                "logo_url": "",
-                "verified": true,
-                "rating": 4.3,
-                "total_reviews": 200
-            },
-            "subject": "Multi-Subject",
-            "subjects_covered": [
-                "Mathematics",
-                "English",
-                "Physics",
-                "Chemistry",
-                "Biology",
-                "Economics",
-                "General Science",
-                "Social Studies",
-                "Geography",
-                "History",
-                "Amharic",
-                "Foreign Languages"
-            ],
-            "grade_levels": [
-                "Grade 5",
-                "Grade 6",
-                "Grade 7",
-                "Grade 8",
-                "Grade 9",
-                "Grade 10",
-                "Grade 11",
-                "Grade 12"
-            ],
-            "grade_range": "5-12",
-            "curriculum": "Ethiopian National Curriculum",
-            "description": "Online tutoring platform with 10,000+ learners and 50+ courses. 1-on-1 live sessions, group classes, and 24/7 teacher support. Browse tutor profiles, see ratings, and book instantly.",
-            "learning_outcomes": [
-                "Subject mastery through live online sessions",
-                "Flexible learning from home",
-                "Access to group or individual instruction",
-                "24/7 support for continuous learning"
-            ],
-            "format": "Online",
-            "delivery_mode": "Live Virtual Platform",
-            "session_type": "One-on-One or Group",
-            "duration_per_session": "1 hour",
-            "schedule_flexibility": "24/7 Available",
-            "pricing": {
-                "price": 150,
-                "price_max": 600,
-                "currency": "ETB",
-                "pricing_model": "Per Hour",
-                "payment_options": ["Per Session", "Package"],
-                "trial_lesson": true
-            },
-            "instructor": {
-                "name": "Desk Tutorial Educator",
-                "qualification": "Experienced online teacher",
-                "experience_years": "3+",
-                "specialization": "Varies by subject",
-                "background_check": true
-            },
-            "features": [
-                "24/7 teacher support",
-                "50+ courses available",
-                "1-on-1 and group class options",
-                "User-friendly online meeting tools",
-                "Browse tutor profiles and ratings",
-                "Secure payment system",
-                "10,000+ registered users"
-            ],
-            "enrollment": {
-                "status": "Open",
-                "max_students_per_session": 1,
-                "group_option_max": 20,
-                "registration_url": "https://www.desktutorial.com/",
-                "booking_method": "Website Platform"
-            },
-            "contact": {
-                "phone": ["24/7 Support via platform"],
-                "email": "Contact via website"
-            },
-            "tags": [
-                "online",
-                "24-7",
-                "group-classes",
-                "all-subjects",
-                "secure-payment",
-                "large-community"
-            ],
-            "language": ["English", "Amharic"],
-            "prerequisites": "None",
-            "certificate": false,
-            "last_updated": "2026-06-02"
-        },
-        {
-            "course_id": "DT-002",
-            "course_slug": "desk-tutorial-mathematics-advanced",
+            "course_id": "Fidel-012",
+            "course_slug": "fidel-mathematics-advanced",
             "course_name": "Advanced Mathematics Tutoring - Grade 9-12",
-            "institution": {
-                "name": "Desk Tutorial",
-                "website": "https://www.desktutorial.com/",
-                "logo_url": "",
-                "verified": true,
-                "rating": 4.6,
-                "total_reviews": 85
-            },
             "subject": "Mathematics",
             "subjects_covered": [
                 "Algebra",
@@ -996,8 +434,8 @@
                 "trial_lesson": true
             },
             "instructor": {
-                "name": "Mathematics Specialist",
-                "qualification": "Mathematics educator",
+                "name": "Certified Arke Tutor",
+                "qualification": "Rigorously tested and certified",
                 "experience_years": "4+",
                 "specialization": "Secondary Mathematics",
                 "background_check": true
@@ -1014,12 +452,12 @@
                 "status": "Open",
                 "max_students_per_session": 1,
                 "group_option_max": 6,
-                "registration_url": "https://www.desktutorial.com/",
-                "booking_method": "Website Platform"
+                "registration_url": "https://arke-group.com/",
+                "booking_method": "Website or Phone"
             },
             "contact": {
-                "phone": ["24/7 Support via platform"],
-                "email": "Contact via website"
+                "phone": ["+251 990285748", "+251 900161140"],
+                "email": "info@arke-group.com"
             },
             "tags": [
                 "mathematics",
@@ -1035,17 +473,9 @@
             "last_updated": "2026-06-02"
         },
         {
-            "course_id": "EI-003",
-            "course_slug": "ethio-iq-national-exam-prep-package",
+            "course_id": "Fidel-013",
+            "course_slug": "national-exam-prep-package",
             "course_name": "National Exam Success Package - Grade 8 & 12",
-            "institution": {
-                "name": "Ethio IQ",
-                "website": "https://ethioiq.com/",
-                "logo_url": "",
-                "verified": true,
-                "rating": 4.9,
-                "total_reviews": 250
-            },
             "subject": "Multi-Subject (Exam Prep)",
             "subjects_covered": [
                 "Mathematics",
@@ -1078,8 +508,8 @@
                 "trial_lesson": false
             },
             "instructor": {
-                "name": "National Exam Specialist",
-                "qualification": "Expert in Ethiopian national exams",
+                "name": "Certified Arke Tutor",
+                "qualification": "Rigorously tested and certified",
                 "experience_years": "8+",
                 "specialization": "Grade 8 & 12 National Exams",
                 "background_check": true
@@ -1096,12 +526,12 @@
                 "status": "Open",
                 "max_students_per_session": 1,
                 "group_option_max": 1,
-                "registration_url": "https://ethioiq.com/",
+                "registration_url": "https://arke-group.com/",
                 "booking_method": "Website or Phone"
             },
             "contact": {
-                "phone": ["+251 910 999 546", "+251 988 434 329"],
-                "email": "hello@ethioiq.com"
+                "phone": ["+251 990285748", "+251 900161140"],
+                "email": "info@arke-group.com"
             },
             "tags": [
                 "exam-prep",
@@ -1118,17 +548,9 @@
             "last_updated": "2026-06-02"
         },
         {
-            "course_id": "MT-003",
-            "course_slug": "meftihe-physics-chemistry-specialist",
+            "course_id": "Fidel-014",
+            "course_slug": "fidel-physics-chemistry-specialist",
             "course_name": "Physics & Chemistry Specialist Tutoring - Grade 9-12",
-            "institution": {
-                "name": "Meftihe Tutors",
-                "website": "https://meftihetutors.com.et/",
-                "logo_url": "",
-                "verified": true,
-                "rating": 4.9,
-                "total_reviews": 45
-            },
             "subject": "Science",
             "subjects_covered": ["Physics", "Chemistry"],
             "grade_levels": ["Grade 9", "Grade 10", "Grade 11", "Grade 12"],
@@ -1155,8 +577,8 @@
                 "trial_lesson": false
             },
             "instructor": {
-                "name": "Meron Haile / Science Specialist",
-                "qualification": "MSc in Chemistry / Physics",
+                "name": "Certified Arke Tutor",
+                "qualification": "Rigorously tested and certified",
                 "experience_years": "8+",
                 "specialization": "Physics & Chemistry for national exams",
                 "background_check": true
@@ -1172,12 +594,12 @@
                 "status": "Open",
                 "max_students_per_session": 1,
                 "group_option_max": 2,
-                "registration_url": "https://meftihetutors.com.et/",
+                "registration_url": "https://arke-group.com/",
                 "booking_method": "Website or Phone"
             },
             "contact": {
-                "phone": ["+251 96 314 0137", "+251 99 743 8155"],
-                "email": "contact@meftihetutors.com.et"
+                "phone": ["+251 990285748", "+251 900161140"],
+                "email": "info@arke-group.com"
             },
             "tags": [
                 "physics",
@@ -1193,17 +615,9 @@
             "last_updated": "2026-06-02"
         },
         {
-            "course_id": "EHT-002",
-            "course_slug": "excellence-computer-science-grades-6-12",
+            "course_id": "Fidel-015",
+            "course_slug": "fidel-computer-science-grades-6-12",
             "course_name": "Computer Science Tutoring - Grades 6-12",
-            "institution": {
-                "name": "Excellence Home Tutor",
-                "website": "https://www.excellencehometutor.com/",
-                "logo_url": "",
-                "verified": true,
-                "rating": 4.6,
-                "total_reviews": 40
-            },
             "subject": "Computer Science",
             "subjects_covered": [
                 "Programming Basics",
@@ -1243,8 +657,8 @@
                 "trial_lesson": true
             },
             "instructor": {
-                "name": "Computer Science Tutor",
-                "qualification": "IT/Computer Science background",
+                "name": "Certified Arke Tutor",
+                "qualification": "Rigorously tested and certified",
                 "experience_years": "4+",
                 "specialization": "Computer Science & ICT",
                 "background_check": true
@@ -1261,12 +675,12 @@
                 "status": "Open",
                 "max_students_per_session": 1,
                 "group_option_max": 2,
-                "registration_url": "https://www.excellencehometutor.com/",
+                "registration_url": "https://arke-group.com/",
                 "booking_method": "Website or Phone"
             },
             "contact": {
-                "phone": ["+251 956 358 473"],
-                "email": "alazeralphilo@gmail.com"
+                "phone": ["+251 990285748", "+251 900161140"],
+                "email": "info@arke-group.com"
             },
             "tags": [
                 "computer-science",
@@ -1281,104 +695,11 @@
             "certificate": false,
             "last_updated": "2026-06-02"
         },
+
         {
-            "course_id": "LIQ-003",
-            "course_slug": "liq-academy-digital-learning",
-            "course_name": "LIQ Academy - Digital Self-Paced Learning Platform",
-            "institution": {
-                "name": "LIQ Tutors",
-                "website": "https://liqtutor.com/",
-                "logo_url": "",
-                "verified": true,
-                "rating": 4.5,
-                "total_reviews": 3000
-            },
-            "subject": "Multi-Subject",
-            "subjects_covered": ["All Core Subjects"],
-            "grade_levels": [
-                "Grade 5",
-                "Grade 6",
-                "Grade 7",
-                "Grade 8",
-                "Grade 9",
-                "Grade 10",
-                "Grade 11",
-                "Grade 12"
-            ],
-            "grade_range": "5-12",
-            "curriculum": "Ethiopian National Curriculum",
-            "description": "Digital Learning Management System (LMS) with video lessons, practice exams, and interactive content. Free access for entrance exam prep. Gamified learning experience with progress tracking.",
-            "learning_outcomes": [
-                "Self-paced subject mastery",
-                "Access to video lessons anytime",
-                "Practice with digital mock exams",
-                "Gamified progress and achievement tracking"
-            ],
-            "format": "Online",
-            "delivery_mode": "Digital LMS / Self-Paced",
-            "session_type": "Self-Study + Optional Live Support",
-            "duration_per_session": "Self-paced",
-            "schedule_flexibility": "24/7 Access",
-            "pricing": {
-                "price": 0,
-                "price_max": 1500,
-                "currency": "ETB",
-                "pricing_model": "Freemium (Free for exam prep, Premium for full access)",
-                "payment_options": ["Free", "Premium Monthly"],
-                "trial_lesson": false
-            },
-            "instructor": {
-                "name": "LIQ Academy Content Team",
-                "qualification": "Expert educators",
-                "experience_years": "Collective 20+",
-                "specialization": "Digital curriculum design",
-                "background_check": true
-            },
-            "features": [
-                "Free for entrance exam preparation",
-                "Video lessons library",
-                "Practice exams and quizzes",
-                "Gamified learning experience",
-                "Progress tracking dashboard",
-                "Available 24/7 on any device"
-            ],
-            "enrollment": {
-                "status": "Open",
-                "max_students_per_session": 1,
-                "group_option_max": 1,
-                "registration_url": "https://liqtutor.com/",
-                "booking_method": "Website Sign-up"
-            },
-            "contact": {
-                "phone": ["+251 963 696 363"],
-                "email": "Contact via website"
-            },
-            "tags": [
-                "digital",
-                "self-paced",
-                "lms",
-                "free",
-                "gamified",
-                "video-lessons",
-                "24-7"
-            ],
-            "language": ["English", "Amharic"],
-            "prerequisites": "None",
-            "certificate": false,
-            "last_updated": "2026-06-02"
-        },
-        {
-            "course_id": "KT-002",
-            "course_slug": "kelem-study-skills-life-skills",
+            "course_id": "Fidel-017",
+            "course_slug": "fidel-skills-life-skills",
             "course_name": "Study Skills & Life Skills Development Program",
-            "institution": {
-                "name": "Kelem Tutors",
-                "website": "https://kelemtutors.com/",
-                "logo_url": "",
-                "verified": true,
-                "rating": 4.7,
-                "total_reviews": 35
-            },
             "subject": "Life Skills & Study Skills",
             "subjects_covered": [
                 "Time Management",
@@ -1422,8 +743,8 @@
                 "trial_lesson": true
             },
             "instructor": {
-                "name": "Kelem Life Skills Mentor",
-                "qualification": "Educational psychology / mentorship training",
+                "name": "Certified Arke Tutor",
+                "qualification": "Rigorously tested and certified",
                 "experience_years": "5+",
                 "specialization": "Study skills and personal development",
                 "background_check": true
@@ -1440,12 +761,12 @@
                 "status": "Open",
                 "max_students_per_session": 1,
                 "group_option_max": 1,
-                "registration_url": "https://kelemtutors.com/",
+                "registration_url": "https://arke-group.com/",
                 "booking_method": "Website or Phone"
             },
             "contact": {
-                "phone": ["+251 964 653 247"],
-                "email": "info@kelemtutors.com"
+                "phone": ["+251 990285748", "+251 900161140"],
+                "email": "info@arke-group.com"
             },
             "tags": [
                 "life-skills",

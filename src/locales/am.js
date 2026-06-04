@@ -16,7 +16,7 @@ export const am = {
     heroTagline: "እውቀትን ከስነ-ምግባር ጋር!",
     heroSubtitle: "የሀገር በቀል እውቀት እና የአካዳሚክ የላቀ ብቃት ማዕከል",
     heroYenetaCTA: "የየኔታ አስጠኚ ይጀምሩ",
-    heroFidelCTA: "የፊደል አስጠኚ ይጀምሩ (በቅርብ ቀን)",
+    heroFidelCTA: "የፊደል አስጠኚ ይጀምሩ",
     coreBeliefQuote: "«ዕውቀት ለስኬት፣ ሥነ-ምግባር ለሕይወት፤ አርኬ ለትውልድ!»",
 
     // Service Cards
