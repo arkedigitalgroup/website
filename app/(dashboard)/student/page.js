@@ -9,11 +9,39 @@ import {
     getDocs,
     collection,
     updateDoc,
+    query,
+    where,
 } from "firebase/firestore";
 import { db, auth } from "../../../src/lib/firebase";
 import { useAuth } from "../../../src/context/AuthContext";
 import { useLanguage } from "../../../src/context/LanguageContext";
 import { sendEmailVerification } from "firebase/auth";
+
+// ─── Warning Banner Component ─────────────────────────────────────────────────
+function WarningBanner({ type = "warning", icon, title, description, actionLabel, actionHref }) {
+    const colors = {
+        warning: "border-warning/40 bg-warning/10 text-warning",
+        error:   "border-error/40 bg-error/10 text-error",
+        info:    "border-gold-primary/40 bg-gold-primary/10 text-gold-primary",
+    };
+    return (
+        <div className={`border rounded-xl px-5 py-4 flex items-start gap-4 ${colors[type]}`}>
+            <span className="text-2xl flex-shrink-0 mt-0.5">{icon}</span>
+            <div className="flex-grow min-w-0">
+                <p className="font-bold text-sm">{title}</p>
+                <p className="text-xs opacity-80 mt-0.5 leading-relaxed">{description}</p>
+            </div>
+            {actionLabel && actionHref && (
+                <Link
+                    href={actionHref}
+                    className="flex-shrink-0 px-3 py-1.5 rounded-md text-xs font-bold border border-current hover:opacity-80 transition-opacity whitespace-nowrap"
+                >
+                    {actionLabel}
+                </Link>
+            )}
+        </div>
+    );
+}
 
 export default function StudentHome() {
     const { user, profile } = useAuth();
@@ -22,6 +50,7 @@ export default function StudentHome() {
     const [student, setStudent] = useState(null);
     const [teacher, setTeacher] = useState(null);
     const [announcements, setAnnouncements] = useState([]);
+    const [overduePayments, setOverduePayments] = useState([]);
     const [loading, setLoading] = useState(true);
 
     // Locked overlay simulated payment reference
@@ -53,20 +82,27 @@ export default function StudentHome() {
             // 3. Fetch announcements targeting student or all
             const annSnap = await getDocs(collection(db, "announcements"));
             const anns = [];
-            annSnap.forEach((doc) => {
-                const data = doc.data();
-                if (
-                    data.targetRole === "all" ||
-                    data.targetRole === "student"
-                ) {
-                    anns.push({ id: doc.id, ...data });
+            annSnap.forEach((d) => {
+                const data = d.data();
+                if (data.targetRole === "all" || data.targetRole === "student") {
+                    anns.push({ id: d.id, ...data });
                 }
             });
             anns.sort(
-                (a, b) =>
-                    (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0),
+                (a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0),
             );
             setAnnouncements(anns);
+
+            // 4. Fetch overdue / unpaid payments
+            const payQ = query(
+                collection(db, "payments"),
+                where("studentId", "==", user.uid),
+                where("status", "in", ["pending", "overdue"]),
+            );
+            const paySnap = await getDocs(payQ);
+            const unpaid = [];
+            paySnap.forEach((d) => unpaid.push({ id: d.id, ...d.data() }));
+            setOverduePayments(unpaid);
         } catch (err) {
             console.error("Error loading student dashboard:", err);
         } finally {
@@ -85,14 +121,11 @@ export default function StudentHome() {
         setUnlocking(true);
 
         try {
-            // Update dashboardLocked: false, registrationFeePaid: true on Student profile
             const studentRef = doc(db, "students", user.uid);
             await updateDoc(studentRef, {
                 dashboardLocked: false,
                 registrationFeePaid: true,
             });
-
-            // Reload dashboard
             fetchStudentDashboardData();
         } catch (err) {
             console.error("Unlock dashboard error:", err);
@@ -100,6 +133,58 @@ export default function StudentHome() {
             setUnlocking(false);
         }
     };
+
+    // ─── Compute warnings ────────────────────────────────────────────────────
+    const warnings = [];
+
+    if (student) {
+        // Incomplete profile
+        const missingFields = [];
+        if (!student.phone)          missingFields.push(lang === "am" ? "ስልክ ቁጥር" : "phone number");
+        if (!student.christianName)  missingFields.push(lang === "am" ? "የክርስትና ስም" : "Christian name");
+        if (!student.locationPin?.lat) missingFields.push(lang === "am" ? "አካባቢ" : "location");
+
+        if (missingFields.length > 0) {
+            warnings.push({
+                type: "info",
+                icon: "👤",
+                title: lang === "am" ? "መገለጫ ሙሉ አይደለም" : "Profile Incomplete",
+                description: lang === "am"
+                    ? `የሚጎድሉ ሜዳዎች፡ ${missingFields.join("، ")}። እባክዎ ሙሉ ያድርጉ።`
+                    : `Missing: ${missingFields.join(", ")}. Please complete your profile so we can match you faster.`,
+                actionLabel: lang === "am" ? "አሳካ" : "Complete Profile",
+                actionHref: "/student/account",
+            });
+        }
+
+        // Unpaid registration
+        if (!student.registrationFeePaid) {
+            warnings.push({
+                type: "error",
+                icon: "💳",
+                title: lang === "am" ? "የምዝገባ ክፍያ አልተፈጸመም" : "Registration Fee Unpaid",
+                description: lang === "am"
+                    ? "የምዝገባ ክፍያ (400 ብር) ሳይፈጸም መምህር ሊመደብልዎ አይቻልም።"
+                    : "Your registration fee (400 ETB) has not been confirmed. A tutor cannot be matched until payment is cleared.",
+                actionLabel: lang === "am" ? "ክፍያ ፈጽም" : "Pay Now",
+                actionHref: "/student/payments",
+            });
+        }
+
+        // Outstanding monthly invoices
+        if (overduePayments.length > 0) {
+            warnings.push({
+                type: "warning",
+                icon: "⚠️",
+                title: lang === "am" ? "ያልተከፈለ ወርሃዊ ክፍያ አለ" : `${overduePayments.length} Unpaid Monthly Invoice${overduePayments.length > 1 ? "s" : ""}`,
+                description: lang === "am"
+                    ? `${overduePayments.length} ወርሃዊ ሂሳብ ያልተከፈለ ነው። ከ10ኛው ቀን በኋላ ዳሽቦርዱ ይዘጋል።`
+                    : "Clear outstanding invoices to avoid your dashboard being locked after the 10th of the month.",
+                actionLabel: lang === "am" ? "ሂሳቦች" : "View Invoices",
+                actionHref: "/student/payments",
+            });
+        }
+    }
 
     if (loading) {
         return (
@@ -270,14 +355,24 @@ export default function StudentHome() {
 
     return (
         <div className="space-y-8">
+            {/* ── Warning Banners ─────────────────────────────────────────── */}
+            {warnings.length > 0 && (
+                <div className="space-y-3">
+                    {warnings.map((w, i) => (
+                        <WarningBanner key={i} {...w} />
+                    ))}
+                </div>
+            )}
+
             {/* Title */}
             <div className="border-b border-navy-border pb-6">
                 <h1 className="text-3xl font-extrabold text-white font-ethiopic leading-snug">
                     {t("studentDashTitle")}
                 </h1>
                 <p className="text-sm text-text-secondary">
-                    Welcome to Arke parent portal. Monitor course calendar,
-                    moral reports, and monthly billing status.
+                    {lang === "am"
+                        ? "ወደ አርኬ ወላጆች ማዕከል እንኳን ደህና መጡ። የትምህርት ካላንደር፣ የስነ-ምግባር ሪፖርቶች እና የወርሃዊ ክፍያ ሁኔታዎችን እዚህ ይከታተሉ።"
+                        : "Welcome to Arke parent portal. Monitor course calendar, moral reports, and monthly billing status."}
                 </p>
             </div>
 
@@ -310,28 +405,27 @@ export default function StudentHome() {
                                             )}
                                         </h3>
                                         <p className="text-xs text-text-secondary">
-                                            Service ID: {teacher.serviceId} |
-                                            Rating: {teacher.rating} ⭐
+                                            {lang === "am" ? "የአገልግሎት መለያ:" : "Service ID:"} {teacher.serviceId} | {lang === "am" ? "ደረጃ:" : "Rating:"} {teacher.rating} ⭐
                                         </p>
                                     </div>
 
                                     <div className="text-xs text-text-secondary space-y-1">
                                         <div>
-                                            📞 Phone:{" "}
+                                            {lang === "am" ? "📞 ስልክ: " : "📞 Phone: "}
                                             <span className="font-semibold text-white">
                                                 {teacher.phone}
                                             </span>
                                         </div>
                                         {teacher.churchDocUrl && (
                                             <div>
-                                                ⛪ church endorsement:{" "}
+                                                {lang === "am" ? "⛪ የቤተክርስቲያን ምስክርነት: " : "⛪ church endorsement: "}
                                                 <a
                                                     href={teacher.churchDocUrl}
                                                     target="_blank"
                                                     rel="noreferrer"
                                                     className="text-gold-primary hover:underline font-bold"
                                                 >
-                                                    View Recommendation Document
+                                                    {lang === "am" ? "የምስክር ወረቀቱን እይ" : "View Recommendation Document"}
                                                 </a>
                                             </div>
                                         )}
@@ -342,8 +436,9 @@ export default function StudentHome() {
                             <div className="text-center py-8 text-text-muted text-sm space-y-2">
                                 <p>⚠️ {t("noTeacherAssigned")}</p>
                                 <p className="text-xs text-text-muted">
-                                    Matches are based on geolocation proximity.
-                                    An administrator is matching your profile.
+                                    {lang === "am"
+                                        ? "ምደባው በቅርበት ርቀት ላይ የተመሰረተ ነው። አስተዳዳሪው በአሁኑ ጊዜ በመመደብ ላይ ነው።"
+                                        : "Matches are based on geolocation proximity. An administrator is matching your profile."}
                                 </p>
                             </div>
                         )}
@@ -352,12 +447,12 @@ export default function StudentHome() {
                     {/* Course Progress Brief card */}
                     <div className="bg-navy-surface border border-navy-border rounded-xl p-6 sm:p-8 shadow-md space-y-4">
                         <h2 className="text-lg font-bold text-white uppercase tracking-wider border-b border-navy-border pb-3">
-                            Active Package
+                            {lang === "am" ? "የነቃ ጥቅል" : "Active Package"}
                         </h2>
                         <div className="flex justify-between items-center bg-navy-mid border border-navy-border rounded-lg p-5">
                             <div>
                                 <span className="text-xs font-semibold text-text-secondary uppercase block">
-                                    Enrolled Course
+                                    {lang === "am" ? "የተመዘገቡበት ኮርስ" : "Enrolled Course"}
                                 </span>
                                 <span className="font-bold text-white text-base capitalize font-ethiopic">
                                     {student?.courseId}
@@ -367,7 +462,7 @@ export default function StudentHome() {
                                 href="/student/progress"
                                 className="px-4 py-2 bg-gold-primary text-navy-deep font-bold rounded text-xs hover:bg-gold-hover transition-all"
                             >
-                                Track Progress
+                                {lang === "am" ? "ሂደቱን ተከታተል" : "Track Progress"}
                             </Link>
                         </div>
                     </div>
@@ -376,13 +471,13 @@ export default function StudentHome() {
                 {/* Right Side: Announcements */}
                 <div className="lg:col-span-5 bg-navy-surface border border-navy-border rounded-xl p-6 shadow-md space-y-4">
                     <h2 className="text-lg font-bold text-white border-b border-navy-border pb-3 uppercase tracking-wider">
-                        Important Notices
+                        {lang === "am" ? "አስፈላጊ ማስታወቂያዎች" : "Important Notices"}
                     </h2>
 
                     <div className="space-y-4 overflow-y-auto max-h-96 pr-2">
                         {announcements.length === 0 ? (
                             <p className="text-xs text-text-muted text-center py-8">
-                                No active notices published yet.
+                                {lang === "am" ? "ምንም ንቁ ማስታወቂያዎች አልተለጠፉም።" : "No active notices published yet."}
                             </p>
                         ) : (
                             announcements.map((ann) => (

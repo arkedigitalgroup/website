@@ -18,6 +18,8 @@ export default function TeacherLayout({ children }) {
     { name: lang === 'am' ? 'ዳሽቦርድ' : 'Overview', path: '/teacher', icon: "🏠" },
     { name: lang === 'am' ? 'ሪፖርት ሙላ' : 'Attendance & Reports', path: '/teacher/attendance', icon: "📝" },
     { name: lang === 'am' ? 'ክፍያዎቼ' : 'Payouts Overview', path: '/teacher/payouts', icon: "💼" },
+    { name: lang === 'am' ? 'መለያዬ' : 'My Account', path: '/teacher/account', icon: "👤" },
+    { name: lang === 'am' ? 'መልዕክት' : 'Support Messages', path: '/teacher/messages', icon: "💬" },
   ];
 
   return (

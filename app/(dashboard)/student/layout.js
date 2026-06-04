@@ -18,6 +18,8 @@ export default function StudentLayout({ children }) {
     { name: lang === 'am' ? 'ዳሽቦርድ' : 'Overview', path: '/student', icon: "🏠" },
     { name: lang === 'am' ? 'የትምህርት ሂደት' : 'Progress Tracking', path: '/student/progress', icon: "📈" },
     { name: lang === 'am' ? 'ክፍያዎች' : 'Payments & Invoices', path: '/student/payments', icon: "💳" },
+    { name: lang === 'am' ? 'መለያዬ' : 'My Account', path: '/student/account', icon: "👤" },
+    { name: lang === 'am' ? 'መልዕክት' : 'Support Messages', path: '/student/messages', icon: "💬" },
   ];
 
   return (
