@@ -16,7 +16,7 @@ export const en = {
     heroTagline: "Fusing Excellence with Ethics!",
     heroSubtitle: "Center for Indigenous Knowledge & Academic Excellence",
     heroYenetaCTA: "Start Yeneta Tutors",
-    heroFidelCTA: "Start Fidel Tutors (Coming Soon)",
+    heroFidelCTA: "Start Fidel Tutors",
     coreBeliefQuote:
         "“Knowledge for Success, Ethics for Life; Arke for the Generation!”",
 

@@ -179,7 +179,20 @@ export default function HomePageClient() {
                             href="/fidel"
                             className="w-full sm:w-auto px-10 py-5 text-base font-bold rounded-lg border border-navy-border bg-navy-mid/40 backdrop-blur-md text-text-secondary btn-pop-teal flex items-center justify-center"
                         >
-                            {t("heroFidelCTA")}
+                            <span>{t("heroFidelCTA")}</span>{" "}
+                            <svg
+                                className="w-5 h-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2.5"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3"
+                                />
+                            </svg>
                         </Link>
                     </div>
                 </div>
@@ -342,8 +355,8 @@ export default function HomePageClient() {
             {/* 5. Founders' Brotherhood Section */}
             {/* <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-20">
                 <div className="glass-panel rounded-3xl p-8 sm:p-16 max-w-4xl mx-auto relative overflow-hidden border border-navy-border/60 shadow-xl hover:border-gold-primary/30 transition-all duration-300"> */}
-                    {/* Subtle gold glow behind */}
-                    {/* <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gold-faint rounded-full filter blur-[80px] pointer-events-none" />
+            {/* Subtle gold glow behind */}
+            {/* <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gold-faint rounded-full filter blur-[80px] pointer-events-none" />
 
                     <div className="relative z-10 space-y-8">
                         <div className="space-y-3">
@@ -367,7 +380,7 @@ export default function HomePageClient() {
                             </span>
                         </div>
                     </div> */}
-                {/* </div> */}
+            {/* </div> */}
             {/* </section> */}
         </div>
     );
