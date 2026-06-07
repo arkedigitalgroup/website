@@ -238,12 +238,24 @@ export default function TeacherHome() {
             e.preventDefault();
             setError("");
             setBusy(true);
+
             try {
                 const credential = PhoneAuthProvider.credential(
                     verificationId,
                     otp,
                 );
+
                 await linkWithCredential(auth.currentUser, credential);
+
+                await setDoc(
+                    doc(db, "teachers", auth.currentUser.uid),
+                    {
+                        phoneVerified: true,
+                        phoneVerifiedAt: new Date(),
+                    },
+                    { merge: true }
+                );
+
                 onSuccess();
             } catch (err) {
                 console.error(err);
@@ -496,7 +508,7 @@ export default function TeacherHome() {
 
     // Phone Verification Check
     // ─── Firebase Phone Verification Gate ───────────────────────────────────────
-    if (user && !user.phoneNumber) {
+    if (user && teacherProfile && !teacherProfile.phoneVerified) {
         return (
             <div className="min-h-[80vh] flex items-center justify-center p-4">
                 <div className="max-w-md w-full bg-navy-surface border border-gold-primary/30 rounded-2xl p-8 shadow-2xl space-y-6 relative overflow-hidden text-center">

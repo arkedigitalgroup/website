@@ -34,9 +34,15 @@
   --yt-parchment:     #F5EDD6;   /* warm bg for Yeneta light sections */
 
   /* ── Fidel Brand (Academic · Modern · Clean) ── */
-  --ft-teal:          #008080;   /* borders, sub-headings, decorative */
-  --ft-teal-hover:    #009999;
-  --ft-teal-faint:    rgba(0, 128, 128, 0.12);
+  --ft-teal:          #0D9488;   /* Electric Teal — accent for tech sections */
+  --ft-teal-hover:    #0F766E;
+  --ft-teal-faint:    rgba(13, 148, 136, 0.12);
+  --ft-amber:         #F59E0B;   /* Solar Amber — primary headings/buttons */
+  --ft-amber-hover:   #D97706;
+  --ft-amber-faint:   rgba(245, 158, 11, 0.12);
+  --ft-obsidian:      #0F172A;   /* Midnight Obsidian — page background */
+  --ft-obsidian-surface: #1E293B; /* elevated surfaces on obsidian */
+  --ft-obsidian-border:  #334155; /* borders on obsidian */
   --ft-gold:          #E8B84B;   /* unified with Arke gold for consistency */
   --ft-cool:          #F0F6FF;   /* cool bg for Fidel light sections */
 

@@ -34,8 +34,15 @@ const config: Config = {
                 },
                 // ── Fidel ──
                 ft: {
-                    teal: "#008080",
-                    "teal-hover": "#009999",
+                    teal: "#0D9488",
+                    "teal-hover": "#0F766E",
+                    "teal-faint": "rgba(13, 148, 136, 0.12)",
+                    amber: "#F59E0B",
+                    "amber-hover": "#D97706",
+                    "amber-faint": "rgba(245, 158, 11, 0.12)",
+                    obsidian: "#0F172A",
+                    "obsidian-surface": "#1E293B",
+                    "obsidian-border": "#334155",
                     cool: "#F0F6FF",
                 },
                 // ── Cream ──

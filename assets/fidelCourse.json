@@ -70,7 +70,7 @@
                 "status": "Open",
                 "max_students_per_session": 1,
                 "group_option_max": 4,
-                "registration_url": "https://arke-group.com/",
+                "registration_url": "https://www.arke-group.com/",
                 "booking_method": "Website or Phone"
             },
             "contact": {
@@ -142,7 +142,7 @@
                 "status": "Open",
                 "max_students_per_session": 20,
                 "group_option_max": 20,
-                "registration_url": "https://arke-group.com/",
+                "registration_url": "https://www.arke-group.com/",
                 "booking_method": "Website or Phone"
             },
             "contact": {
@@ -226,7 +226,7 @@
                 "status": "Open",
                 "max_students_per_session": 1,
                 "group_option_max": 1,
-                "registration_url": "https://arke-group.com/",
+                "registration_url": "https://www.arke-group.com/",
                 "booking_method": "Website or Phone"
             },
             "contact": {
@@ -246,7 +246,6 @@
             "certificate": false,
             "last_updated": "2026-06-02"
         },
-
         {
             "course_id": "Fidel-005",
             "course_slug": "fidel-grade-12-eslce-prep",
@@ -302,7 +301,7 @@
                 "status": "Open",
                 "max_students_per_session": 15,
                 "group_option_max": 15,
-                "registration_url": "https://arke-group.com/",
+                "registration_url": "https://www.arke-group.com/",
                 "booking_method": "Website or Phone"
             },
             "contact": {
@@ -321,7 +320,6 @@
             "certificate": false,
             "last_updated": "2026-06-02"
         },
-
         {
             "course_id": "Fidel-007",
             "course_slug": "fidel-local-languages",
@@ -378,7 +376,7 @@
                 "status": "Open",
                 "max_students_per_session": 8,
                 "group_option_max": 8,
-                "registration_url": "https://arke-group.com/",
+                "registration_url": "https://www.arke-group.com/",
                 "booking_method": "Website or Phone"
             },
             "contact": {
@@ -452,7 +450,7 @@
                 "status": "Open",
                 "max_students_per_session": 1,
                 "group_option_max": 6,
-                "registration_url": "https://arke-group.com/",
+                "registration_url": "https://www.arke-group.com/",
                 "booking_method": "Website or Phone"
             },
             "contact": {
@@ -526,7 +524,7 @@
                 "status": "Open",
                 "max_students_per_session": 1,
                 "group_option_max": 1,
-                "registration_url": "https://arke-group.com/",
+                "registration_url": "https://www.arke-group.com/",
                 "booking_method": "Website or Phone"
             },
             "contact": {
@@ -594,7 +592,7 @@
                 "status": "Open",
                 "max_students_per_session": 1,
                 "group_option_max": 2,
-                "registration_url": "https://arke-group.com/",
+                "registration_url": "https://www.arke-group.com/",
                 "booking_method": "Website or Phone"
             },
             "contact": {
@@ -675,7 +673,7 @@
                 "status": "Open",
                 "max_students_per_session": 1,
                 "group_option_max": 2,
-                "registration_url": "https://arke-group.com/",
+                "registration_url": "https://www.arke-group.com/",
                 "booking_method": "Website or Phone"
             },
             "contact": {
@@ -761,7 +759,7 @@
                 "status": "Open",
                 "max_students_per_session": 1,
                 "group_option_max": 1,
-                "registration_url": "https://arke-group.com/",
+                "registration_url": "https://www.arke-group.com/",
                 "booking_method": "Website or Phone"
             },
             "contact": {
