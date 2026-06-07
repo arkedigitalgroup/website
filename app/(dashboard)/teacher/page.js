@@ -10,6 +10,7 @@ import {
     where,
     doc,
     getDoc,
+    setDoc,
 } from "firebase/firestore";
 import { db } from "../../../src/lib/firebase";
 import { useAuth } from "../../../src/context/AuthContext";
@@ -21,6 +22,7 @@ import {
     PhoneAuthProvider,
     linkWithCredential,
     RecaptchaVerifier,
+    updatePhoneNumber,
 } from "firebase/auth";
 
 // ─── Warning Banner Component ─────────────────────────────────────────────────
@@ -199,6 +201,10 @@ export default function TeacherHome() {
 
             try {
                 const formatted = formatPhone(phone);
+
+                console.log("Original:", phone);
+                console.log("Formatted:", formatted);
+
                 const confirmation = await signInWithPhoneNumber(
                     auth,
                     formatted,
@@ -208,6 +214,8 @@ export default function TeacherHome() {
                 setStep("verify");
             } catch (err) {
                 console.error("Firebase Phone Error:", err.code, err.message);
+                console.error(err);
+                console.log(JSON.stringify(err, null, 2));
                 if (err.code === "auth/invalid-phone-number") {
                     setError(
                         lang === "am"
@@ -245,7 +253,11 @@ export default function TeacherHome() {
                     otp,
                 );
 
-                await linkWithCredential(auth.currentUser, credential);
+                console.log("Current User", auth.currentUser);
+                console.log("Verification ID", verificationId);
+                console.log("OTP", otp);
+
+                await updatePhoneNumber(auth.currentUser, credential);
 
                 await setDoc(
                     doc(db, "teachers", auth.currentUser.uid),

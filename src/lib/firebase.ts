@@ -2,7 +2,7 @@
 // Firebase v10 modular SDK — initialized once, imported everywhere
 
 import { initializeApp, getApps } from "firebase/app";
-import { getAuth, GoogleAuthProvider, PhoneAuthProvider } from "firebase/auth";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
@@ -27,4 +27,4 @@ export const storage = getStorage(app);
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: "select_account" });
 
-export const phoneProvider = new PhoneAuthProvider(auth)
+
