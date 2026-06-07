@@ -18,18 +18,29 @@ import { useLanguage } from "../../../src/context/LanguageContext";
 import { sendEmailVerification } from "firebase/auth";
 
 // ─── Warning Banner Component ─────────────────────────────────────────────────
-function WarningBanner({ type = "warning", icon, title, description, actionLabel, actionHref }) {
+function WarningBanner({
+    type = "warning",
+    icon,
+    title,
+    description,
+    actionLabel,
+    actionHref,
+}) {
     const colors = {
         warning: "border-warning/40 bg-warning/10 text-warning",
-        error:   "border-error/40 bg-error/10 text-error",
-        info:    "border-gold-primary/40 bg-gold-primary/10 text-gold-primary",
+        error: "border-error/40 bg-error/10 text-error",
+        info: "border-gold-primary/40 bg-gold-primary/10 text-gold-primary",
     };
     return (
-        <div className={`border rounded-xl px-5 py-4 flex items-start gap-4 ${colors[type]}`}>
+        <div
+            className={`border rounded-xl px-5 py-4 flex items-start gap-4 ${colors[type]}`}
+        >
             <span className="text-2xl flex-shrink-0 mt-0.5">{icon}</span>
             <div className="flex-grow min-w-0">
                 <p className="font-bold text-sm">{title}</p>
-                <p className="text-xs opacity-80 mt-0.5 leading-relaxed">{description}</p>
+                <p className="text-xs opacity-80 mt-0.5 leading-relaxed">
+                    {description}
+                </p>
             </div>
             {actionLabel && actionHref && (
                 <Link
@@ -84,12 +95,16 @@ export default function StudentHome() {
             const anns = [];
             annSnap.forEach((d) => {
                 const data = d.data();
-                if (data.targetRole === "all" || data.targetRole === "student") {
+                if (
+                    data.targetRole === "all" ||
+                    data.targetRole === "student"
+                ) {
                     anns.push({ id: d.id, ...data });
                 }
             });
             anns.sort(
-                (a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0),
+                (a, b) =>
+                    (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0),
             );
             setAnnouncements(anns);
 
@@ -140,18 +155,22 @@ export default function StudentHome() {
     if (student) {
         // Incomplete profile
         const missingFields = [];
-        if (!student.phone)          missingFields.push(lang === "am" ? "ስልክ ቁጥር" : "phone number");
-        if (!student.christianName)  missingFields.push(lang === "am" ? "የክርስትና ስም" : "Christian name");
-        if (!student.locationPin?.lat) missingFields.push(lang === "am" ? "አካባቢ" : "location");
+        if (!student.phone)
+            missingFields.push(lang === "am" ? "ስልክ ቁጥር" : "phone number");
+        if (!student.christianName)
+            missingFields.push(lang === "am" ? "የክርስትና ስም" : "Christian name");
+        if (!student.locationPin?.lat)
+            missingFields.push(lang === "am" ? "አካባቢ" : "location");
 
         if (missingFields.length > 0) {
             warnings.push({
                 type: "info",
                 icon: "👤",
                 title: lang === "am" ? "መገለጫ ሙሉ አይደለም" : "Profile Incomplete",
-                description: lang === "am"
-                    ? `የሚጎድሉ ሜዳዎች፡ ${missingFields.join("، ")}። እባክዎ ሙሉ ያድርጉ።`
-                    : `Missing: ${missingFields.join(", ")}. Please complete your profile so we can match you faster.`,
+                description:
+                    lang === "am"
+                        ? `የሚጎድሉ ሜዳዎች፡ ${missingFields.join("، ")}። እባክዎ ሙሉ ያድርጉ።`
+                        : `Missing: ${missingFields.join(", ")}. Please complete your profile so we can match you faster.`,
                 actionLabel: lang === "am" ? "አሳካ" : "Complete Profile",
                 actionHref: "/student/account",
             });
@@ -162,10 +181,14 @@ export default function StudentHome() {
             warnings.push({
                 type: "error",
                 icon: "💳",
-                title: lang === "am" ? "የምዝገባ ክፍያ አልተፈጸመም" : "Registration Fee Unpaid",
-                description: lang === "am"
-                    ? "የምዝገባ ክፍያ (400 ብር) ሳይፈጸም መምህር ሊመደብልዎ አይቻልም።"
-                    : "Your registration fee (400 ETB) has not been confirmed. A tutor cannot be matched until payment is cleared.",
+                title:
+                    lang === "am"
+                        ? "የምዝገባ ክፍያ አልተፈጸመም"
+                        : "Registration Fee Unpaid",
+                description:
+                    lang === "am"
+                        ? "የምዝገባ ክፍያ (400 ብር) ሳይፈጸም መምህር ሊመደብልዎ አይቻልም።"
+                        : "Your registration fee (400 ETB) has not been confirmed. A tutor cannot be matched until payment is cleared.",
                 actionLabel: lang === "am" ? "ክፍያ ፈጽም" : "Pay Now",
                 actionHref: "/student/payments",
             });
@@ -176,10 +199,14 @@ export default function StudentHome() {
             warnings.push({
                 type: "warning",
                 icon: "⚠️",
-                title: lang === "am" ? "ያልተከፈለ ወርሃዊ ክፍያ አለ" : `${overduePayments.length} Unpaid Monthly Invoice${overduePayments.length > 1 ? "s" : ""}`,
-                description: lang === "am"
-                    ? `${overduePayments.length} ወርሃዊ ሂሳብ ያልተከፈለ ነው። ከ10ኛው ቀን በኋላ ዳሽቦርዱ ይዘጋል።`
-                    : "Clear outstanding invoices to avoid your dashboard being locked after the 10th of the month.",
+                title:
+                    lang === "am"
+                        ? "ያልተከፈለ ወርሃዊ ክፍያ አለ"
+                        : `${overduePayments.length} Unpaid Monthly Invoice${overduePayments.length > 1 ? "s" : ""}`,
+                description:
+                    lang === "am"
+                        ? `${overduePayments.length} ወርሃዊ ሂሳብ ያልተከፈለ ነው። ከ10ኛው ቀን በኋላ ዳሽቦርዱ ይዘጋል።`
+                        : "Clear outstanding invoices to avoid your dashboard being locked after the 10th of the month.",
                 actionLabel: lang === "am" ? "ሂሳቦች" : "View Invoices",
                 actionHref: "/student/payments",
             });
@@ -205,32 +232,42 @@ export default function StudentHome() {
                     <div className="absolute top-0 left-0 w-full h-2 bg-gold-primary" />
                     <span className="text-5xl block animate-pulse">📧</span>
                     <h1 className="text-2xl sm:text-3xl font-extrabold text-gold-primary font-ethiopic">
-                        {lang === "am" ? "እባክዎ ኢሜልዎን ያረጋግጡ" : "Verify Your Email Address"}
+                        {lang === "am"
+                            ? "እባክዎ ኢሜልዎን ያረጋግጡ"
+                            : "Verify Your Email Address"}
                     </h1>
                     <p className="text-sm text-text-secondary leading-relaxed">
                         {lang === "am"
-                            ? `ወደ ኢሜልዎ (${user.email}) ማረጋገጫ ሊንክ ልከናል። እባክዎ ኢሜልዎን ያረጋግጡ።`
-                            : `We have sent a verification link to your email (${user.email}). Please verify your email to access your dashboard.`}
+                            ? `ወደ ኢሜልዎ (${user.email}) ማረጋገጫ ሊንክ ላክ። እባክዎ ኢሜልዎን ያረጋግጡ።`
+                            : `Please send a verification link to your email (${user.email}). Please verify your email to access your dashboard.`}
                     </p>
                     <div className="pt-4 flex flex-col sm:flex-row justify-center gap-3">
                         <button
                             onClick={() => window.location.reload()}
                             className="px-6 py-2.5 rounded bg-gold-primary text-navy-deep font-bold text-sm hover:bg-gold-hover shadow-gold transition-all"
                         >
-                            {lang === "am" ? "አረጋግጫለሁ (እንደገና ጫን)" : "I've Verified (Refresh)"}
+                            {lang === "am"
+                                ? "አረጋግጬ ጨርሻለሁ፣ አስገባኝ!!"
+                                : "I've Verified (Refresh)"}
                         </button>
                         <button
                             onClick={async () => {
                                 try {
                                     await sendEmailVerification(user);
-                                    alert(lang === "am" ? "የማረጋገጫ ኢሜል ተልኳል!" : "Verification email sent!");
+                                    alert(
+                                        lang === "am"
+                                            ? "የማረጋገጫ ኢሜል ተልኳል!"
+                                            : "Verification email sent!",
+                                    );
                                 } catch (e) {
                                     console.error(e);
                                 }
                             }}
                             className="px-6 py-2.5 rounded border border-navy-border text-white font-bold text-sm hover:bg-navy-mid transition-all"
                         >
-                            {lang === "am" ? "ድጋሚ ላክ" : "Resend Email"}
+                            {lang === "am"
+                                ? "ማረጋገጫ ኢሜል ላክ"
+                                : "Send Verification Email"}
                         </button>
                     </div>
                 </div>
@@ -246,7 +283,9 @@ export default function StudentHome() {
                     <div className="absolute top-0 left-0 w-full h-2 bg-gold-primary" />
                     <span className="text-5xl block animate-pulse">⏳</span>
                     <h1 className="text-2xl sm:text-3xl font-extrabold text-gold-primary font-ethiopic">
-                        {lang === "am" ? "የመለያ ማረጋገጫ በመጠባበቅ ላይ" : "Account Verification Pending"}
+                        {lang === "am"
+                            ? "የመለያ ማረጋገጫ በመጠባበቅ ላይ"
+                            : "Account Verification Pending"}
                     </h1>
                     <p className="text-sm text-text-secondary leading-relaxed">
                         {lang === "am"
@@ -405,27 +444,38 @@ export default function StudentHome() {
                                             )}
                                         </h3>
                                         <p className="text-xs text-text-secondary">
-                                            {lang === "am" ? "የአገልግሎት መለያ:" : "Service ID:"} {teacher.serviceId} | {lang === "am" ? "ደረጃ:" : "Rating:"} {teacher.rating} ⭐
+                                            {lang === "am"
+                                                ? "የአገልግሎት መለያ:"
+                                                : "Service ID:"}{" "}
+                                            {teacher.serviceId} |{" "}
+                                            {lang === "am" ? "ደረጃ:" : "Rating:"}{" "}
+                                            {teacher.rating} ⭐
                                         </p>
                                     </div>
 
                                     <div className="text-xs text-text-secondary space-y-1">
                                         <div>
-                                            {lang === "am" ? "📞 ስልክ: " : "📞 Phone: "}
+                                            {lang === "am"
+                                                ? "📞 ስልክ: "
+                                                : "📞 Phone: "}
                                             <span className="font-semibold text-white">
                                                 {teacher.phone}
                                             </span>
                                         </div>
                                         {teacher.churchDocUrl && (
                                             <div>
-                                                {lang === "am" ? "⛪ የቤተክርስቲያን ምስክርነት: " : "⛪ church endorsement: "}
+                                                {lang === "am"
+                                                    ? "⛪ የቤተክርስቲያን ምስክርነት: "
+                                                    : "⛪ church endorsement: "}
                                                 <a
                                                     href={teacher.churchDocUrl}
                                                     target="_blank"
                                                     rel="noreferrer"
                                                     className="text-gold-primary hover:underline font-bold"
                                                 >
-                                                    {lang === "am" ? "የምስክር ወረቀቱን እይ" : "View Recommendation Document"}
+                                                    {lang === "am"
+                                                        ? "የምስክር ወረቀቱን እይ"
+                                                        : "View Recommendation Document"}
                                                 </a>
                                             </div>
                                         )}
@@ -452,7 +502,9 @@ export default function StudentHome() {
                         <div className="flex justify-between items-center bg-navy-mid border border-navy-border rounded-lg p-5">
                             <div>
                                 <span className="text-xs font-semibold text-text-secondary uppercase block">
-                                    {lang === "am" ? "የተመዘገቡበት ኮርስ" : "Enrolled Course"}
+                                    {lang === "am"
+                                        ? "የተመዘገቡበት ኮርስ"
+                                        : "Enrolled Course"}
                                 </span>
                                 <span className="font-bold text-white text-base capitalize font-ethiopic">
                                     {student?.courseId}
@@ -462,7 +514,9 @@ export default function StudentHome() {
                                 href="/student/progress"
                                 className="px-4 py-2 bg-gold-primary text-navy-deep font-bold rounded text-xs hover:bg-gold-hover transition-all"
                             >
-                                {lang === "am" ? "ሂደቱን ተከታተል" : "Track Progress"}
+                                {lang === "am"
+                                    ? "ሂደቱን ተከታተል"
+                                    : "Track Progress"}
                             </Link>
                         </div>
                     </div>
@@ -477,7 +531,9 @@ export default function StudentHome() {
                     <div className="space-y-4 overflow-y-auto max-h-96 pr-2">
                         {announcements.length === 0 ? (
                             <p className="text-xs text-text-muted text-center py-8">
-                                {lang === "am" ? "ምንም ንቁ ማስታወቂያዎች አልተለጠፉም።" : "No active notices published yet."}
+                                {lang === "am"
+                                    ? "ምንም ንቁ ማስታወቂያዎች አልተለጠፉም።"
+                                    : "No active notices published yet."}
                             </p>
                         ) : (
                             announcements.map((ann) => (
