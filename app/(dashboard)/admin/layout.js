@@ -40,6 +40,11 @@ export default function AdminLayout({ children }) {
             path: "/admin/finances",
             icon: "💼",
         },
+        {
+            name: lang === "am" ? "መልዕክት" : "Messages",
+            path: "/admin/support",
+            icon: "💬",
+        },
     ];
 
     return (

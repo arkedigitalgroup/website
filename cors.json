@@ -1,0 +1,12 @@
+[
+    {
+        "origin": [
+            "http://localhost:3000",
+            "https://arke-group.com",
+            "https://www.arke-group.com"
+        ],
+        "method": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "maxAgeSeconds": 3600,
+        "responseHeader": ["Content-Type", "Authorization", "Content-Length"]
+    }
+]
