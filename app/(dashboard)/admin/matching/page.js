@@ -153,8 +153,26 @@ export default function AdminMatching() {
     const matchedStudents = students.filter((s) => s.assignedTeacherId);
 
     // Compute nearby teachers sorted by distance from selected student
+    // const nearbyTeachers = selectedStudent
+    //     ? teachers
+    //           .map((t) => {
+    //               const dist = calculateDistance(
+    //                   selectedStudent.locationPin?.lat,
+    //                   selectedStudent.locationPin?.lng,
+    //                   t.locationPin?.lat,
+    //                   t.locationPin?.lng,
+    //               );
+    //               return { ...t, distance: dist };
+    //           })
+    //           .sort((a, b) => a.distance - b.distance)
+    //     : [];
     const nearbyTeachers = selectedStudent
         ? teachers
+              .filter(
+                  (t) =>
+                      Array.isArray(t.qualifiedCourses) &&
+                      t.qualifiedCourses.includes(selectedStudent.courseId),
+              )
               .map((t) => {
                   const dist = calculateDistance(
                       selectedStudent.locationPin?.lat,
@@ -164,7 +182,13 @@ export default function AdminMatching() {
                   );
                   return { ...t, distance: dist };
               })
-              .sort((a, b) => a.distance - b.distance)
+              .sort((a, b) => {
+                  // Primary sort: distance. Secondary sort: rating (higher is better)
+                  if (Math.abs(a.distance - b.distance) < 0.5) {
+                      return (b.rating ?? 0) - (a.rating ?? 0);
+                  }
+                  return a.distance - b.distance;
+              })
         : [];
 
     if (loading) {
@@ -329,9 +353,21 @@ export default function AdminMatching() {
                                 </h3>
                                 <div className="space-y-3 max-h-80 overflow-y-auto pr-2">
                                     {nearbyTeachers.length === 0 ? (
-                                        <p className="text-xs text-text-muted text-center py-6">
-                                            No verified tutors registered.
-                                        </p>
+                                        <div className="text-center py-8 space-y-2">
+                                            <p className="text-2xl">⚠️</p>
+                                            <p className="text-sm font-bold text-warning">
+                                                No Qualified Tutors Available
+                                            </p>
+                                            <p className="text-xs text-text-muted">
+                                                No verified tutor is currently
+                                                qualified to teach{" "}
+                                                <span className="text-gold-primary font-semibold capitalize">
+                                                    {selectedStudent.courseId}
+                                                </span>
+                                                . Check the Teachers page to
+                                                verify qualifications.
+                                            </p>
+                                        </div>
                                     ) : (
                                         nearbyTeachers.map((tutor) => (
                                             <div
@@ -346,7 +382,7 @@ export default function AdminMatching() {
                                                         : "bg-navy-mid/50 border-navy-border hover:border-gold-primary/50"
                                                 }`}
                                             >
-                                                <div className="text-xs space-y-1">
+                                                {/* <div className="text-xs space-y-1">
                                                     <div className="font-bold text-white text-sm">
                                                         {tutor.fullName}
                                                     </div>
@@ -354,6 +390,34 @@ export default function AdminMatching() {
                                                         Rating: {tutor.rating}{" "}
                                                         ⭐ | ID:{" "}
                                                         {tutor.serviceId}
+                                                    </div>
+                                                </div> */}
+                                                <div className="text-xs space-y-1">
+                                                    <div className="font-bold text-white text-sm">
+                                                        {tutor.fullName}
+                                                    </div>
+                                                    <div className="text-text-secondary">
+                                                        Rating:{" "}
+                                                        {tutor.rating ?? "N/A"}{" "}
+                                                        ⭐ | ID:{" "}
+                                                        {tutor.serviceId}
+                                                    </div>
+                                                    <div className="flex flex-wrap gap-1 mt-1">
+                                                        {tutor.qualifiedCourses?.map(
+                                                            (course) => (
+                                                                <span
+                                                                    key={course}
+                                                                    className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase border ${
+                                                                        course ===
+                                                                        selectedStudent.courseId
+                                                                            ? "bg-success/10 text-success border-success/30"
+                                                                            : "bg-navy-deep text-text-muted border-navy-border"
+                                                                    }`}
+                                                                >
+                                                                    {course}
+                                                                </span>
+                                                            ),
+                                                        )}
                                                     </div>
                                                 </div>
                                                 <div className="text-right">
