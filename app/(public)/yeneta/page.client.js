@@ -13,47 +13,50 @@ export default function YenetaPageClient() {
     return (
         <div className="space-y-16 pb-20">
             {/* Hero section with Yeneta Maroon styling */}
-            <section className="relative bg-gradient-to-b from-yt-maroon/20 to-navy-deep py-20 px-4 text-center border-b border-yt-maroon overflow-hidden">
-                {/* Giant elegant watermark logo */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0 flex items-center justify-center">
+            <section className="relative bg-gradient-to-b from-yt-maroon/20 to-navy-deep py-20 px-4 border-b border-yt-maroon overflow-hidden">
+                {/* Full-width background image aligned right */}
+                <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden">
                     <img
-                        src="/yenetalogo.png"
+                        src="/yenetapageHero.png"
                         alt=""
-                        className="w-[450px] h-[450px] sm:w-[650px] sm:h-[650px] object-contain opacity-[0.05] pointer-events-none select-none transform rotate-12 scale-110"
+                        className="w-full h-full object-cover object-right opacity-10"
                     />
+                    {/* <div className="absolute inset-0 bg-gradient-to-r from-navy-deep/95 via-navy-deep/85 to-transparent"></div> */}
                 </div>
 
-                <div className="max-w-4xl mx-auto space-y-6 relative z-10">
-                    <div className="flex flex-col items-center gap-4 mb-2">
-                        <div className="relative group">
-                            <div className="absolute inset-0 bg-gold-primary/25 rounded-full blur-2xl group-hover:blur-3xl transition-all duration-300"></div>
-                            <img
-                                src="/yenetalogo.png"
-                                alt="Yeneta Logo"
-                                className="relative w-20 h-20 sm:w-24 sm:h-24 object-contain transition-transform duration-500 group-hover:scale-110 select-none pointer-events-none"
-                            />
+                <div className="relative z-10 max-w-6xl mx-auto flex flex-col items-start gap-6 text-left">
+                    <div className="w-full lg:w-1/2 space-y-6">
+                        <div className="flex flex-col items-start gap-4 mb-2">
+                            <div className="relative group">
+                                <div className="absolute inset-0 bg-gold-primary/25 rounded-full blur-2xl group-hover:blur-3xl transition-all duration-300"></div>
+                                <img
+                                    src="/yenetalogo.png"
+                                    alt="Yeneta Logo"
+                                    className="relative w-20 h-20 sm:w-24 sm:h-24 object-contain transition-transform duration-500 group-hover:scale-110 select-none pointer-events-none"
+                                />
+                            </div>
+                            <span className="px-4 py-1.5 rounded-full bg-yt-maroon-faint border border-yt-maroon text-gold-primary text-sm font-semibold uppercase tracking-wider">
+                                {lang === "am"
+                                    ? "የየኔታ አስጠኚ | ጥበብን ከምንጩ፣ ስነ-ምግባርን ከቤቱ!"
+                                    : "Yeneta Spiritual Tutors | Wisdom from the Source, Ethics from the Home!"}
+                            </span>
                         </div>
-                        <span className="px-4 py-1.5 rounded-full bg-yt-maroon-faint border border-yt-maroon text-gold-primary text-sm font-semibold uppercase tracking-wider">
+                        <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white font-ethiopic leading-snug">
                             {lang === "am"
-                                ? "የየኔታ አስጠኚ | ጥበብን ከምንጩ፣ ስነ-ምግባርን ከቤቱ!"
-                                : "Yeneta Spiritual Tutors | Wisdom from the Source, Ethics from the Home!"}
-                        </span>
+                                ? "መንፈሳዊ የቤት ውስጥ ትምህርቶች"
+                                : "Spiritual Home Tutoring"}
+                        </h1>
+                        <p className="text-base sm:text-xl text-text-secondary font-medium">
+                            {lang === "am"
+                                ? "ልጆች በባዕድ ባህል እንዳይበከሉ መንፈሳዊ እውቀትን (ግዕዝ፣ ዜማ፣ ስነ-ምግባር) በቤታቸው እንዲማሩ በማድረግ፣ ውስጣዊ ማንነታቸውን እንዲያውቁ፣ ወላጆቻቸውን እንዲያከብሩ እና ከክፉ ድርጊቶች እንዲርቁ እናደርጋለን።"
+                                : "To prevent children from losing their roots to foreign cultural erosion, Yeneta Tutors provides spiritual and traditional wisdom (Ge’ez, Zema, and Ethics) at home. This ensures they grow up respecting their heritage and their parents."}
+                        </p>
+                        <p className="text-sm text-gold-primary font-medium">
+                            {lang === "am"
+                                ? "በቤተክርስቲያን የተመሰከረላቸውን ብቁ የኔታዎች ከተማሪዎች ጋር በማገናኘት፣ በቤቶት ሆነው ግዕዝ፣ ቅዳሴ፣ ዜማ እና ስነ-ምግባርን ይማሩ።"
+                                : "Empowering the next generation with deep cultural identity, liturgical chants, Ge'ez literacy, and Orthodox theology from vetted tutors in your home."}
+                        </p>
                     </div>
-                    <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white font-ethiopic leading-snug">
-                        {lang === "am"
-                            ? "መንፈሳዊ የቤት ውስጥ ትምህርቶች"
-                            : "Spiritual Home Tutoring"}
-                    </h1>
-                    <p className="text-base sm:text-xl text-text-secondary max-w-2xl mx-auto font-medium">
-                        {lang === "am"
-                            ? "ልጆች በባዕድ ባህል እንዳይበከሉ መንፈሳዊ እውቀትን (ግዕዝ፣ ዜማ፣ ስነ-ምግባር) በቤታቸው እንዲማሩ በማድረግ፣ ውስጣዊ ማንነታቸውን እንዲያውቁ፣ ወላጆቻቸውን እንዲያከብሩ እና ከክፉ ድርጊቶች እንዲርቁ እናደርጋለን። "
-                            : " To prevent children from losing their roots to foreign cultural erosion, Yeneta Tutors provides spiritual and traditional wisdom (Ge’ez, Zema, and Ethics) at home. This ensures they grow up respecting their heritage and their parents."}
-                    </p>
-                    <p className="text-sm text-gold-primary max-w-3xl mx-auto font-medium">
-                        {lang === "am"
-                            ? "በቤተክርስቲያን የተመሰከረላቸውን ብቁ የኔታዎች ከተማሪዎች ጋር በማገናኘት፣ በቤቶት ሆነው ግዕዝ፣ ቅዳሴ፣ ዜማ እና ስነ-ምግባርን ይማሩ።"
-                            : "Empowering the next generation with deep cultural identity, liturgical chants, Ge'ez literacy, and Orthodox theology from vetted tutors in your home."}
-                    </p>
                 </div>
             </section>
 
