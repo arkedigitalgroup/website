@@ -14,11 +14,18 @@ import {
 import { db } from "../../../../src/lib/firebase";
 import { useAuth } from "../../../../src/context/AuthContext";
 import { useLanguage } from "../../../../src/context/LanguageContext";
-import { calcMonthlyTotal } from "../../../../src/types/index";
+import {
+    usePlatformConfig,
+    calcMonthlyTotal,
+} from "../../../../src/hooks/Useplatformconfig";
 
 export default function StudentPayments() {
     const { user } = useAuth();
     const { lang } = useLanguage();
+    const { config } = usePlatformConfig();
+    const { courses: yenetaCourses } = useCourses("yeneta", lang);
+    const { courses: fidelCourses } = useCourses("fidel", lang);
+    const courses = [...yenetaCourses, ...fidelCourses];
     const [payments, setPayments] = useState([]);
     const [student, setStudent] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -148,9 +155,10 @@ export default function StudentPayments() {
                             <tbody className="divide-y divide-navy-border font-medium">
                                 {payments.map((invoice) => {
                                     const total =
-                                        invoice.totalAmount ||
+                                        invoice.totalAmount ??
                                         calcMonthlyTotal(
-                                            invoice.coursePrice || 4200,
+                                            config,
+                                            invoice.coursePrice ?? 0,
                                         );
                                     const isPaid = invoice.status === "paid";
                                     const isOverdue =
@@ -165,8 +173,12 @@ export default function StudentPayments() {
                                                 {invoice.month}
                                             </td>
                                             <td className="p-4 text-text-secondary capitalize">
-                                                Course Package:{" "}
-                                                {student?.courseId}
+                                                Course Package: Course Package:{" "}
+                                                {courses.find(
+                                                    (c) =>
+                                                        c.id ===
+                                                        student?.courseId,
+                                                )?.name ?? student?.courseId}
                                             </td>
                                             <td className="p-4 text-gold-primary font-bold">
                                                 {total.toLocaleString()} ETB

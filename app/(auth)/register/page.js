@@ -12,8 +12,8 @@ import { useLanguage } from "../../../src/context/LanguageContext";
 import { useAuth } from "../../../src/context/AuthContext";
 import AuthNavbar from "../../../src/components/layout/AuthNavbar";
 import MapPicker from "../../../src/components/ui/MapPicker";
-import { getYenetaCourses } from "../../../assets/yenetaCourse";
-import fidelCourseData from "../../../assets/fidelCourse.json";
+import { useCourses } from "../../../src/hooks/Usecourses";
+import { usePlatformConfig } from "../../../src/hooks/Useplatformconfig";
 import emailjs from "@emailjs/browser";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -62,18 +62,7 @@ function ServiceLineBadge({ serviceLine, lang }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // TEACHER COURSE MULTI-SELECT
 // ─────────────────────────────────────────────────────────────────────────────
-function CourseMultiSelect({
-    serviceLine,
-    selectedCourses,
-    onChange,
-    t,
-    lang,
-}) {
-    const courses =
-        serviceLine === "yeneta"
-            ? getYenetaCourses(t)
-            : fidelCourseData.courses;
-
+function CourseMultiSelect({ courses, selectedCourses, onChange, t, lang }) {
     const toggle = (id) => {
         if (selectedCourses.includes(id)) {
             onChange(selectedCourses.filter((c) => c !== id));
@@ -105,8 +94,8 @@ function CourseMultiSelect({
 
             <div className="grid grid-cols-1 gap-2 max-h-52 overflow-y-auto pr-1 custom-scroll">
                 {courses.map((course) => {
-                    const id = getId(course);
-                    const label = getLabel(course);
+                    const id = course.id;
+                    const label = course.name;
                     const checked = selectedCourses.includes(id);
 
                     return (
@@ -302,6 +291,14 @@ function RegisterPageContent() {
      * Derived from ?line= query param set by the course page.
      */
     const [serviceLine] = useState(urlLine);
+
+    const { config } = usePlatformConfig();
+    const { courses: yenetaCourses, loading: coursesLoading } = useCourses(
+        "yeneta",
+        lang,
+    );
+    const { courses: fidelCourses } = useCourses("fidel", lang);
+    const courses = serviceLine === "yeneta" ? yenetaCourses : fidelCourses;
 
     // Keep role in sync if user navigates back/forward with different params
     useEffect(() => {
@@ -790,29 +787,20 @@ function RegisterPageContent() {
                                             }
                                             className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
                                         >
-                                            {serviceLine === "yeneta"
-                                                ? getYenetaCourses(t).map(
-                                                      (pkg) => (
-                                                          <option
-                                                              key={pkg.id}
-                                                              value={pkg.id}
-                                                          >
-                                                              {pkg.name}
-                                                          </option>
-                                                      ),
-                                                  )
-                                                : fidelCourseData.courses.map(
-                                                      (c) => (
-                                                          <option
-                                                              key={c.course_id}
-                                                              value={
-                                                                  c.course_id
-                                                              }
-                                                          >
-                                                              {c.course_name}
-                                                          </option>
-                                                      ),
-                                                  )}
+                                            {coursesLoading ? (
+                                                <option disabled>
+                                                    Loading courses...
+                                                </option>
+                                            ) : (
+                                                courses.map((c) => (
+                                                    <option
+                                                        key={c.id}
+                                                        value={c.id}
+                                                    >
+                                                        {c.name}
+                                                    </option>
+                                                ))
+                                            )}
                                         </select>
                                     </div>
                                 </div>
@@ -835,7 +823,7 @@ function RegisterPageContent() {
                                                 : "Registration Fee"}
                                         </span>
                                         <span className="font-extrabold text-gold-primary">
-                                            400 ETB
+                                            {config.registrationFeeStudent} ETB
                                         </span>
                                     </div>
                                     <p className="text-xs text-text-secondary">
@@ -952,7 +940,7 @@ function RegisterPageContent() {
                                 {/* Course Qualification Multi-Select */}
                                 <div className="pt-1 border-t border-navy-border">
                                     <CourseMultiSelect
-                                        serviceLine={serviceLine}
+                                        courses={courses}
                                         selectedCourses={qualifiedCourses}
                                         onChange={setQualifiedCourses}
                                         t={t}

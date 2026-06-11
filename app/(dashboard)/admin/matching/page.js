@@ -14,8 +14,22 @@ import { db } from "../../../../src/lib/firebase";
 import { useLanguage } from "../../../../src/context/LanguageContext";
 import MatchingMap from "../../../../src/components/dashboard/MatchingMap";
 
+// ADD after the useLanguage line
+import {
+    usePlatformConfig,
+    calcMonthlyTotal,
+    calcCompanyRevenue,
+    calcTeacherPayout,
+} from "../../../../src/hooks/Useplatformconfig";
+import { useCourses, getCoursePrice } from "../../../../src/hooks/Usecourses";
+
 export default function AdminMatching() {
     const { t, lang } = useLanguage();
+    const { config } = usePlatformConfig();
+    const { courses: yenetaCourses } = useCourses("yeneta", lang);
+    const { courses: fidelCourses } = useCourses("fidel", lang);
+    const courses = [...yenetaCourses, ...fidelCourses];
+
     const [students, setStudents] = useState([]);
     const [teachers, setTeachers] = useState([]);
     const [selectedStudent, setSelectedStudent] = useState(null);
@@ -80,20 +94,26 @@ export default function AdminMatching() {
         setMatchSuccess("");
 
         try {
-            // 1. Update student document with assignedTeacherId
             const studentRef = doc(db, "students", selectedStudent.id);
             await updateDoc(studentRef, {
                 assignedTeacherId: selectedTeacher.id,
             });
 
-            // 2. Update teacher document adding studentId to assignedStudentIds
             const teacherRef = doc(db, "teachers", selectedTeacher.id);
             await updateDoc(teacherRef, {
                 assignedStudentIds: arrayUnion(selectedStudent.id),
             });
 
-            // Create a mock active payment record for this month so student dashboard lock displays properly
-            const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+            const currentMonth = new Date().toISOString().slice(0, 7);
+            const coursePrice = getCoursePrice(
+                courses,
+                selectedStudent.courseId,
+            );
+            const serviceFee = config.serviceFeeMonthly;
+            const totalAmount = calcMonthlyTotal(config, coursePrice);
+            const companyRevenue = calcCompanyRevenue(config, coursePrice);
+            const teacherPayout = calcTeacherPayout(config, coursePrice);
+
             const paymentRef = doc(
                 db,
                 "payments",
@@ -104,33 +124,13 @@ export default function AdminMatching() {
                 studentId: selectedStudent.id,
                 teacherId: selectedTeacher.id,
                 month: currentMonth,
-                coursePrice:
-                    selectedStudent.courseId === "all-courses"
-                        ? 7100
-                        : selectedStudent.courseId === "diquna-zegajat"
-                          ? 4700
-                          : 4200,
-                serviceFee: 100,
-                totalAmount:
-                    selectedStudent.courseId === "all-courses"
-                        ? 7200
-                        : selectedStudent.courseId === "diquna-zegajat"
-                          ? 4800
-                          : 4300,
+                coursePrice,
+                serviceFee,
+                totalAmount,
+                companyRevenue,
+                teacherPayout,
                 status: "pending",
                 paidAt: null,
-                companyRevenue:
-                    selectedStudent.courseId === "all-courses"
-                        ? 1165
-                        : selectedStudent.courseId === "diquna-zegajat"
-                          ? 805
-                          : 730,
-                teacherPayout:
-                    selectedStudent.courseId === "all-courses"
-                        ? 6035
-                        : selectedStudent.courseId === "diquna-zegajat"
-                          ? 3995
-                          : 3570,
             });
 
             setMatchSuccess(
@@ -140,7 +140,7 @@ export default function AdminMatching() {
             );
             setSelectedStudent(null);
             setSelectedTeacher(null);
-            loadMatchingData(); // Refresh records
+            loadMatchingData();
         } catch (err) {
             console.error("Matching assignment error:", err);
         } finally {
@@ -183,7 +183,12 @@ export default function AdminMatching() {
                   return { ...t, distance: dist };
               })
               .sort((a, b) => {
-                  // Primary sort: distance. Secondary sort: rating (higher is better)
+                  const pref = selectedStudent.preferredTutorGender;
+                  const aMatch =
+                      !pref || pref === "any" || a.gender === pref ? 0 : 1;
+                  const bMatch =
+                      !pref || pref === "any" || b.gender === pref ? 0 : 1;
+                  if (aMatch !== bMatch) return aMatch - bMatch; // preferred gender first
                   if (Math.abs(a.distance - b.distance) < 0.5) {
                       return (b.rating ?? 0) - (a.rating ?? 0);
                   }
@@ -382,16 +387,6 @@ export default function AdminMatching() {
                                                         : "bg-navy-mid/50 border-navy-border hover:border-gold-primary/50"
                                                 }`}
                                             >
-                                                {/* <div className="text-xs space-y-1">
-                                                    <div className="font-bold text-white text-sm">
-                                                        {tutor.fullName}
-                                                    </div>
-                                                    <div className="text-text-secondary">
-                                                        Rating: {tutor.rating}{" "}
-                                                        ⭐ | ID:{" "}
-                                                        {tutor.serviceId}
-                                                    </div>
-                                                </div> */}
                                                 <div className="text-xs space-y-1">
                                                     <div className="font-bold text-white text-sm">
                                                         {tutor.fullName}
@@ -402,6 +397,22 @@ export default function AdminMatching() {
                                                         ⭐ | ID:{" "}
                                                         {tutor.serviceId}
                                                     </div>
+                                                    {selectedStudent.preferredTutorGender !==
+                                                        "any" && (
+                                                        <div
+                                                            className={`text-[10px] font-bold mt-0.5 ${
+                                                                tutor.gender ===
+                                                                selectedStudent.preferredTutorGender
+                                                                    ? "text-success"
+                                                                    : "text-warning"
+                                                            }`}
+                                                        >
+                                                            {tutor.gender ===
+                                                            selectedStudent.preferredTutorGender
+                                                                ? "✓ Matches gender preference"
+                                                                : "⚠ Does not match gender preference"}
+                                                        </div>
+                                                    )}
                                                     <div className="flex flex-wrap gap-1 mt-1">
                                                         {tutor.qualifiedCourses?.map(
                                                             (course) => (

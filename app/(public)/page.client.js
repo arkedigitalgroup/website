@@ -4,6 +4,7 @@
 import React from "react";
 import Link from "next/link";
 import { useLanguage } from "../../src/context/LanguageContext";
+import { FeaturesSection } from "./components/featured";
 
 export default function HomePageClient() {
     const { t, lang } = useLanguage();
@@ -195,6 +196,17 @@ export default function HomePageClient() {
                             </svg>
                         </Link>
                     </div>
+                    <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                        <div className="flex -space-x-2">
+                            {[...Array(3)].map((_, i) => (
+                                <div
+                                    key={i}
+                                    className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full border-2 border-background"
+                                ></div>
+                            ))}
+                        </div>
+                        <span>{t("heroDowntitle")}</span>
+                    </div>
                 </div>
             </section>
 
@@ -352,6 +364,7 @@ export default function HomePageClient() {
                 </div>
             </section>
 
+            {/* <FeaturesSection /> */}
             {/* 5. Founders' Brotherhood Section */}
             {/* <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-20">
                 <div className="glass-panel rounded-3xl p-8 sm:p-16 max-w-4xl mx-auto relative overflow-hidden border border-navy-border/60 shadow-xl hover:border-gold-primary/30 transition-all duration-300"> */}

@@ -15,6 +15,7 @@ export const am = {
     // Home Page Hero
     heroTagline: "እውቀትን ከስነ-ምግባር ጋር!",
     heroSubtitle: "የሀገር በቀል እውቀት እና የአካዳሚክ የላቀ ብቃት ማዕከል",
+    heroDowntitle: "ከ500+ በሆኑ ኢትዮጵያውያን ተመራጭ የሆነ",
     heroYenetaCTA: "የየኔታ አስጠኚ ይጀምሩ",
     heroFidelCTA: "የፊደል አስጠኚ ይጀምሩ",
     coreBeliefQuote: "«ዕውቀት ለስኬት፣ ሥነ-ምግባር ለሕይወት፤ አርኬ ለትውልድ!»",

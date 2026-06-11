@@ -6,7 +6,11 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../../../src/lib/firebase";
 import { useAuth } from "../../../../src/context/AuthContext";
 import { useLanguage } from "../../../../src/context/LanguageContext";
-import { calcTeacherPayout } from "../../../../src/types/index";
+import {
+    usePlatformConfig,
+    calcTeacherPayout,
+} from "../../../../src/hooks/Useplatformconfig";
+import { useCourses, getCoursePrice } from "../../../../src/hooks/Usecourses";
 
 export default function TeacherPayouts() {
     const { user } = useAuth();
@@ -14,6 +18,11 @@ export default function TeacherPayouts() {
     const [payments, setPayments] = useState([]);
     const [students, setStudents] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { config } = usePlatformConfig();
+
+    const { courses: yenetaCourses } = useCourses("yeneta", lang);
+    const { courses: fidelCourses } = useCourses("fidel", lang);
+    const courses = [...yenetaCourses, ...fidelCourses];
 
     useEffect(() => {
         const fetchPayouts = async () => {
@@ -69,8 +78,8 @@ export default function TeacherPayouts() {
 
         // Add net teacher payout (85% of course price)
         const payout =
-            payment.teacherPayout ||
-            calcTeacherPayout(payment.coursePrice || 4200);
+            payment.teacherPayout ??
+            calcTeacherPayout(config, payment.coursePrice ?? 0);
         monthlyAggregates[month].amount += payout;
         monthlyAggregates[month].studentsCount++;
         if (payment.status === "paid") {
@@ -178,13 +187,11 @@ export default function TeacherPayouts() {
                 ) : (
                     <div className="space-y-3">
                         {students.map((student) => {
-                            const price =
-                                student.courseId === "all-courses"
-                                    ? 7100
-                                    : student.courseId === "diquna-zegajat"
-                                      ? 4700
-                                      : 4200;
-                            const netPayout = calcTeacherPayout(price);
+                            const price = getCoursePrice(
+                                courses,
+                                student.courseId,
+                            );
+                            const netPayout = calcTeacherPayout(config, price);
                             return (
                                 <div
                                     key={student.id}
@@ -203,7 +210,10 @@ export default function TeacherPayouts() {
                                             {netPayout.toLocaleString()} ETB
                                         </span>
                                         <span className="text-[10px] text-text-muted block">
-                                            85% Share
+                                            {(
+                                                config.teacherPayoutRatio * 100
+                                            ).toFixed(0)}
+                                            % Share
                                         </span>
                                     </div>
                                 </div>

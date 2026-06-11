@@ -15,6 +15,7 @@ export const en = {
     // Home Page Hero
     heroTagline: "Fusing Excellence with Ethics!",
     heroSubtitle: "Center for Indigenous Knowledge & Academic Excellence",
+    heroDowntitle: "Trusted by 500+ Ethiopian families",
     heroYenetaCTA: "Start Yeneta Tutors",
     heroFidelCTA: "Start Fidel Tutors",
     coreBeliefQuote:
