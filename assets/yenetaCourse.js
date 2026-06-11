@@ -5,6 +5,8 @@ export const getYenetaCourses = (t) => [
         desc: t("package1Desc"),
         syllabus: t("package1Syllabus"),
         price: 4199,
+        images: "/mesereteImnet.jpg",
+        alt: "Arke Tutoring",
     },
     {
         id: "quanquanna-zema",
@@ -12,12 +14,16 @@ export const getYenetaCourses = (t) => [
         desc: t("package2Desc"),
         syllabus: t("package2Syllabus"),
         price: 5499,
+        images: "/quanquaEnaZema.jpg",
+        alt: "Arke Tutoring",
     },
     {
         id: "diquna-zegajat",
+        alt: "Arke Tutoring",
         name: t("package3"),
         desc: t("package3Desc"),
         syllabus: t("package3Syllabus"),
+        images: "/dikuninaZigijit.jpg",
         price: 5999,
     },
     {
@@ -25,14 +31,17 @@ export const getYenetaCourses = (t) => [
         name: t("package4"),
         desc: t("package4Desc"),
         syllabus: t("package4Syllabus"),
+        images: "/allCourse.jpg",
+        alt: "Arke Tutoring",
         price: 7999,
     },
     {
         id: "begena",
         name: t("package5"),
         desc: t("package5Desc"),
+        images: "/begenaBack.jpg",
         syllabus: t("package5Syllabus"),
+        alt: "Arke Tutoring",
         price: 6099,
     },
 ];
-

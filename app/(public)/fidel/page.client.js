@@ -74,7 +74,8 @@ function CourseCard({ course, lang }) {
                             ⭐ {institution.rating}
                             {institution.total_reviews && (
                                 <span className="text-white/40">
-                                    ({institution.total_reviews.toLocaleString()}
+                                    (
+                                    {institution.total_reviews.toLocaleString()}
                                     )
                                 </span>
                             )}
@@ -241,67 +242,71 @@ export default function FidelPageClient() {
 
     return (
         <div className="relative space-y-16 pb-20 bg-ft-obsidian min-h-screen">
-            {/* Hero section with Solar Amber + Obsidian styling */}
-            <section className="relative bg-gradient-to-b from-ft-amber/10 via-ft-obsidian to-ft-obsidian py-20 px-4 text-center border-b border-ft-amber/20 overflow-hidden">
-                {/* Giant elegant watermark logo */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0 flex items-center justify-center">
+            {/* Hero section with */}
+
+            <section className="relative  min-h-[60vh] max-h-[100vh] py-16 px-4 border-b border-ft-amber/20 overflow-hidden flex items-center">
+                {/* Full-width background image aligned right */}
+                <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden">
                     <img
-                        src="/fidellogo.png"
+                        src="/fidelPageHero.jpg"
                         alt=""
-                        className="w-[450px] h-[450px] sm:w-[650px] sm:h-[650px] object-contain opacity-[0.04] pointer-events-none select-none transform rotate-12 scale-110"
+                        className="w-full h-full object-cover object-right opacity-80"
                     />
+                    <div className="absolute inset-0 bg-gradient-to-r from-ft-obsidian via-ft-obsidian/80 to-transparent"></div>
                 </div>
 
-                <div className="max-w-4xl mx-auto space-y-6 relative z-10">
-                    <div className="flex flex-col items-center gap-4 mb-2">
-                        <div className="relative group">
-                            <div className="absolute inset-0 bg-ft-amber/20 rounded-full blur-2xl group-hover:blur-3xl transition-all duration-300"></div>
-                            <img
-                                src="/fidellogo.png"
-                                alt="Fidel Logo"
-                                className="relative w-20 h-20 sm:w-24 sm:h-24 object-contain transition-transform duration-500 group-hover:scale-110 select-none pointer-events-none"
-                            />
+                <div className="relative z-10 max-w-6xl mx-auto flex flex-col items-start gap-6 text-left w-full">
+                    <div className="w-full lg:w-1/2 space-y-5">
+                        <div className="flex flex-col items-start gap-4 mb-2">
+                            <div className="relative group">
+                                <div className="absolute inset-0 bg-ft-amber/20 rounded-full blur-2xl group-hover:blur-3xl transition-all duration-300"></div>
+                                <img
+                                    src="/fidellogo.png"
+                                    alt="Fidel Logo"
+                                    className="relative w-16 h-16 sm:w-20 sm:h-20 object-contain transition-transform duration-500 group-hover:scale-110 select-none pointer-events-none"
+                                />
+                            </div>
+                            <span className="px-4 py-1.5 rounded-full bg-ft-amber/10 border border-ft-amber/40 text-ft-amber text-sm font-semibold uppercase tracking-wider">
+                                {lang === "am"
+                                    ? "የፊደል አስጠኚ | ለብሩህ ትውልድ፣ ብቁ አስጠኚ!"
+                                    : "Fidel Academic Tutors | Quality Tutors for a Brighter Generation!"}
+                            </span>
                         </div>
-                        <span className="px-4 py-1.5 rounded-full bg-ft-amber/10 border border-ft-amber/40 text-ft-amber text-sm font-semibold uppercase tracking-wider">
+                        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white font-ethiopic leading-snug">
                             {lang === "am"
-                                ? "የፊደል አስጠኚ | ለብሩህ ትውልድ፣ ብቁ አስጠኚ!"
-                                : "Fidel Academic Tutors | Quality Tutors for a Brighter Generation!"}
-                        </span>
-                    </div>
-                    <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white font-ethiopic leading-snug">
-                        {lang === "am"
-                            ? "ዘመናዊ አካዳሚክ አስጠኚ ለልጆችዎ"
-                            : "Modern Academic Tutoring in Ethiopia"}
-                    </h1>
-                    <p className="text-base sm:text-xl text-white/70 max-w-2xl mx-auto font-medium">
-                        {lang === "am"
-                            ? "ትምህርት ቤቶች በብዛት ተማሪ ስለሚይዙ ለእያንዳንዱ ተማሪ ትኩረት ለመስጠት አዳጋች ሆኗል። እኛ መምህራኑን ቤት ድረስ በመላክ፣ ተማሪው በአለማዊ ትምህርቱ ውጤታማ እንዲሆን እና በሱስ እንዳይጠመድ የቅርብ ክትትል እና የምክር አገልግሎት እንሰጣለን። "
-                            : "Overcrowded schools often fail to provide individual attention. We  bring elite educators directly to your home, ensuring students excel in their secular education while receiving mentorship to stay protected from negative influences."}
-                    </p>
-                    <p className="text-sm text-ft-teal max-w-3xl mx-auto font-medium">
-                        {lang === "am"
-                            ? "የክፍል ትምህርትን የሚያግዝ፣ በሂሳብ፣ ሳይንስ፣ እንግሊዝኛ እና ሌሎች ቋንቋዎች ከፍተኛ ውጤት እንዲያመጡ የሚያግዝ ብቁ የአካዳሚክ አስተማሪዎች ስብስብ።"
-                            : "Secure, high-quality, in-home academic tutoring covering school curriculum, STEM subjects, and languages to boost student performance."}
-                    </p>
+                                ? "ዘመናዊ አካዳሚክ አስጠኚ ለልጆችዎ"
+                                : "Modern Academic Tutoring in Ethiopia"}
+                        </h1>
+                        <p className="text-base sm:text-lg text-white/80 font-medium leading-relaxed">
+                            {lang === "am"
+                                ? "ትምህርት ቤቶች በብዛት ተማሪ ስለሚይዙ ለእያንዳንዱ ተማሪ ትኩረት ለመስጠት አዳጋች ሆኗል። እኛ መምህራኑን ቤት ድረስ በመላክ፣ ተማሪው በአለማዊ ትምህርቱ ውጤታማ እንዲሆን እና በሱስ እንዳይጠመድ የቅርብ ክትትል እና የምክር አገልግሎት እንሰጣለን።"
+                                : "Overcrowded schools often fail to provide individual attention. We bring elite educators directly to your home, ensuring students excel in their secular education while receiving mentorship to stay protected from negative influences."}
+                        </p>
+                        <p className="text-sm text-ft-teal font-medium">
+                            {lang === "am"
+                                ? "የክፍል ትምህርትን የሚያግዝ፣ በሂሳብ፣ ሳይንስ፣ እንግሊዝኛ እና ሌሎች ቋንቋዎች ከፍተኛ ውጤት እንዲያመጡ የሚያግዝ ብቁ የአካዳሚክ አስተማሪዎች ስብስብ።"
+                                : "Secure, high-quality, in-home academic tutoring covering school curriculum, STEM subjects, and languages to boost student performance."}
+                        </p>
 
-                    {/* Hero CTA */}
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-                        <a
-                            href="#courses"
-                            className="px-8 py-3.5 text-base font-bold rounded-xl bg-ft-amber text-ft-obsidian hover:bg-ft-amber-hover hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-md"
-                        >
-                            {lang === "am"
-                                ? "ኮርሶችን ይመልከቱ ↓"
-                                : "Browse Courses ↓"}
-                        </a>
-                        <Link
-                            href="/register?role=teacher&line=fidel"
-                            className="px-8 py-3.5 text-base font-semibold rounded-xl border border-ft-teal/60 text-ft-teal hover:bg-ft-teal/10 transition-colors"
-                        >
-                            {lang === "am"
-                                ? "እንደ መምህር ይመዝገቡ"
-                                : "Register as Teacher"}
-                        </Link>
+                        {/* Hero CTA */}
+                        <div className="flex flex-col sm:flex-row items-start gap-4 pt-2">
+                            <a
+                                href="#courses"
+                                className="px-8 py-3.5 text-base font-bold rounded-xl bg-ft-amber text-ft-obsidian hover:bg-ft-amber-hover hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-md"
+                            >
+                                {lang === "am"
+                                    ? "ኮርሶችን ይመልከቱ ↓"
+                                    : "Browse Courses ↓"}
+                            </a>
+                            <a
+                                href="/register?role=teacher&line=fidel"
+                                className="px-8 py-3.5 text-base font-semibold rounded-xl border border-ft-teal/60 text-ft-teal hover:bg-ft-teal/10 transition-colors"
+                            >
+                                {lang === "am"
+                                    ? "እንደ መምህር ይመዝገቡ"
+                                    : "Register as Teacher"}
+                            </a>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -314,9 +319,7 @@ export default function FidelPageClient() {
                 {/* Section header */}
                 <div className="text-center space-y-2">
                     <h2 className="text-2xl sm:text-3xl font-bold text-white font-ethiopic">
-                        {lang === "am"
-                            ? "የትምህርት ጥቅሎች"
-                            : "Academic Packages"}
+                        {lang === "am" ? "የትምህርት ጥቅሎች" : "Academic Packages"}
                     </h2>
                     <p className="text-sm text-white/60 max-w-xl mx-auto">
                         {lang === "am"

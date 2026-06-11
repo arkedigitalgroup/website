@@ -6,60 +6,57 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../../../src/lib/firebase";
 import { useLanguage } from "../../../../src/context/LanguageContext";
 import {
+    usePlatformConfig,
     calcMonthlyTotal,
     calcCompanyRevenue,
     calcTeacherPayout,
-    REGISTRATION_FEE_STUDENT,
-    REGISTRATION_FEE_TEACHER,
-    SERVICE_FEE,
-} from "../../../../src/types/index";
+} from "../../../../src/hooks/Useplatformconfig";
+import { useCourses, getCoursePrice } from "../../../../src/hooks/Usecourses";
 
 export default function AdminFinances() {
     const { t, lang } = useLanguage();
+    const { config, loading: configLoading } = usePlatformConfig();
+
+    // Yeneta courses for price lookup — finance page is Yeneta-only for now.
+    // When Fidel goes live, fetch both and merge: [...yeneta, ...fidel]
+    const { courses, loading: coursesLoading } = useCourses("yeneta", lang);
+
     const [payments, setPayments] = useState([]);
     const [teachers, setTeachers] = useState([]);
     const [students, setStudents] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    const loadFinanceData = async () => {
-        try {
-            setLoading(true);
-
-            // Fetch students
-            const studentsSnap = await getDocs(collection(db, "students"));
-            const studentsList = [];
-            studentsSnap.forEach((doc) => {
-                studentsList.push({ id: doc.id, ...doc.data() });
-            });
-            setStudents(studentsList);
-
-            // Fetch teachers
-            const teachersSnap = await getDocs(collection(db, "teachers"));
-            const teachersList = [];
-            teachersSnap.forEach((doc) => {
-                teachersList.push({ id: doc.id, ...doc.data() });
-            });
-            setTeachers(teachersList);
-
-            // Fetch payments
-            const snap = await getDocs(collection(db, "payments"));
-            const list = [];
-            snap.forEach((doc) => {
-                list.push({ id: doc.id, ...doc.data() });
-            });
-            setPayments(list);
-        } catch (err) {
-            console.error("Error loading finance data:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const [dataLoading, setDataLoading] = useState(true);
 
     useEffect(() => {
-        loadFinanceData();
+        const load = async () => {
+            try {
+                setDataLoading(true);
+                const [studentsSnap, teachersSnap, paymentsSnap] =
+                    await Promise.all([
+                        getDocs(collection(db, "students")),
+                        getDocs(collection(db, "teachers")),
+                        getDocs(collection(db, "payments")),
+                    ]);
+                setStudents(
+                    studentsSnap.docs.map((d) => ({ id: d.id, ...d.data() })),
+                );
+                setTeachers(
+                    teachersSnap.docs.map((d) => ({ id: d.id, ...d.data() })),
+                );
+                setPayments(
+                    paymentsSnap.docs.map((d) => ({ id: d.id, ...d.data() })),
+                );
+            } catch (err) {
+                console.error("Error loading finance data:", err);
+            } finally {
+                setDataLoading(false);
+            }
+        };
+        load();
     }, []);
 
-    // Aggregate financials by month
+    const loading = configLoading || coursesLoading || dataLoading;
+
+    // ── Monthly aggregates ────────────────────────────────────────────────────
     const monthlyAggregates = {};
     payments.forEach((payment) => {
         const month = payment.month || new Date().toISOString().slice(0, 7);
@@ -73,53 +70,49 @@ export default function AdminFinances() {
                 paidCount: 0,
             };
         }
-
-        const price = payment.coursePrice || 4200;
+        // Use price stored on the payment record — never look up from courses here.
+        // The payment document captures the price at the time of billing, so
+        // a future course price change doesn't retroactively alter old invoices.
+        const price = payment.coursePrice ?? 0;
         const isPaid = payment.status === "paid";
-
         monthlyAggregates[month].studentsCount++;
         if (isPaid) {
             monthlyAggregates[month].paidCount++;
-            monthlyAggregates[month].totalCollected += calcMonthlyTotal(price);
-            monthlyAggregates[month].companyCut += calcCompanyRevenue(price);
-            monthlyAggregates[month].teacherPayouts += calcTeacherPayout(price);
+            monthlyAggregates[month].totalCollected += calcMonthlyTotal(
+                config,
+                price,
+            );
+            monthlyAggregates[month].companyCut += calcCompanyRevenue(
+                config,
+                price,
+            );
+            monthlyAggregates[month].teacherPayouts += calcTeacherPayout(
+                config,
+                price,
+            );
         }
     });
-
     const monthlyList = Object.values(monthlyAggregates).sort((a, b) =>
         b.month.localeCompare(a.month),
     );
 
-    // Compute teacher payout table
+    // ── Teacher payout table ──────────────────────────────────────────────────
     const teacherPayoutsList = teachers
         .map((teacher) => {
             let activeStudentsCount = 0;
             let earnedThisMonth = 0;
-
-            // Count matched students
             students.forEach((student) => {
                 if (student.assignedTeacherId === teacher.id) {
                     activeStudentsCount++;
-                    // Get price based on student course
-                    const price =
-                        student.courseId === "all-courses"
-                            ? 7100
-                            : student.courseId === "diquna-zegajat"
-                              ? 4700
-                              : 4200;
-                    earnedThisMonth += calcTeacherPayout(price);
+                    // getCoursePrice replaces the hardcoded 7100 / 4700 / 4200 switch.
+                    // It looks up the live price from Firestore courses array.
+                    const price = getCoursePrice(courses, student.courseId);
+                    earnedThisMonth += calcTeacherPayout(config, price);
                 }
             });
-
-            return {
-                ...teacher,
-                activeStudentsCount,
-                earnedThisMonth,
-            };
+            return { ...teacher, activeStudentsCount, earnedThisMonth };
         })
-        .filter(
-            (teacher) => teacher.verified && teacher.activeStudentsCount > 0,
-        );
+        .filter((t) => t.verified && t.activeStudentsCount > 0);
 
     if (loading) {
         return (
@@ -141,21 +134,21 @@ export default function AdminFinances() {
                 </h1>
                 <p className="text-sm text-text-secondary">
                     Track billing, monthly total collections, company cut, and
-                    teacher payouts according to the 85/15 ratio.
+                    teacher payouts. Rates update live from Admin Settings.
                 </p>
             </div>
 
-            {/* Corporate Rates Card */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 bg-navy-surface border border-navy-border rounded-xl p-6 shadow-md text-sm">
+            {/* Live Rates Card — reads from config, never hardcoded */}
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 bg-navy-surface border border-navy-border rounded-xl p-6 shadow-md text-sm">
                 <div className="space-y-1">
                     <span className="text-xs text-text-secondary font-semibold uppercase">
                         Registration Fee (Student)
                     </span>
                     <div className="text-xl font-extrabold text-gold-primary">
-                        {REGISTRATION_FEE_STUDENT} ETB
+                        {config.registrationFeeStudent} ETB
                     </div>
                     <p className="text-xs text-text-muted">
-                        One-time payment upon registration
+                        One-time upon registration
                     </p>
                 </div>
                 <div className="space-y-1">
@@ -163,7 +156,7 @@ export default function AdminFinances() {
                         Registration Fee (Teacher)
                     </span>
                     <div className="text-xl font-extrabold text-gold-primary">
-                        {REGISTRATION_FEE_TEACHER} ETB
+                        {config.registrationFeeTeacher} ETB
                     </div>
                     <p className="text-xs text-text-muted">
                         One-time activation fee
@@ -174,20 +167,30 @@ export default function AdminFinances() {
                         Monthly Service Fee
                     </span>
                     <div className="text-xl font-extrabold text-gold-primary">
-                        {SERVICE_FEE} ETB
+                        {config.serviceFeeMonthly} ETB
                     </div>
                     <p className="text-xs text-text-muted">
-                        Paid per student per month (Arke cut)
+                        Arke cut per student / month
+                    </p>
+                </div>
+                <div className="space-y-1">
+                    <span className="text-xs text-text-secondary font-semibold uppercase">
+                        Teacher Payout Ratio
+                    </span>
+                    <div className="text-xl font-extrabold text-gold-primary">
+                        {(config.teacherPayoutRatio * 100).toFixed(0)}%
+                    </div>
+                    <p className="text-xs text-text-muted">
+                        Of course price to teacher
                     </p>
                 </div>
             </div>
 
-            {/* Monthly Performance Overview */}
+            {/* Monthly Billings */}
             <div className="bg-navy-surface border border-navy-border rounded-xl shadow-lg overflow-hidden space-y-4 p-6 sm:p-8">
                 <h2 className="text-xl font-bold text-white font-ethiopic border-b border-navy-border pb-3">
                     Monthly Billings &amp; Collections
                 </h2>
-
                 {monthlyList.length === 0 ? (
                     <p className="text-sm text-text-muted text-center py-8">
                         No payments logged yet. Complete student matches to
@@ -203,10 +206,19 @@ export default function AdminFinances() {
                                     <th className="p-4">Paid Invoices</th>
                                     <th className="p-4">Total Collected</th>
                                     <th className="p-4">
-                                        Company Cut (15% + 100 ETB)
+                                        Company Cut (
+                                        {(
+                                            (1 - config.teacherPayoutRatio) *
+                                            100
+                                        ).toFixed(0)}
+                                        % + {config.serviceFeeMonthly} ETB)
                                     </th>
                                     <th className="p-4">
-                                        Teacher Payout (85%)
+                                        Teacher Payout (
+                                        {(
+                                            config.teacherPayoutRatio * 100
+                                        ).toFixed(0)}
+                                        %)
                                     </th>
                                 </tr>
                             </thead>
@@ -248,12 +260,11 @@ export default function AdminFinances() {
                 )}
             </div>
 
-            {/* Teacher Payout Overview */}
+            {/* Teacher Payout Breakdown */}
             <div className="bg-navy-surface border border-navy-border rounded-xl shadow-lg overflow-hidden space-y-4 p-6 sm:p-8">
                 <h2 className="text-xl font-bold text-white font-ethiopic border-b border-navy-border pb-3">
                     {t("payoutBreakdown")}
                 </h2>
-
                 {teacherPayoutsList.length === 0 ? (
                     <p className="text-sm text-text-muted text-center py-8">
                         No active payouts for teachers. Complete matches and
@@ -269,7 +280,11 @@ export default function AdminFinances() {
                                     <th className="p-4">Bank Provider</th>
                                     <th className="p-4">Active Students</th>
                                     <th className="p-4">
-                                        This Month Payout (85% Net)
+                                        This Month Payout (
+                                        {(
+                                            config.teacherPayoutRatio * 100
+                                        ).toFixed(0)}
+                                        % Net)
                                     </th>
                                 </tr>
                             </thead>
