@@ -53,7 +53,7 @@ import { db } from "../lib/firebase";
 export function useCourses(serviceLine, lang = "am") {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError]     = useState(null);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         if (!serviceLine) {
@@ -73,7 +73,7 @@ export function useCourses(serviceLine, lang = "am") {
                     collection(db, "courses"),
                     where("serviceLine", "==", serviceLine),
                     where("isActive", "==", true),
-                    orderBy("sortOrder", "asc")
+                    orderBy("sortOrder", "asc"),
                 );
 
                 const snapshot = await getDocs(q);
@@ -96,10 +96,12 @@ export function useCourses(serviceLine, lang = "am") {
 
         fetchCourses();
 
-        return () => { cancelled = true; };
+        return () => {
+            cancelled = true;
+        };
 
-    // Re-fetch when serviceLine or lang changes so the correct
-    // language names are always shown without a full page reload.
+        // Re-fetch when serviceLine or lang changes so the correct
+        // language names are always shown without a full page reload.
     }, [serviceLine, lang]);
 
     return { courses, loading, error };
@@ -125,8 +127,11 @@ export function getCoursePrice(courses, courseId, fallback = 0) {
     const course = courses.find((c) => c.id === courseId);
     if (!course) {
         console.warn(
-            "[getCoursePrice] courseId '" + courseId + "' not found in courses array. " +
-            "Returning fallback: " + fallback
+            "[getCoursePrice] courseId '" +
+                courseId +
+                "' not found in courses array. " +
+                "Returning fallback: " +
+                fallback,
         );
         return fallback;
     }
@@ -149,20 +154,23 @@ export function getCoursePrice(courses, courseId, fallback = 0) {
 function normaliseCourse(d, lang) {
     const isAm = lang === "am";
     return {
-        id:           d.id,
-        name:         isAm ? (d.nameAm  || d.nameEn)  : (d.nameEn  || d.nameAm),
-        desc:         isAm ? (d.descAm  || d.descEn)  : (d.descEn  || d.descAm),
-        syllabus:     isAm ? (d.syllabusAm || d.syllabusEn) : (d.syllabusEn || d.syllabusAm),
-        price:        d.price        ?? 0,
+        id: d.id,
+        name: isAm ? d.nameAm || d.nameEn : d.nameEn || d.nameAm,
+        desc: isAm ? d.descAm || d.descEn : d.descEn || d.descAm,
+        syllabus: isAm
+            ? d.syllabusAm || d.syllabusEn
+            : d.syllabusEn || d.syllabusAm,
+        price: d.price ?? 0,
+        image: d.image ?? "",
         pricingModel: d.pricingModel ?? "monthly",
-        serviceLine:  d.serviceLine,
-        gradeRange:   d.gradeRange   ?? null,
-        subject:      d.subject      ?? null,
-        sortOrder:    d.sortOrder    ?? 0,
+        serviceLine: d.serviceLine,
+        gradeRange: d.gradeRange ?? null,
+        subject: d.subject ?? null,
+        sortOrder: d.sortOrder ?? 0,
         // Keep raw bilingual fields available for admin pages that need both
-        nameEn:       d.nameEn,
-        nameAm:       d.nameAm,
-        descEn:       d.descEn,
-        descAm:       d.descAm,
+        nameEn: d.nameEn,
+        nameAm: d.nameAm,
+        descEn: d.descEn,
+        descAm: d.descAm,
     };
 }

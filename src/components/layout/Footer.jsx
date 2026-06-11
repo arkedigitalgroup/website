@@ -165,10 +165,10 @@ export default function Footer() {
                             </p>
                             <p className="text-sm">
                                 <a
-                                    href="tel:+251 900161140"
+                                    href="tel:+251 976977475"
                                     className="hover:underline"
                                 >
-                                    +251 900161140
+                                    +251 976977475
                                 </a>
                             </p>
                         </div>

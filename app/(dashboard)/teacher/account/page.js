@@ -28,7 +28,15 @@ const SELECT_CLS =
     "w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm transition-colors";
 
 // ─── Document Upload Row ──────────────────────────────────────────────────────
-function DocUploadRow({ icon, label, hint, currentUrl, accept, uploading, onUpload }) {
+function DocUploadRow({
+    icon,
+    label,
+    hint,
+    currentUrl,
+    accept,
+    uploading,
+    onUpload,
+}) {
     const inputRef = useRef(null);
     return (
         <div className="flex items-center gap-4 py-4 border-b border-navy-border/50 last:border-0">
@@ -60,7 +68,9 @@ function DocUploadRow({ icon, label, hint, currentUrl, accept, uploading, onUplo
                     type="file"
                     accept={accept}
                     className="hidden"
-                    onChange={(e) => e.target.files[0] && onUpload(e.target.files[0])}
+                    onChange={(e) =>
+                        e.target.files[0] && onUpload(e.target.files[0])
+                    }
                 />
                 <button
                     type="button"
@@ -68,7 +78,11 @@ function DocUploadRow({ icon, label, hint, currentUrl, accept, uploading, onUplo
                     onClick={() => inputRef.current?.click()}
                     className="px-3 py-1.5 rounded-md border border-navy-border text-text-secondary hover:border-gold-primary hover:text-gold-primary text-xs font-semibold transition-all disabled:opacity-50"
                 >
-                    {uploading ? "Uploading…" : currentUrl ? "Replace" : "Upload"}
+                    {uploading
+                        ? "Uploading…"
+                        : currentUrl
+                          ? "Replace"
+                          : "Upload"}
                 </button>
             </div>
         </div>
@@ -86,25 +100,25 @@ export default function TeacherAccount() {
     const [error, setError] = useState("");
 
     // Uploading states per document slot
-    const [uploadingPhoto, setUploadingPhoto]       = useState(false);
-    const [uploadingChurch, setUploadingChurch]     = useState(false);
-    const [uploadingId, setUploadingId]             = useState(false);
-    const [uploadingEdu, setUploadingEdu]           = useState(false);
+    const [uploadingPhoto, setUploadingPhoto] = useState(false);
+    const [uploadingChurch, setUploadingChurch] = useState(false);
+    const [uploadingId, setUploadingId] = useState(false);
+    const [uploadingEdu, setUploadingEdu] = useState(false);
 
     // Form fields
-    const [fullName, setFullName]         = useState("");
+    const [fullName, setFullName] = useState("");
     const [christianName, setChristianName] = useState("");
-    const [gender, setGender]             = useState("male");
-    const [phone, setPhone]               = useState("");
+    const [gender, setGender] = useState("male");
+    const [phone, setPhone] = useState("");
     const [bankProvider, setBankProvider] = useState("CBE");
-    const [bankAccount, setBankAccount]   = useState("");
-    const [lat, setLat]                   = useState("");
-    const [lng, setLng]                   = useState("");
+    const [bankAccount, setBankAccount] = useState("");
+    const [lat, setLat] = useState("");
+    const [lng, setLng] = useState("");
 
     // Document URLs (stored in state after upload)
-    const [profilePhotoUrl, setProfilePhotoUrl]   = useState("");
-    const [churchDocUrl, setChurchDocUrl]         = useState("");
-    const [idCardUrl, setIdCardUrl]               = useState("");
+    const [profilePhotoUrl, setProfilePhotoUrl] = useState("");
+    const [churchDocUrl, setChurchDocUrl] = useState("");
+    const [idCardUrl, setIdCardUrl] = useState("");
     const [educationCertUrl, setEducationCertUrl] = useState("");
 
     const loadProfile = async () => {
@@ -134,7 +148,9 @@ export default function TeacherAccount() {
         }
     };
 
-    useEffect(() => { loadProfile(); }, [user]);
+    useEffect(() => {
+        loadProfile();
+    }, [user]);
 
     // ─── Generic file uploader ────────────────────────────────────────────────
     const uploadFile = async (file, storagePath, setUrl, setUploading) => {
@@ -146,11 +162,21 @@ export default function TeacherAccount() {
             const url = await getDownloadURL(fileRef);
             setUrl(url);
             // Immediately persist to Firestore so admin can see it
-            await updateDoc(doc(db, "teachers", user.uid), { [storagePath.split("/").pop().replace(/\.[^.]+$/, "Url").replace(/-([a-z])/g, (_, c) => c.toUpperCase())]: url });
+            await updateDoc(doc(db, "teachers", user.uid), {
+                [storagePath
+                    .split("/")
+                    .pop()
+                    .replace(/\.[^.]+$/, "Url")
+                    .replace(/-([a-z])/g, (_, c) => c.toUpperCase())]: url,
+            });
             return url;
         } catch (e) {
             console.error("Upload failed:", e);
-            setError(lang === "am" ? "ፋይሉ ሊሰቀል አልቻለም። ድጋሚ ሞክር።" : "File upload failed. Please try again.");
+            setError(
+                lang === "am"
+                    ? "ፋይሉ ሊሰቀል አልቻለም። ድጋሚ ሞክር።"
+                    : "File upload failed. Please try again.",
+            );
             return null;
         } finally {
             setUploading(false);
@@ -159,16 +185,36 @@ export default function TeacherAccount() {
 
     // Per-slot handlers
     const handlePhotoUpload = (file) =>
-        uploadFile(file, `teachers/${user.uid}/profile.jpg`, setProfilePhotoUrl, setUploadingPhoto);
+        uploadFile(
+            file,
+            `teachers/${user.uid}/profile.jpg`,
+            setProfilePhotoUrl,
+            setUploadingPhoto,
+        );
 
     const handleChurchUpload = (file) =>
-        uploadFile(file, `teachers/${user.uid}/church-doc.pdf`, setChurchDocUrl, setUploadingChurch);
+        uploadFile(
+            file,
+            `teachers/${user.uid}/church-doc.pdf`,
+            setChurchDocUrl,
+            setUploadingChurch,
+        );
 
     const handleIdCardUpload = (file) =>
-        uploadFile(file, `teachers/${user.uid}/id-card.jpg`, setIdCardUrl, setUploadingId);
+        uploadFile(
+            file,
+            `teachers/${user.uid}/id-card.jpg`,
+            setIdCardUrl,
+            setUploadingId,
+        );
 
     const handleEduCertUpload = (file) =>
-        uploadFile(file, `teachers/${user.uid}/edu-cert.pdf`, setEducationCertUrl, setUploadingEdu);
+        uploadFile(
+            file,
+            `teachers/${user.uid}/edu-cert.pdf`,
+            setEducationCertUrl,
+            setUploadingEdu,
+        );
 
     // ─── Save profile fields ──────────────────────────────────────────────────
     const handleSave = async (e) => {
@@ -180,23 +226,39 @@ export default function TeacherAccount() {
             await updateDoc(teacherRef, {
                 christianName: christianName.trim(),
                 gender,
-                phone:         phone.trim(),
+                phone: phone.trim(),
                 bankProvider,
-                bankAccount:   bankAccount.trim(),
-                locationPin:   { lat: parseFloat(lat) || 0, lng: parseFloat(lng) || 0 },
+                bankAccount: bankAccount.trim(),
+                locationPin: {
+                    lat: parseFloat(lat) || 0,
+                    lng: parseFloat(lng) || 0,
+                },
             });
             setSaved(true);
             setTimeout(() => setSaved(false), 3000);
         } catch (err) {
             console.error("Save error:", err);
-            setError(lang === "am" ? "ለማስቀመጥ ሳይሳካ ቀረ። ድጋሚ ሞክር።" : "Failed to save. Please try again.");
+            setError(
+                lang === "am"
+                    ? "ለማስቀመጥ ሳይሳካ ቀረ። ድጋሚ ሞክር።"
+                    : "Failed to save. Please try again.",
+            );
         } finally {
             setSaving(false);
         }
     };
 
     // ─── Profile completeness ─────────────────────────────────────────────────
-    const completenessItems = [fullName, christianName, phone, bankAccount, lat, churchDocUrl, idCardUrl, educationCertUrl];
+    const completenessItems = [
+        fullName,
+        christianName,
+        phone,
+        bankAccount,
+        lat,
+        churchDocUrl,
+        idCardUrl,
+        educationCertUrl,
+    ];
     const filledCount = completenessItems.filter(Boolean).length;
     const pct = Math.round((filledCount / completenessItems.length) * 100);
 
@@ -213,7 +275,6 @@ export default function TeacherAccount() {
 
     return (
         <div className="space-y-8 max-w-3xl">
-
             {/* Page Header */}
             <div className="border-b border-navy-border pb-6">
                 <h1 className="text-3xl font-extrabold text-white font-ethiopic leading-snug">
@@ -240,20 +301,39 @@ export default function TeacherAccount() {
                             </div>
                         )}
                         <label className="absolute inset-0 bg-black/60 rounded-xl opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px] text-white font-bold cursor-pointer transition-opacity duration-150">
-                            {uploadingPhoto ? "..." : (lang === "am" ? "ቀይር" : "Change")}
+                            {uploadingPhoto
+                                ? "..."
+                                : lang === "am"
+                                  ? "ቀይር"
+                                  : "Change"}
                             <input
                                 type="file"
                                 accept="image/jpeg,image/png"
                                 className="hidden"
                                 disabled={uploadingPhoto}
-                                onChange={(e) => e.target.files[0] && handlePhotoUpload(e.target.files[0])}
+                                onChange={(e) =>
+                                    e.target.files[0] &&
+                                    handlePhotoUpload(e.target.files[0])
+                                }
                             />
                         </label>
                     </div>
                     <div className="flex-grow space-y-1.5">
                         <div className="flex justify-between text-xs text-text-secondary">
-                            <span>{lang === "am" ? "የመገለጫ ሙሉነት" : "Profile Completeness"}</span>
-                            <span className={pct === 100 ? "text-success font-bold" : pct >= 60 ? "text-warning font-bold" : "text-error font-bold"}>
+                            <span>
+                                {lang === "am"
+                                    ? "የመገለጫ ሙሉነት"
+                                    : "Profile Completeness"}
+                            </span>
+                            <span
+                                className={
+                                    pct === 100
+                                        ? "text-success font-bold"
+                                        : pct >= 60
+                                          ? "text-warning font-bold"
+                                          : "text-error font-bold"
+                                }
+                            >
                                 {pct}%
                             </span>
                         </div>
@@ -265,8 +345,12 @@ export default function TeacherAccount() {
                         </div>
                         <p className="text-[10px] text-text-muted">
                             {pct < 100
-                                ? (lang === "am" ? "ሁሉም ሜዳዎችና ሰነዶች ካልሞሉ አድሚን ሊያረጋግጥ አይችልም።" : "Admin cannot approve your account until all fields and documents are complete.")
-                                : (lang === "am" ? "✅ ሁሉም ሙሉ ነው!" : "✅ Profile is complete!")}
+                                ? lang === "am"
+                                    ? "ሁሉም ሜዳዎችና ሰነዶች ካልሞሉ አድሚን ሊያረጋግጥ አይችልም።"
+                                    : "Admin cannot approve your account until all fields and documents are complete."
+                                : lang === "am"
+                                  ? "✅ ሁሉም ሙሉ ነው!"
+                                  : "✅ Profile is complete!"}
                         </p>
                     </div>
                 </div>
@@ -284,7 +368,6 @@ export default function TeacherAccount() {
                 </div>
 
                 <form onSubmit={handleSave} className="space-y-5">
-
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <Field label={lang === "am" ? "ሙሉ ስም" : "Full Name"}>
                             <div className="relative">
@@ -295,15 +378,26 @@ export default function TeacherAccount() {
                                     className={`${INPUT_CLS} opacity-60 cursor-not-allowed pr-8`}
                                     placeholder="e.g. Abebe Bekele"
                                 />
-                                <span className="absolute right-3 top-3 text-xs opacity-50" title="Locked">🔒</span>
+                                <span
+                                    className="absolute right-3 top-3 text-xs opacity-50"
+                                    title="Locked"
+                                >
+                                    🔒
+                                </span>
                             </div>
                         </Field>
-                        <Field label={lang === "am" ? "የክርስትና ስም" : "Christian Name"}>
+                        <Field
+                            label={
+                                lang === "am" ? "የክርስትና ስም" : "Christian Name"
+                            }
+                        >
                             <input
                                 type="text"
                                 required
                                 value={christianName}
-                                onChange={(e) => setChristianName(e.target.value)}
+                                onChange={(e) =>
+                                    setChristianName(e.target.value)
+                                }
                                 className={INPUT_CLS}
                                 placeholder="e.g. Gebre Tsion"
                             />
@@ -312,19 +406,29 @@ export default function TeacherAccount() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <Field label={lang === "am" ? "ጾታ" : "Gender"}>
-                            <select value={gender} onChange={(e) => setGender(e.target.value)} className={SELECT_CLS}>
-                                <option value="male">{lang === "am" ? "ወንድ" : "Male"}</option>
-                                <option value="female">{lang === "am" ? "ሴት" : "Female"}</option>
+                            <select
+                                value={gender}
+                                onChange={(e) => setGender(e.target.value)}
+                                className={SELECT_CLS}
+                            >
+                                <option value="male">
+                                    {lang === "am" ? "ወንድ" : "Male"}
+                                </option>
+                                <option value="female">
+                                    {lang === "am" ? "ሴት" : "Female"}
+                                </option>
                             </select>
                         </Field>
-                        <Field label={lang === "am" ? "ስልክ ቁጥር" : "Phone Number"}>
+                        <Field
+                            label={lang === "am" ? "ስልክ ቁጥር" : "Phone Number"}
+                        >
                             <input
                                 type="tel"
                                 required
                                 value={phone}
                                 onChange={(e) => setPhone(e.target.value)}
                                 className={INPUT_CLS}
-                                placeholder="0911000000"
+                                placeholder="+251 976977475"
                             />
                         </Field>
                     </div>
@@ -335,22 +439,48 @@ export default function TeacherAccount() {
                             🏦 {lang === "am" ? "የባንክ መረጃ" : "Bank Details"}
                         </p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                            <Field label={lang === "am" ? "የባንክ ስም" : "Bank Provider"}>
-                                <select value={bankProvider} onChange={(e) => setBankProvider(e.target.value)} className={SELECT_CLS}>
-                                    <option value="CBE">Commercial Bank of Ethiopia (CBE)</option>
-                                    <option value="BOA">Bank of Abyssinia (BOA)</option>
-                                    <option value="Telebirr">Telebirr Wallet</option>
+                            <Field
+                                label={
+                                    lang === "am" ? "የባንክ ስም" : "Bank Provider"
+                                }
+                            >
+                                <select
+                                    value={bankProvider}
+                                    onChange={(e) =>
+                                        setBankProvider(e.target.value)
+                                    }
+                                    className={SELECT_CLS}
+                                >
+                                    <option value="CBE">
+                                        Commercial Bank of Ethiopia (CBE)
+                                    </option>
+                                    <option value="BOA">
+                                        Bank of Abyssinia (BOA)
+                                    </option>
+                                    <option value="Telebirr">
+                                        Telebirr Wallet
+                                    </option>
                                 </select>
                             </Field>
                             <Field
-                                label={lang === "am" ? "የባንክ መለያ ቁጥር" : "Account Number"}
-                                hint={lang === "am" ? "ቁጥሩ ትክክል ካልሆነ ክፍያ ላይደርስዎ ይችላል" : "Incorrect number means payouts may fail"}
+                                label={
+                                    lang === "am"
+                                        ? "የባንክ መለያ ቁጥር"
+                                        : "Account Number"
+                                }
+                                hint={
+                                    lang === "am"
+                                        ? "ቁጥሩ ትክክል ካልሆነ ክፍያ ላይደርስዎ ይችላል"
+                                        : "Incorrect number means payouts may fail"
+                                }
                             >
                                 <input
                                     type="text"
                                     required
                                     value={bankAccount}
-                                    onChange={(e) => setBankAccount(e.target.value)}
+                                    onChange={(e) =>
+                                        setBankAccount(e.target.value)
+                                    }
                                     className={`${INPUT_CLS} font-mono`}
                                     placeholder="e.g. 1000123456789"
                                 />
@@ -400,7 +530,10 @@ export default function TeacherAccount() {
                     )}
                     {saved && (
                         <p className="text-success text-xs font-semibold bg-success/10 border border-success/30 px-3 py-2 rounded-lg">
-                            ✅ {lang === "am" ? "መረጃ ተቀምጧል!" : "Profile saved successfully!"}
+                            ✅{" "}
+                            {lang === "am"
+                                ? "መረጃ ተቀምጧል!"
+                                : "Profile saved successfully!"}
                         </p>
                     )}
 
@@ -412,8 +545,12 @@ export default function TeacherAccount() {
                             className="px-8 py-3 bg-gold-primary text-navy-deep font-bold rounded-md hover:bg-gold-hover shadow-gold transition-all disabled:opacity-50 text-sm"
                         >
                             {saving
-                                ? (lang === "am" ? "በማስቀመጥ ላይ..." : "Saving...")
-                                : (lang === "am" ? "ለውጦችን አስቀምጥ" : "Save Changes")}
+                                ? lang === "am"
+                                    ? "በማስቀመጥ ላይ..."
+                                    : "Saving..."
+                                : lang === "am"
+                                  ? "ለውጦችን አስቀምጥ"
+                                  : "Save Changes"}
                         </button>
                     </div>
                 </form>
@@ -427,7 +564,9 @@ export default function TeacherAccount() {
                     </div>
                     <div>
                         <h2 className="font-bold text-white text-base">
-                            {lang === "am" ? "አስፈላጊ ሰነዶች" : "Required Documents"}
+                            {lang === "am"
+                                ? "አስፈላጊ ሰነዶች"
+                                : "Required Documents"}
                         </h2>
                         <p className="text-xs text-text-muted">
                             {lang === "am"
@@ -440,7 +579,11 @@ export default function TeacherAccount() {
                 <DocUploadRow
                     icon="🖼️"
                     label={lang === "am" ? "የፕሮፋይል ፎቶ" : "Profile Photo"}
-                    hint={lang === "am" ? "ግልጽ የሆነ ፎቶ — JPG ወይም PNG" : "Clear headshot — JPG or PNG, max 5MB"}
+                    hint={
+                        lang === "am"
+                            ? "ግልጽ የሆነ ፎቶ — JPG ወይም PNG"
+                            : "Clear headshot — JPG or PNG, max 5MB"
+                    }
                     currentUrl={profilePhotoUrl}
                     accept="image/jpeg,image/png"
                     uploading={uploadingPhoto}
@@ -448,8 +591,16 @@ export default function TeacherAccount() {
                 />
                 <DocUploadRow
                     icon="⛪"
-                    label={lang === "am" ? "የቤተ ክርስቲያን ምክረ ሃሳብ ደብዳቤ" : "Church Endorsement Letter"}
-                    hint={lang === "am" ? "ከቤ/ክ ሊቀጳጳስ ወይም ቄስ — PDF" : "Signed letter from church priest or bishop — PDF"}
+                    label={
+                        lang === "am"
+                            ? "የቤተ ክርስቲያን ምክረ ሃሳብ ደብዳቤ"
+                            : "Church Endorsement Letter"
+                    }
+                    hint={
+                        lang === "am"
+                            ? "ከቤ/ክ ሊቀጳጳስ ወይም ቄስ — PDF"
+                            : "Signed letter from church priest or bishop — PDF"
+                    }
                     currentUrl={churchDocUrl}
                     accept="application/pdf"
                     uploading={uploadingChurch}
@@ -457,8 +608,16 @@ export default function TeacherAccount() {
                 />
                 <DocUploadRow
                     icon="🪪"
-                    label={lang === "am" ? "የመንግስት መታወቂያ (ፓስፖርት / ቀበሌ)" : "Government-Issued ID Card"}
-                    hint={lang === "am" ? "ብሄራዊ መታወቂያ ወይም ፓስፖርት — JPG ወይም PDF" : "National ID, passport, or kebele ID — JPG or PDF"}
+                    label={
+                        lang === "am"
+                            ? "የመንግስት መታወቂያ (ፓስፖርት / ቀበሌ)"
+                            : "Government-Issued ID Card"
+                    }
+                    hint={
+                        lang === "am"
+                            ? "ብሄራዊ መታወቂያ ወይም ፓስፖርት — JPG ወይም PDF"
+                            : "National ID, passport, or kebele ID — JPG or PDF"
+                    }
                     currentUrl={idCardUrl}
                     accept="image/jpeg,image/png,application/pdf"
                     uploading={uploadingId}
@@ -466,8 +625,16 @@ export default function TeacherAccount() {
                 />
                 <DocUploadRow
                     icon="🎓"
-                    label={lang === "am" ? "የትምህርት ሰርተፊኬት / ዲፕሎማ" : "Education Certificate / Diploma"}
-                    hint={lang === "am" ? "ዲፕሎማ ወይም ሰርተፊኬት — PDF ወይም JPG" : "Diploma, degree, or relevant certificate — PDF or JPG"}
+                    label={
+                        lang === "am"
+                            ? "የትምህርት ሰርተፊኬት / ዲፕሎማ"
+                            : "Education Certificate / Diploma"
+                    }
+                    hint={
+                        lang === "am"
+                            ? "ዲፕሎማ ወይም ሰርተፊኬት — PDF ወይም JPG"
+                            : "Diploma, degree, or relevant certificate — PDF or JPG"
+                    }
                     currentUrl={educationCertUrl}
                     accept="application/pdf,image/jpeg,image/png"
                     uploading={uploadingEdu}
@@ -478,16 +645,31 @@ export default function TeacherAccount() {
             {/* ── Read-only info ────────────────────────────────────────────────── */}
             <div className="bg-navy-surface border border-navy-border rounded-xl p-6 shadow-md space-y-4">
                 <h2 className="font-bold text-white text-base border-b border-navy-border pb-3">
-                    🔒 {lang === "am" ? "ሊቀየሩ የማይችሉ መረጃዎች" : "Read-only Account Details"}
+                    🔒{" "}
+                    {lang === "am"
+                        ? "ሊቀየሩ የማይችሉ መረጃዎች"
+                        : "Read-only Account Details"}
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     {[
-                        { label: "Service ID",                                     value: data?.serviceId },
-                        { label: lang === "am" ? "ሚና" : "Role",                  value: "Teacher / Tutor" },
-                        { label: lang === "am" ? "አገልግሎት" : "Service Line",      value: data?.serviceLine },
-                        { label: lang === "am" ? "ደረጃ" : "Rating",               value: `${data?.rating ?? 5.0} ⭐` },
+                        { label: "Service ID", value: data?.serviceId },
+                        {
+                            label: lang === "am" ? "ሚና" : "Role",
+                            value: "Teacher / Tutor",
+                        },
+                        {
+                            label: lang === "am" ? "አገልግሎት" : "Service Line",
+                            value: data?.serviceLine,
+                        },
+                        {
+                            label: lang === "am" ? "ደረጃ" : "Rating",
+                            value: `${data?.rating ?? 5.0} ⭐`,
+                        },
                     ].map((item) => (
-                        <div key={item.label} className="bg-navy-mid border border-navy-border rounded-lg p-4 space-y-1">
+                        <div
+                            key={item.label}
+                            className="bg-navy-mid border border-navy-border rounded-lg p-4 space-y-1"
+                        >
                             <span className="text-[10px] font-semibold text-text-secondary uppercase block">
                                 {item.label}
                             </span>
@@ -503,7 +685,6 @@ export default function TeacherAccount() {
                         : "To change your role or service line, contact admin@arke.et."}
                 </p>
             </div>
-
         </div>
     );
 }

@@ -171,14 +171,14 @@ export default function ContactPageClient() {
                                 Telegram
                             </h3>
                             <p className="text-xs text-text-secondary">
-                                @arkeeducation
+                                @arkegroup
                             </p>
                         </div>
                     </a>
 
                     {/* Facebook */}
                     <a
-                        href="https://facebook.com/arkeeducation"
+                        href="https://facebook.com/share/17kUg7tM9n/"
                         target="_blank"
                         rel="noreferrer"
                         className="flex items-center space-x-4 p-4 bg-navy-surface border border-navy-border rounded-xl hover:border-gold-primary transition-colors"
@@ -196,14 +196,14 @@ export default function ContactPageClient() {
                                 Facebook
                             </h3>
                             <p className="text-xs text-text-secondary">
-                                facebook.com/arkeeducation
+                                facebook.com/share/17kUg7tM9n/{" "}
                             </p>
                         </div>
                     </a>
 
                     {/* TikTok */}
                     <a
-                        href="https://tiktok.com/@arkeeducation"
+                        href="https://tiktok.com/@arke_group"
                         target="_blank"
                         rel="noreferrer"
                         className="flex items-center space-x-4 p-4 bg-navy-surface border border-navy-border rounded-xl hover:border-gold-primary transition-colors"
@@ -221,7 +221,31 @@ export default function ContactPageClient() {
                                 TikTok
                             </h3>
                             <p className="text-xs text-text-secondary">
-                                @arkeeducation
+                                @arke_group
+                            </p>
+                        </div>
+                    </a>
+                    {/* Instagram */}
+                    <a
+                        href="https://www.instagram.com/arke_.group"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center space-x-4 p-4 bg-navy-surface border border-navy-border rounded-xl hover:border-gold-primary transition-colors"
+                    >
+                        <span className="p-3 bg-navy-mid text-gold-primary rounded-lg">
+                            <svg
+                                className="w-5 h-5 fill-current"
+                                viewBox="0 0 24 24"
+                            >
+                                <path d="M12 2.16c3.2 0 3.58.01 4.85.07 3.25.15 4.77 1.69 4.92 4.92.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.15 3.23-1.66 4.77-4.92 4.92-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-3.26-.15-4.77-1.7-4.92-4.92-.06-1.27-.07-1.65-.07-4.85s.01-3.58.07-4.85C2.38 3.92 3.9 2.38 7.15 2.23 8.42 2.18 8.8 2.16 12 2.16zM12 0C8.74 0 8.33.01 7.05.07 2.7.27.27 2.69.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.2 4.36 2.62 6.78 6.98 6.98 1.28.06 1.69.07 4.95.07s3.67-.01 4.95-.07c4.35-.2 6.76-2.62 6.98-6.98.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95C23.73 2.69 21.3.27 16.95.07 15.67.01 15.26 0 12 0zm0 5.84a6.16 6.16 0 1 0 0 12.32 6.16 6.16 0 0 0 0-12.32zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm7.85-10.4a1.44 1.44 0 1 0 0 2.88 1.44 1.44 0 0 0 0-2.88z" />
+                            </svg>
+                        </span>
+                        <div>
+                            <h3 className="font-bold text-white text-sm">
+                                Instagram
+                            </h3>
+                            <p className="text-xs text-text-secondary">
+                                @arke_.group
                             </p>
                         </div>
                     </a>

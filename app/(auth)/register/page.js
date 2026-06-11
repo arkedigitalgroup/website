@@ -744,7 +744,7 @@ function RegisterPageContent() {
                                     required
                                     value={phone}
                                     onChange={(e) => setPhone(e.target.value)}
-                                    placeholder="0911000000"
+                                    placeholder="+251 976977475"
                                     className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
                                 />
                             </div>

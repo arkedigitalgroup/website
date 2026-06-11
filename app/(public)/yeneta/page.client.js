@@ -28,14 +28,14 @@ export default function YenetaPageClient() {
                 </div>
 
                 <div className="relative z-10 max-w-6xl mx-auto flex flex-col items-start gap-6 text-left w-full">
-                    <div className="w-full lg:w-1/2 space-y-5">
+                    <div className="w-full lg:w-[60%] space-y-5">
                         <div className="flex flex-col items-start gap-4 mb-2">
                             <div className="relative group">
                                 <div className="absolute inset-0 bg-gold-primary/25 rounded-full blur-2xl group-hover:blur-3xl transition-all duration-300"></div>
                                 <img
                                     src="/yenetalogo.png"
                                     alt="Yeneta Logo"
-                                    className="relative w-16 h-16 sm:w-20 sm:h-20 object-contain transition-transform duration-500 group-hover:scale-110 select-none pointer-events-none"
+                                    className="relative w-32 h-32 sm:w-20 sm:h-20 md:w-44 md:h-44 object-contain transition-transform duration-500 group-hover:scale-110 select-none pointer-events-none"
                                 />
                             </div>
                             <span className="px-4 py-1.5 rounded-full bg-yt-maroon-faint border border-yt-maroon text-gold-primary text-sm font-semibold uppercase tracking-wider">
@@ -111,12 +111,13 @@ export default function YenetaPageClient() {
                                 key={pkg.id}
                                 className="relative border border-navy-border rounded-2xl overflow-hidden hover:border-gold-primary hover:shadow-gold transition-all duration-300 grid grid-cols-1 lg:grid-cols-12 group"
                             >
+                                {console.log(pkg)}
                                 {/* Background Image */}
                                 <div className="absolute inset-0 z-0">
                                     <img
-                                        src={pkg.images}
+                                        src={pkg.image}
                                         alt={pkg.alt}
-                                        className="w-full h-full object-cover opacity-90 group-hover:opacity-25 group-hover:scale-105 transition-all duration-700"
+                                        className="w-full h-full object-cover opacity-80 group-hover:opacity-25 group-hover:scale-105 transition-all duration-700"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-l from-navy-deep/10 via-navy-deep/25 to-navy-deep/10"></div>
                                 </div>
