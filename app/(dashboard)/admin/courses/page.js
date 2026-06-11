@@ -27,6 +27,7 @@ const EMPTY_COURSE = {
     syllabusEn: "",
     syllabusAm: "",
     price: "",
+    image: "",
     pricingModel: "monthly",
     gradeRange: "",
     subject: "",
@@ -85,6 +86,7 @@ export default function AdminCourses() {
             syllabusEn: course.syllabusEn ?? "",
             syllabusAm: course.syllabusAm ?? "",
             price: course.price ?? "",
+            image: course.image ?? "",
             pricingModel: course.pricingModel ?? "monthly",
             gradeRange: course.gradeRange ?? "",
             subject: course.subject ?? "",
@@ -139,6 +141,7 @@ export default function AdminCourses() {
                 syllabusEn: form.syllabusEn.trim(),
                 syllabusAm: form.syllabusAm.trim(),
                 price: parseFloat(form.price),
+                image: form.image.trim(),
                 pricingModel: form.pricingModel,
                 serviceLine: activeTab,
                 gradeRange: form.gradeRange.trim() || null,
@@ -317,12 +320,13 @@ export default function AdminCourses() {
                                             </button>
                                         </td>
                                         <td className="p-4 text-right">
-                                            <button
+                                            <a
                                                 onClick={() => openEdit(course)}
+                                                href="/admin/courses#editing"
                                                 className="text-xs font-bold text-gold-primary hover:underline"
                                             >
                                                 Edit
-                                            </button>
+                                            </a>
                                         </td>
                                     </tr>
                                 ))}
@@ -334,7 +338,10 @@ export default function AdminCourses() {
 
             {/* ── Edit / Add Form Panel ── */}
             {editingCourse !== null && (
-                <div className="bg-navy-surface border border-navy-border rounded-xl p-6 sm:p-8 shadow-lg space-y-6">
+                <section
+                    id="editing"
+                    className="bg-navy-surface border border-navy-border rounded-xl p-6 sm:p-8 shadow-lg space-y-6"
+                >
                     <div className="flex items-center justify-between border-b border-navy-border pb-3">
                         <h2 className="text-lg font-bold text-white">
                             {editingCourse?.id
@@ -444,6 +451,19 @@ export default function AdminCourses() {
                                 placeholder="e.g. 4200"
                             />
                         </Field>
+                        <Field label="Image" required>
+                            <input
+                                value={form.image}
+                                onChange={(e) =>
+                                    setForm((p) => ({
+                                        ...p,
+                                        image: e.target.value,
+                                    }))
+                                }
+                                className={INPUT}
+                                placeholder="e.g. /placeholder.jpg"
+                            />
+                        </Field>
                         <Field label="Pricing Model">
                             <select
                                 value={form.pricingModel}
@@ -534,7 +554,7 @@ export default function AdminCourses() {
                                   : "Create Course"}
                         </button>
                     </div>
-                </div>
+                </section>
             )}
         </div>
     );

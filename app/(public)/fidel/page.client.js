@@ -256,14 +256,14 @@ export default function FidelPageClient() {
                 </div>
 
                 <div className="relative z-10 max-w-6xl mx-auto flex flex-col items-start gap-6 text-left w-full">
-                    <div className="w-full lg:w-1/2 space-y-5">
+                    <div className="w-full lg:w-[60%] space-y-5">
                         <div className="flex flex-col items-start gap-4 mb-2">
                             <div className="relative group">
                                 <div className="absolute inset-0 bg-ft-amber/20 rounded-full blur-2xl group-hover:blur-3xl transition-all duration-300"></div>
                                 <img
                                     src="/fidellogo.png"
                                     alt="Fidel Logo"
-                                    className="relative w-16 h-16 sm:w-20 sm:h-20 object-contain transition-transform duration-500 group-hover:scale-110 select-none pointer-events-none"
+                                    className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-44 md:h-44 object-contain transition-transform duration-500 group-hover:scale-110 select-none pointer-events-none"
                                 />
                             </div>
                             <span className="px-4 py-1.5 rounded-full bg-ft-amber/10 border border-ft-amber/40 text-ft-amber text-sm font-semibold uppercase tracking-wider">

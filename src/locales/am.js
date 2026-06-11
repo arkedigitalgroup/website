@@ -142,7 +142,7 @@ export const am = {
     // Contact
     contactTitle: "ያግኙን",
     contactSub: "ማንኛውንም ጥያቄ ወይም አስተያየት ከታች ባለው ቅጽ ይላኩልን።",
-    formName: "முழு பெயர் (ስም)",
+    formName: "ስም",
     formEmail: "ኢሜል",
     formMessage: "መልዕክት",
     btnSendMessage: "መልዕክት ላክ",
