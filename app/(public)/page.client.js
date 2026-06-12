@@ -139,6 +139,14 @@ export default function HomePageClient() {
     const [showPreloader, setShowPreloader] = useState(true);
     const [openFaq, setOpenFaq] = useState(null);
     const [activeTestimonial, setActiveTestimonial] = useState(0);
+    const [activeHeroImage, setActiveHeroImage] = useState(0);
+
+    const heroImages = [
+        "/allCourse.jpg",
+        "/fidelPageHero.jpg",
+        "/begenaBack.jpg",
+        "/quanquaEnaZema.jpg"
+    ];
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -153,6 +161,15 @@ export default function HomePageClient() {
         const interval = setInterval(() => {
             setActiveTestimonial((prev) => (prev === 0 ? 1 : 0));
         }, 6000);
+        return () => clearInterval(interval);
+    }, [showPreloader]);
+
+    // Cycle hero images every 5 seconds
+    useEffect(() => {
+        if (showPreloader) return;
+        const interval = setInterval(() => {
+            setActiveHeroImage((prev) => (prev + 1) % heroImages.length);
+        }, 5000);
         return () => clearInterval(interval);
     }, [showPreloader]);
 
@@ -517,12 +534,21 @@ export default function HomePageClient() {
                             <div className="relative w-full max-w-[420px] aspect-[4/5] rounded-3xl p-3 bg-gradient-to-br from-navy-border/60 to-navy-deep border border-navy-border/80 shadow-2xl overflow-hidden hover:scale-[1.02] transition-all duration-500 group">
                                 <div className="absolute inset-0 bg-gradient-to-t from-navy-deep via-transparent to-transparent opacity-60 z-10" />
 
-                                {/* Main Image */}
-                                <img
-                                    src="/allCourse.jpg"
-                                    alt="Arke Learning Materials"
-                                    className="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-700"
-                                />
+                                {/* Main Carousel Images */}
+                                <div className="absolute inset-3 rounded-2xl overflow-hidden">
+                                    {heroImages.map((src, idx) => (
+                                        <img
+                                            key={src}
+                                            src={src}
+                                            alt="Arke Learning Materials"
+                                            className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-in-out ${
+                                                idx === activeHeroImage 
+                                                    ? "opacity-100 scale-100 pointer-events-auto" 
+                                                    : "opacity-0 scale-105 pointer-events-none"
+                                            }`}
+                                        />
+                                    ))}
+                                </div>
 
                                 {/* Floating Stat Badge 1 (Top Right) */}
                                 <div className="absolute top-6 right-6 z-20 glass-panel border border-gold-primary/30 rounded-2xl p-3 flex items-center gap-2 shadow-lg animate-float">
