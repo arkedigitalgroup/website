@@ -117,7 +117,7 @@ export default function TeacherHome() {
             setLoading(false);
         }
     };
-
+    console.log("Teacher Profile", teacherProfile);
     useEffect(() => {
         fetchTeacherData();
     }, [user]);
@@ -188,9 +188,9 @@ export default function TeacherHome() {
                 lang === "am" ? "የቤተ ክርስቲያን ደብዳቤ" : "church endorsement letter",
             );
         }
-        if (!teacherProfile.kebeleDocUrl)
-            missingDocs.push(lang === "am" ? "ቀበሌ መታወቂያ" : "Kebele ID");
-        if (!teacherProfile.educationCertUrl)
+        if (!teacherProfile.idCardUrl)
+            missingDocs.push(lang === "am" ? "የመታወቂያ" : "ID");
+        if (!teacherProfile.eduCertUrl)
             missingDocs.push(
                 lang === "am" ? "የትምህርት ሰርተፊኬት" : "education certificate",
             );
@@ -266,6 +266,11 @@ export default function TeacherHome() {
                         {lang === "am"
                             ? "የአርኬ አስተማሪ መለያዎ በአድሚን እየተገመገመ ነው። እባክዎ በትዕግስት ይጠብቁ፤ መለያዎ ሲረጋገጥ እናሳውቅዎታለን።"
                             : "Your Arke teacher account is currently under review by our administration team. We will notify you once your verification is complete."}
+                    </p>
+                    <p className="text-sm text-text-secondary leading-relaxed">
+                        {lang === "am"
+                            ? "ያላስገቡት መረጃ ካለ፣ accountዎ 'pending' ሆኖ ይቀጥላል፡፡"
+                            : "If you haven't submitted all the required information, your account will remain 'pending'."}
                     </p>
                     <div className="pt-4">
                         <button
@@ -361,7 +366,6 @@ export default function TeacherHome() {
 
                     {studentsList.length === 0 ? (
                         <div className="text-center py-12 text-text-muted text-sm space-y-2">
-                            <p>{t("noTeacherAssigned")}</p>
                             <p className="text-xs text-text-muted">
                                 {lang === "am"
                                     ? "ተማሪ ሲመደብልዎ ወዲያውኑ እናሳውቅዎታለን።"

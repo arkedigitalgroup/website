@@ -27,7 +27,7 @@ const SELECT_CLS =
     "w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm transition-colors";
 
 export default function StudentAccount() {
-    const { user, setProfile } = useAuth();
+    const { user, profile } = useAuth();
     const { lang } = useLanguage();
 
     const [data, setData] = useState(null);
@@ -55,6 +55,7 @@ export default function StudentAccount() {
                 const snap = await getDoc(doc(db, "students", user.uid));
                 if (snap.exists()) {
                     const d = snap.data();
+                    console.log("student", d);
                     setData(d);
                     setFullName(d.fullName || "");
                     setChristianName(d.christianName || "");
@@ -236,8 +237,12 @@ export default function StudentAccount() {
             {/* Identity Card */}
             <div className="bg-navy-surface border border-navy-border rounded-xl p-6 sm:p-8 space-y-6 shadow-md">
                 <div className="flex items-center gap-3 border-b border-navy-border pb-4">
-                    <div className="w-10 h-10 rounded-full bg-gold-primary/20 border border-gold-primary/40 flex items-center justify-center text-xl">
-                        👤
+                    <div className="rounded-full bg-gold-primary/20 border border-gold-primary/40 flex items-center justify-center text-xl">
+                        <img
+                            src={profilePhotoUrl}
+                            alt="Profile"
+                            className="w-16 h-16 rounded-xl border-2 border-gold-primary object-cover shadow-gold flex-shrink-0"
+                        />
                     </div>
                     <div>
                         <h2 className="font-bold text-white text-base">
@@ -440,8 +445,12 @@ export default function StudentAccount() {
                         ? "ሊቀየሩ የማይችሉ መረጃዎች"
                         : "Read-only Account Details"}
                 </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                     {[
+                        {
+                            label: lang === "am" ? "ኢሜይል" : "Email",
+                            value: data?.email,
+                        },
                         {
                             label: lang === "am" ? "አገልግሎት" : "Service Line",
                             value: data?.serviceLine,

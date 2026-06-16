@@ -2,7 +2,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import {
+    collection,
+    getDocs,
+    doc,
+    updateDoc,
+    serverTimestamp,
+} from "firebase/firestore";
 import { db } from "../../../../src/lib/firebase";
 import { useLanguage } from "../../../../src/context/LanguageContext";
 import {
@@ -53,6 +59,23 @@ export default function AdminFinances() {
         };
         load();
     }, []);
+
+    const handleApprove = async (paymentId) => {
+        try {
+            await updateDoc(doc(db, "payments", paymentId), {
+                status: "paid",
+                approvedAt: serverTimestamp(),
+            });
+            // Optimistic local update — no need to re-fetch all payments
+            setPayments((prev) =>
+                prev.map((p) =>
+                    p.id === paymentId ? { ...p, status: "paid" } : p,
+                ),
+            );
+        } catch (err) {
+            console.error("Approval failed:", err);
+        }
+    };
 
     const loading = configLoading || coursesLoading || dataLoading;
 
@@ -185,7 +208,109 @@ export default function AdminFinances() {
                     </p>
                 </div>
             </div>
-
+            {/* ── Pending Approvals ─────────────────────────────────────────── */}
+            {(() => {
+                const submitted = payments.filter(
+                    (p) => p.status === "submitted",
+                );
+                return (
+                    <div className="bg-navy-surface border border-gold-primary/30 rounded-xl shadow-lg overflow-hidden space-y-4 p-6 sm:p-8">
+                        <div className="flex items-center justify-between border-b border-navy-border pb-3">
+                            <h2 className="text-xl font-bold text-white font-ethiopic">
+                                Pending Payment Approvals
+                            </h2>
+                            {submitted.length > 0 && (
+                                <span className="px-2.5 py-0.5 text-xs font-bold rounded-full bg-gold-primary/20 text-gold-primary">
+                                    {submitted.length} awaiting
+                                </span>
+                            )}
+                        </div>
+                        {submitted.length === 0 ? (
+                            <p className="text-sm text-text-muted text-center py-8">
+                                No payments pending approval.
+                            </p>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse text-sm">
+                                    <thead>
+                                        <tr className="bg-navy-mid border-b border-navy-border text-xs text-text-secondary uppercase font-bold tracking-wider">
+                                            <th className="p-4">Student</th>
+                                            <th className="p-4">Service ID</th>
+                                            <th className="p-4">Month</th>
+                                            <th className="p-4">
+                                                Course Price
+                                            </th>
+                                            <th className="p-4">
+                                                Transaction #
+                                            </th>
+                                            <th className="p-4">
+                                                Submitted At
+                                            </th>
+                                            <th className="p-4">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-navy-border font-medium">
+                                        {submitted.map((p) => {
+                                            const student = students.find(
+                                                (s) => s.id === p.studentId,
+                                            );
+                                            return (
+                                                <tr
+                                                    key={p.id}
+                                                    className="hover:bg-navy-hover transition-colors"
+                                                >
+                                                    <td className="p-4 text-white font-bold">
+                                                        {student?.fullName ??
+                                                            "—"}
+                                                    </td>
+                                                    <td className="p-4 text-text-secondary text-xs font-mono">
+                                                        {student?.serviceId ??
+                                                            p.studentId}
+                                                    </td>
+                                                    <td className="p-4 text-white">
+                                                        {p.month}
+                                                    </td>
+                                                    <td className="p-4 text-gold-primary font-bold">
+                                                        {(
+                                                            p.coursePrice ?? 0
+                                                        ).toLocaleString()}{" "}
+                                                        ETB
+                                                    </td>
+                                                    <td className="p-4 font-mono text-white text-xs">
+                                                        {p.transactionNumber ??
+                                                            "—"}
+                                                    </td>
+                                                    <td className="p-4 text-text-secondary text-xs">
+                                                        {p.submittedAt
+                                                            ? new Date(
+                                                                  p.submittedAt
+                                                                      .seconds *
+                                                                      1000,
+                                                              ).toLocaleDateString()
+                                                            : "—"}
+                                                    </td>
+                                                    <td className="p-4">
+                                                        <button
+                                                            onClick={() =>
+                                                                handleApprove(
+                                                                    p.id,
+                                                                )
+                                                            }
+                                                            className="px-3 py-1.5 bg-gold-primary hover:bg-gold-hover text-navy-deep text-xs font-bold rounded-md transition-colors"
+                                                        >
+                                                            Approve
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+                );
+            })()}
             {/* Monthly Billings */}
             <div className="bg-navy-surface border border-navy-border rounded-xl shadow-lg overflow-hidden space-y-4 p-6 sm:p-8">
                 <h2 className="text-xl font-bold text-white font-ethiopic border-b border-navy-border pb-3">

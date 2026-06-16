@@ -90,8 +90,9 @@ function DocUploadRow({
 }
 
 export default function TeacherAccount() {
-    const { user, setProfile } = useAuth();
+    const { user, profile } = useAuth();
     const { lang } = useLanguage();
+    console.log("User - teacher", profile);
 
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -125,6 +126,7 @@ export default function TeacherAccount() {
         if (!user) return;
         try {
             const snap = await getDoc(doc(db, "teachers", user.uid));
+            console.log("Teacher Snap", snap.data());
             if (snap.exists()) {
                 const d = snap.data();
                 setData(d);
@@ -136,10 +138,10 @@ export default function TeacherAccount() {
                 setBankAccount(d.bankAccount || "");
                 setLat(d.locationPin?.lat ?? "");
                 setLng(d.locationPin?.lng ?? "");
-                setProfilePhotoUrl(d.profilePhotoUrl || "");
+                setProfilePhotoUrl(d.profileUrl || "");
                 setChurchDocUrl(d.churchDocUrl || "");
                 setIdCardUrl(d.idCardUrl || "");
-                setEducationCertUrl(d.educationCertUrl || "");
+                setEducationCertUrl(d.eduCertUrl || "");
             }
         } catch (e) {
             console.error("Failed to load teacher profile:", e);

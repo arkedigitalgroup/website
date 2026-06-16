@@ -132,8 +132,23 @@ export default function LoginPage() {
         try {
             await loginWithGoogle();
         } catch (err) {
-            console.error("Google Sign-In error:", err);
-            setError(err.message || "Google Sign-In failed.");
+            if (err.message === "NO_PROFILE") {
+                setError(
+                    lang === "am"
+                        ? "መለያ አልተገኘም። እባክዎ አስቀድመው ይመዝገቡ።"
+                        : "No account found. Please register first.",
+                );
+            } else if (
+                err.code === "auth/account-exists-with-different-credential"
+            ) {
+                setError(
+                    lang === "am"
+                        ? "ይህ ኢሜል በኢሜልና ይለፍ ቃል ተመዝግቧል። ኢሜልዎን እና ይለፍ ቃልዎን ይጠቀሙ።"
+                        : "This account was registered with email & password. Please sign in that way.",
+                );
+            } else {
+                setError(err.message || "Google sign-in failed.");
+            }
         } finally {
             setLoading(false);
         }

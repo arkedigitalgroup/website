@@ -87,7 +87,7 @@ export default function AdminTeachers() {
             setUpdatingId(null);
         }
     };
-
+    console.log("Teachers", teachers);
     // Filtered teachers list
     const filteredTeachers = teachers.filter((teacher) => {
         if (filter === "pending")
@@ -163,9 +163,7 @@ export default function AdminTeachers() {
                                     <th className="p-4 sm:p-5">
                                         Phone &amp; Bank
                                     </th>
-                                    <th className="p-4 sm:p-5">
-                                        Documents
-                                    </th>
+                                    <th className="p-4 sm:p-5">Documents</th>
                                     <th className="p-4 sm:p-5">Location Pin</th>
                                     <th className="p-4 sm:p-5">Status</th>
                                     <th className="p-4 sm:p-5 text-right">
@@ -211,58 +209,67 @@ export default function AdminTeachers() {
                                             </div>
                                         </td>
                                         <td className="p-4 sm:p-5 space-y-2">
-                                                {/* Church Endorsement */}
-                                                {teacher.churchDocUrl ? (
-                                                    <button
-                                                        onClick={() =>
-                                                            setSelectedDocUrl(
-                                                                teacher.churchDocUrl,
-                                                            )
-                                                        }
-                                                        className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-navy-mid border border-navy-border text-xs text-gold-primary hover:border-gold-primary transition-colors font-semibold"
-                                                    >
-                                                        ⛪ Church Letter
-                                                    </button>
-                                                ) : (
-                                                    <span className="text-text-muted text-xs flex items-center gap-1">
-                                                        ⛪ <span className="text-error">Missing</span>
+                                            {/* Church Endorsement */}
+                                            {teacher.churchDocUrl ? (
+                                                <button
+                                                    onClick={() =>
+                                                        setSelectedDocUrl(
+                                                            teacher.churchDocUrl,
+                                                        )
+                                                    }
+                                                    className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-navy-mid border border-navy-border text-xs text-gold-primary hover:border-gold-primary transition-colors font-semibold"
+                                                >
+                                                    ⛪ Church Letter
+                                                </button>
+                                            ) : (
+                                                <span className="text-text-muted text-xs flex items-center gap-1">
+                                                    ⛪{" "}
+                                                    <span className="text-error">
+                                                        Missing
                                                     </span>
-                                                )}
-                                                {/* Government ID */}
-                                                {teacher.idCardUrl ? (
-                                                    <button
-                                                        onClick={() =>
-                                                            setSelectedDocUrl(
-                                                                teacher.idCardUrl,
-                                                            )
-                                                        }
-                                                        className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-navy-mid border border-navy-border text-xs text-gold-primary hover:border-gold-primary transition-colors font-semibold"
-                                                    >
-                                                        🪪 ID Card
-                                                    </button>
-                                                ) : (
-                                                    <span className="text-text-muted text-xs flex items-center gap-1">
-                                                        🪪 <span className="text-error">Missing</span>
+                                                </span>
+                                            )}
+                                            {/* Government ID */}
+                                            {teacher.idCardUrl ? (
+                                                <button
+                                                    onClick={() =>
+                                                        setSelectedDocUrl(
+                                                            teacher.idCardUrl,
+                                                        )
+                                                    }
+                                                    className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-navy-mid border border-navy-border text-xs text-gold-primary hover:border-gold-primary transition-colors font-semibold"
+                                                >
+                                                    🪪 ID Card
+                                                </button>
+                                            ) : (
+                                                <span className="text-text-muted text-xs flex items-center gap-1">
+                                                    🪪{" "}
+                                                    <span className="text-error">
+                                                        Missing
                                                     </span>
-                                                )}
-                                                {/* Education Certificate */}
-                                                {teacher.educationCertUrl ? (
-                                                    <button
-                                                        onClick={() =>
-                                                            setSelectedDocUrl(
-                                                                teacher.educationCertUrl,
-                                                            )
-                                                        }
-                                                        className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-navy-mid border border-navy-border text-xs text-gold-primary hover:border-gold-primary transition-colors font-semibold"
-                                                    >
-                                                        🎓 Edu Cert
-                                                    </button>
-                                                ) : (
-                                                    <span className="text-text-muted text-xs flex items-center gap-1">
-                                                        🎓 <span className="text-error">Missing</span>
+                                                </span>
+                                            )}
+                                            {/* Education Certificate */}
+                                            {teacher.eduCertUrl ? (
+                                                <button
+                                                    onClick={() =>
+                                                        setSelectedDocUrl(
+                                                            teacher.eduCertUrl,
+                                                        )
+                                                    }
+                                                    className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-navy-mid border border-navy-border text-xs text-gold-primary hover:border-gold-primary transition-colors font-semibold"
+                                                >
+                                                    🎓 Edu Cert
+                                                </button>
+                                            ) : (
+                                                <span className="text-text-muted text-xs flex items-center gap-1">
+                                                    🎓{" "}
+                                                    <span className="text-error">
+                                                        Missing
                                                     </span>
-                                                )}
-                                            </td>
+                                                </span>
+                                            )}
+                                        </td>
                                         <td className="p-4 sm:p-5">
                                             <span className="text-xs text-text-secondary font-mono">
                                                 {teacher.locationPin?.lat?.toFixed(
