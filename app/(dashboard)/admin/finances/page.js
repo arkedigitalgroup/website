@@ -277,7 +277,7 @@ export default function AdminFinances() {
                                                         ETB
                                                     </td>
                                                     <td className="p-4 font-mono text-white text-xs">
-                                                        {p.transactionNumber ??
+                                                        {p.transactionRef ??
                                                             "—"}
                                                     </td>
                                                     <td className="p-4 text-text-secondary text-xs">

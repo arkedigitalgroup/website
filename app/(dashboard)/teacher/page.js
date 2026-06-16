@@ -262,6 +262,13 @@ export default function TeacherHome() {
                             ? "የመለያ ማረጋገጫ በመጠባበቅ ላይ"
                             : "Account Verification Pending"}
                     </h1>
+                    <h3 className="text-sm md:text-basefont-semibold text-gold-primary font-ethiopic">
+                        <Link href="/teacher/account">
+                            {lang === "am"
+                                ? "ወደ ፕሮፋይል በመሄድ አስገብተው ያላጠናቀቋቸው ዶክመንቶች ያጠናቁ፡፡"
+                                : "Go to profile and complete the documents you haven't submitted."}
+                        </Link>
+                    </h3>
                     <p className="text-sm text-text-secondary leading-relaxed">
                         {lang === "am"
                             ? "የአርኬ አስተማሪ መለያዎ በአድሚን እየተገመገመ ነው። እባክዎ በትዕግስት ይጠብቁ፤ መለያዎ ሲረጋገጥ እናሳውቅዎታለን።"
