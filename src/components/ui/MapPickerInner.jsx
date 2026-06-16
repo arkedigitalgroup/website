@@ -301,16 +301,26 @@ export default function MapPickerInner({
         setSearchError("");
 
         try {
+            // Replace the fetch line inside handleSearch with this:
+
+            const biasedQuery =
+                q.split(/[\s,]+/).filter(Boolean).length <= 2
+                    ? `${q}, Addis Ababa`
+                    : q;
+
             const res = await fetch(
-                `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}`,
+                `https://nominatim.openstreetmap.org/search?format=json&limit=1` +
+                    `&q=${encodeURIComponent(biasedQuery)}` +
+                    `&viewbox=38.6500,9.2000,38.9000,8.8500` +
+                    `&bounded=1`,
             );
             const data = await res.json();
 
             if (!data || data.length === 0) {
                 setSearchError(
                     lang === "am"
-                        ? "ምንም ውጤት አልተገኘም። ሌላ ቃል ይሞክሩ።"
-                        : "No results found. Try a broader search (e.g. Bole, Addis Ababa).",
+                        ? "ምንም ውጤት አልተገኘም። ሌላ አካባቢ ስም ይሞክሩ (ለምሳሌ: ቦሌ፣ ፒያሳ)።"
+                        : "No results found in Addis Ababa. Try a neighborhood name (e.g. Bole, Piassa).",
                 );
                 return;
             }

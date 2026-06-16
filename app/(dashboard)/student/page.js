@@ -423,7 +423,7 @@ export default function StudentHome() {
                         <h2 className="text-lg font-bold text-white uppercase tracking-wider border-b border-navy-border pb-3">
                             {t("assignedTeacher")}
                         </h2>
-
+                        {console.log("matched teacher", teacher)}
                         {teacher ? (
                             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
                                 {teacher.profilePhotoUrl && (

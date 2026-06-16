@@ -18,6 +18,7 @@ import {
     usePlatformConfig,
     calcMonthlyTotal,
 } from "../../../../src/hooks/Useplatformconfig";
+import { useCourses } from "../../../../src/hooks/Usecourses";
 
 export default function StudentPayments() {
     const { user } = useAuth();
@@ -75,12 +76,12 @@ export default function StudentPayments() {
         setSubmitting(true);
 
         try {
-            // 1. Update /payments/{payingId} status = "paid", paidAt = now
+            // 1. Update /payments/{payingId} status = "submited", paidAt = now
             const paymentRef = doc(db, "payments", payingId);
             await updateDoc(paymentRef, {
-                status: "paid",
+                status: "submitted",
                 paidAt: new Date(),
-                transactionRef: payReference,
+                transactionNumber: payReference,
             });
 
             // 2. Also ensure student profile dashboardLocked is updated to false
