@@ -76,12 +76,13 @@ export default function StudentPayments() {
         setSubmitting(true);
 
         try {
-            // 1. Update /payments/{payingId} status = "submited", paidAt = now
+            // 1. Update /payments/{payingId} status = "paid", submittedAt = now
             const paymentRef = doc(db, "payments", payingId);
+
             await updateDoc(paymentRef, {
                 status: "submitted",
-                paidAt: new Date(),
-                transactionNumber: payReference,
+                submittedAt: new Date(),
+                transactionRef: payReference,
             });
 
             // 2. Also ensure student profile dashboardLocked is updated to false
@@ -161,7 +162,8 @@ export default function StudentPayments() {
                                             config,
                                             invoice.coursePrice ?? 0,
                                         );
-                                    const isPaid = invoice.status === "paid";
+                                    const isSubmitted =
+                                        invoice.status === "submitted";
                                     const isOverdue =
                                         invoice.status === "overdue";
 
@@ -185,9 +187,9 @@ export default function StudentPayments() {
                                                 {total.toLocaleString()} ETB
                                             </td>
                                             <td className="p-4">
-                                                {isPaid ? (
+                                                {isSubmitted ? (
                                                     <span className="px-2.5 py-0.5 rounded bg-success-faint text-success font-bold text-xs uppercase border border-success/15">
-                                                        Paid
+                                                        Submitted
                                                     </span>
                                                 ) : isOverdue ? (
                                                     <span className="px-2.5 py-0.5 rounded bg-error-faint text-error font-bold text-xs uppercase border border-error/15">
@@ -200,12 +202,13 @@ export default function StudentPayments() {
                                                 )}
                                             </td>
                                             <td className="p-4 text-right">
-                                                {isPaid ? (
+                                                {!isSubmitted ? (
                                                     <span className="text-xs text-text-muted">
                                                         Paid at{" "}
-                                                        {invoice.paidAt
+                                                        {invoice.submittedAt
                                                             ? new Date(
-                                                                  invoice.paidAt
+                                                                  invoice
+                                                                      .submittedAt
                                                                       .seconds *
                                                                       1000,
                                                               ).toLocaleDateString()
@@ -213,6 +216,7 @@ export default function StudentPayments() {
                                                     </span>
                                                 ) : (
                                                     <button
+                                                        disabled={isSubmitted}
                                                         onClick={() =>
                                                             setPayingId(
                                                                 invoice.id,
@@ -220,7 +224,9 @@ export default function StudentPayments() {
                                                         }
                                                         className="px-3 py-1.5 rounded bg-gold-primary text-navy-deep font-bold text-xs hover:bg-gold-hover transition-all"
                                                     >
-                                                        Submit Reference
+                                                        {isSubmitted
+                                                            ? "Done"
+                                                            : "Submit Reference"}
                                                     </button>
                                                 )}
                                             </td>
