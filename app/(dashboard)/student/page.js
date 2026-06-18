@@ -426,9 +426,9 @@ export default function StudentHome() {
                         {console.log("matched teacher", teacher)}
                         {teacher ? (
                             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                                {teacher.profilePhotoUrl && (
+                                {teacher.profileUrl && (
                                     <img
-                                        src={teacher.profilePhotoUrl}
+                                        src={teacher.profileUrl}
                                         alt="tutor photo"
                                         className="w-24 h-24 rounded-xl border-2 border-gold-primary object-cover shadow-gold"
                                     />

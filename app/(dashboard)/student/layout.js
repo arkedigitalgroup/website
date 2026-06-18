@@ -10,7 +10,7 @@ import ProtectedRoute from "../../../src/components/auth/ProtectedRoute";
 
 export default function StudentLayout({ children }) {
     const { profile, logout } = useAuth();
-    const { t, lang } = useLanguage();
+    const { t, lang, toggleLanguage } = useLanguage();
     const pathname = usePathname();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     console.log(profile);
@@ -112,11 +112,19 @@ export default function StudentLayout({ children }) {
                     </nav>
 
                     <div className="p-4 border-t border-navy-border space-y-3">
-                        <div className="text-xs text-text-muted">
-                            <div className="font-semibold text-white truncate max-w-[150px]">
-                                {profile?.fullName}
+                        <div className="flex flex-row justify-between items-center">
+                            <div className="text-xs text-text-muted">
+                                <div className="font-semibold text-white truncate max-w-[150px]">
+                                    {profile?.fullName}
+                                </div>
+                                <div>ID: {profile?.serviceId}</div>
                             </div>
-                            <div>ID: {profile?.serviceId}</div>
+                            <button
+                                onClick={toggleLanguage}
+                                className="px-3 py-1.5 rounded-md border border-navy-border text-sm text-gold-primary hover:bg-navy-surface hover:border-gold-primary transition-all duration-200"
+                            >
+                                {t("langToggle")}
+                            </button>
                         </div>
                         <button
                             onClick={logout}

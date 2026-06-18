@@ -10,7 +10,7 @@ export const en = {
     navSignOut: "Sign Out",
     navDashboard: "Dashboard",
     langToggle: "አማርኛ",
-    logoText: "አርኬ / Arke",
+    logoText: "Arke Digital Learning",
 
     // Home Page Hero
     heroTagline: "Fusing Excellence with Ethics!",
@@ -45,7 +45,7 @@ export const en = {
         "Track your child's learning roadmap, daily attendance, and progress directly on your phone.",
     whyLoyaltyTitle: "Teacher Loyalty",
     whyLoyaltyDesc:
-        "We payout a premium 85% of course fees to tutors, fostering dedication and high retention.",
+        "We payout a premium course fees to tutors, fostering dedication and high retention.",
     whyIdentityTitle: "Identity Building",
     whyIdentityDesc:
         "Empowering children with deep-rooted indigenous wisdom, boosting confidence and character.",
@@ -71,7 +71,7 @@ export const en = {
         'By 2035, our goal is to become the "Golden Standard" for Ethiopians at home and abroad, providing digital and physical learning experiences that build both intellect and character for thousands of young scholars, priests, and deacons.',
     aboutMissionTitle: "Mission",
     aboutMissionDesc:
-        "🫳Technological Excellence: Utilizing advanced GPS and database technology to make elite educators accessible directly to parents.\n🫳Guardian of the Generation: Actively combating addiction, moral erosion, and negative social influences through knowledge and professional guidance.🫳Economic Empowerment: Creating prestigious career opportunities and reliable income.",
+        "🫳Technological Excellence: Utilizing advanced GPS and database technology to make elite educators accessible directly to parents.\n🫳Guardian of the Generation: Actively combating addiction, moral erosion, and negative social influences through knowledge and professional guidance.\n🫳Economic Empowerment: Creating prestigious career opportunities and reliable income.",
     aboutIdentityTitleYeneta: "Yeneta Tutors Identity Anchor",
     aboutIdentityDescYeneta:
         "To prevent children from losing their roots to foreign cultural erosion, Yeneta Tutors provides spiritual and traditional wisdom (Ge’ez, Zema, and Ethics) at home. This ensures they grow up respecting their heritage, their parents, and themselves.",
@@ -248,17 +248,22 @@ export const en = {
 
     // Modern Home Additions
     coursesTitle: "Featured Courses & Packages",
-    coursesSubtitle: "Carefully designed educational paths for your child's holistic growth",
+    coursesSubtitle:
+        "Carefully designed educational paths for your child's holistic growth",
     testimonialsTitle: "What Parents Say",
-    testimonialsSubtitle: "Our success is measured by parental trust and student character growth",
+    testimonialsSubtitle:
+        "Our success is measured by parental trust and student character growth",
     parent1Name: "W/ro Meseret Alemu",
     parent1Role: "Mother of Two (Bole)",
-    parent1Text: "Since welcoming the Yeneta tutor to our home, a beautiful spiritual peace has settled. My children are learning Ge'ez and liturgical chants with absolute joy.",
+    parent1Text:
+        "Since welcoming the Yeneta tutor to our home, a beautiful spiritual peace has settled. My children are learning Ge'ez and liturgical chants with absolute joy.",
     parent2Name: "Ato Teklemaraym Wolde",
     parent2Role: "Father of Student (Saris)",
-    parent2Text: "The Fidel academic tutors are extremely professional and disciplined. My son improved his math grades and overall understanding in a very short time.",
+    parent2Text:
+        "The Fidel academic tutors are extremely professional and disciplined. My son improved his math grades and overall understanding in a very short time.",
     faqTitle: "Frequently Asked Questions",
-    faqSubtitle: "Detailed answers to help you understand how Arke Digital works",
+    faqSubtitle:
+        "Detailed answers to help you understand how Arke Digital works",
     faqQ1: "How are the tutors selected and verified?",
     faqA1: "All our tutors undergo strict background checks, educational credential verification, and must submit letters of recommendation and moral conduct from their local church or community parish.",
     faqQ2: "How does the billing and payment system work?",

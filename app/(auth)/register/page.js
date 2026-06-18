@@ -389,7 +389,7 @@ function RegisterPageContent() {
             // 3. Upload files (teacher only)
             let churchDocUrl = "";
             let kebeleDocUrl = "";
-            let profilePhotoUrl = "";
+            let profileUrl = "";
 
             if (role === "teacher") {
                 // ── Profile Photo ──
@@ -397,7 +397,7 @@ function RegisterPageContent() {
                     setUploadStatus(
                         lang === "am" ? "ፎቶ በመስቀል ላይ..." : "Uploading photo...",
                     );
-                    profilePhotoUrl = await uploadFile(
+                    profileUrl = await uploadFile(
                         profilePhoto,
                         `teachers/${uid}/profile.jpg`,
                     );
@@ -456,7 +456,7 @@ function RegisterPageContent() {
                     email: email.toLowerCase().trim(),
                     locationPin,
                     // Store actual upload URLs, or empty string if no file was chosen
-                    profilePhotoUrl,
+                    profileUrl,
                     churchDocUrl,
                     kebeleDocUrl,
                     bankProvider,

@@ -117,7 +117,7 @@ export default function TeacherAccount() {
     const [lng, setLng] = useState("");
 
     // Document URLs (stored in state after upload)
-    const [profilePhotoUrl, setProfilePhotoUrl] = useState("");
+    const [profileUrl, setprofileUrl] = useState("");
     const [churchDocUrl, setChurchDocUrl] = useState("");
     const [idCardUrl, setIdCardUrl] = useState("");
     const [educationCertUrl, setEducationCertUrl] = useState("");
@@ -138,7 +138,7 @@ export default function TeacherAccount() {
                 setBankAccount(d.bankAccount || "");
                 setLat(d.locationPin?.lat ?? "");
                 setLng(d.locationPin?.lng ?? "");
-                setProfilePhotoUrl(d.profileUrl || "");
+                setprofileUrl(d.profileUrl || "");
                 setChurchDocUrl(d.churchDocUrl || "");
                 setIdCardUrl(d.idCardUrl || "");
                 setEducationCertUrl(d.eduCertUrl || "");
@@ -190,7 +190,7 @@ export default function TeacherAccount() {
         uploadFile(
             file,
             `teachers/${user.uid}/profile.jpg`,
-            setProfilePhotoUrl,
+            setprofileUrl,
             setUploadingPhoto,
         );
 
@@ -291,9 +291,9 @@ export default function TeacherAccount() {
                 {/* Profile Avatar & Completeness */}
                 <div className="mt-5 flex items-center gap-5">
                     <div className="relative group">
-                        {profilePhotoUrl ? (
+                        {profileUrl ? (
                             <img
-                                src={profilePhotoUrl}
+                                src={profileUrl}
                                 alt="Profile"
                                 className="w-16 h-16 rounded-xl border-2 border-gold-primary object-cover shadow-gold flex-shrink-0"
                             />
@@ -586,7 +586,7 @@ export default function TeacherAccount() {
                             ? "ግልጽ የሆነ ፎቶ — JPG ወይም PNG"
                             : "Clear headshot — JPG or PNG, max 5MB"
                     }
-                    currentUrl={profilePhotoUrl}
+                    currentUrl={profileUrl}
                     accept="image/jpeg,image/png"
                     uploading={uploadingPhoto}
                     onUpload={handlePhotoUpload}
