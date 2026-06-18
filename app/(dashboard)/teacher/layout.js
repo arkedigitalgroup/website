@@ -11,7 +11,7 @@ import ProtectedRoute from "../../../src/components/auth/ProtectedRoute";
 export default function TeacherLayout({ children }) {
     const { profile, logout } = useAuth();
 
-    const { t, lang } = useLanguage();
+    const { t, lang, toggleLanguage } = useLanguage();
     const pathname = usePathname();
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -116,9 +116,10 @@ export default function TeacherLayout({ children }) {
                     {/* Sidebar user footer */}
                     <div className="p-4 border-t border-navy-border space-y-3">
                         <div className="text-xs text-text-muted flex items-center space-x-2">
-                            {profile?.profilePhotoUrl && (
+                            {console.log(profile)}
+                            {profile?.profileUrl && (
                                 <img
-                                    src={profile.profilePhotoUrl}
+                                    src={profile.profileUrl}
                                     alt="avatar"
                                     className="w-8 h-8 rounded-full border border-gold-primary object-cover"
                                 />
@@ -129,6 +130,13 @@ export default function TeacherLayout({ children }) {
                                 </div>
                                 <div>ID: {profile?.serviceId}</div>
                             </div>
+
+                            <button
+                                onClick={toggleLanguage}
+                                className="px-3 py-1.5 rounded-md border border-navy-border text-sm text-gold-primary hover:bg-navy-surface hover:border-gold-primary transition-all duration-200"
+                            >
+                                {t("langToggle")}
+                            </button>
                         </div>
                         <button
                             onClick={logout}

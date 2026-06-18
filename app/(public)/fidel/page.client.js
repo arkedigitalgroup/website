@@ -426,8 +426,8 @@ export default function FidelPageClient() {
                         </h3>
                         <p className="text-sm text-white/60 max-w-md">
                             {lang === "am"
-                                ? "በክብር ሙያዎ ተማሪዎችን እያስተማሩ 85% ክፍያ በማግኘት ኑሮዎን ያሻሽሉ። ዛሬውኑ ይመዝገቡ።"
-                                : "Join our platform, teach students at home, and earn a premium 85% payout. Register as a Fidel teacher now."}
+                                ? "በክብር ሙያዎ ተማሪዎችን እያስተማሩ ክፍያ በማግኘት ኑሮዎን ያሻሽሉ። ዛሬውኑ ይመዝገቡ።"
+                                : "Join our platform, teach students at home, and earn a premium payout. Register as a Fidel teacher now."}
                         </p>
                     </div>
                     <Link

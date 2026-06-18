@@ -76,7 +76,6 @@ export default function TeacherPayouts() {
             };
         }
 
-        // Add net teacher payout (85% of course price)
         const payout =
             payment.teacherPayout ??
             calcTeacherPayout(config, payment.coursePrice ?? 0);
@@ -110,7 +109,7 @@ export default function TeacherPayouts() {
                     {lang === "am" ? "የክፍያዎቼ መግለጫ" : "Tutor Payouts Statement"}
                 </h1>
                 <p className="text-sm text-text-secondary">
-                    Track your monthly net earnings representing 85% of matched
+                    Track your monthly net earnings representing with the percentage of matched
                     course packages. Paid directly to your bank provider.
                 </p>
             </div>
@@ -133,7 +132,7 @@ export default function TeacherPayouts() {
                                     <th className="p-4">Billing Month</th>
                                     <th className="p-4">Total Students</th>
                                     <th className="p-4">
-                                        Payout Amount (85% Net)
+                                        Payout Amount
                                     </th>
                                     <th className="p-4 text-right">
                                         Payment Status

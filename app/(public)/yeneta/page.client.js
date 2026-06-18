@@ -231,8 +231,8 @@ export default function YenetaPageClient() {
                         </h3>
                         <p className="text-sm text-text-secondary max-w-md">
                             {lang === "am"
-                                ? "በክብር ሙያዎ ተማሪዎችን እያስተማሩ 85% ክፍያ በማግኘት ኑሮዎን ያሻሽሉ። ዛሬውኑ ይመዝገቡ።"
-                                : "Join our platform, preserve our indigenous identity, and earn a premium 85% payout. Register as a teacher now."}
+                                ? "በክብር ሙያዎ ተማሪዎችን እያስተማሩ ክፍያ በማግኘት ኑሮዎን ያሻሽሉ። ዛሬውኑ ይመዝገቡ።"
+                                : "Join our platform, preserve our indigenous identity, and earn a premium payout. Register as a teacher now."}
                         </p>
                     </div>
                     <Link

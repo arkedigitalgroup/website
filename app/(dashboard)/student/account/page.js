@@ -45,7 +45,7 @@ export default function StudentAccount() {
     const [courseId, setCourseId] = useState("meserete-imnet");
     const [lat, setLat] = useState("");
     const [lng, setLng] = useState("");
-    const [profilePhotoUrl, setProfilePhotoUrl] = useState("");
+    const [profileUrl, setprofileUrl] = useState("");
     const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
     useEffect(() => {
@@ -65,7 +65,7 @@ export default function StudentAccount() {
                     setCourseId(d.courseId || "meserete-imnet");
                     setLat(d.locationPin?.lat ?? "");
                     setLng(d.locationPin?.lng ?? "");
-                    setProfilePhotoUrl(d.profilePhotoUrl || "");
+                    setprofileUrl(d.profileUrl || "");
                 }
             } catch (e) {
                 console.error("Failed to load student profile:", e);
@@ -82,10 +82,10 @@ export default function StudentAccount() {
             const fileRef = ref(storage, `students/${user.uid}/profile.jpg`);
             await uploadBytes(fileRef, file);
             const url = await getDownloadURL(fileRef);
-            setProfilePhotoUrl(url);
+            setprofileUrl(url);
             // Immediately persist to Firestore
             await updateDoc(doc(db, "students", user.uid), {
-                profilePhotoUrl: url,
+                profileUrl: url,
             });
             return url;
         } catch (e) {
@@ -160,9 +160,9 @@ export default function StudentAccount() {
                 {/* Profile Avatar & Completeness */}
                 <div className="mt-5 flex items-center gap-5">
                     <div className="relative group">
-                        {profilePhotoUrl ? (
+                        {profileUrl ? (
                             <img
-                                src={profilePhotoUrl}
+                                src={profileUrl}
                                 alt="Profile"
                                 className="w-16 h-16 rounded-xl border-2 border-gold-primary object-cover shadow-gold flex-shrink-0"
                             />
@@ -197,7 +197,7 @@ export default function StudentAccount() {
                                     data.christianName,
                                     data.phone,
                                     data.locationPin?.lat,
-                                    profilePhotoUrl,
+                                    profileUrl,
                                 ];
                                 const filled = fields.filter(Boolean).length;
                                 const pct = Math.round(
@@ -239,7 +239,7 @@ export default function StudentAccount() {
                 <div className="flex items-center gap-3 border-b border-navy-border pb-4">
                     <div className="rounded-full bg-gold-primary/20 border border-gold-primary/40 flex items-center justify-center text-xl">
                         <img
-                            src={profilePhotoUrl}
+                            src={profileUrl}
                             alt="Profile"
                             className="w-16 h-16 rounded-xl border-2 border-gold-primary object-cover shadow-gold flex-shrink-0"
                         />
