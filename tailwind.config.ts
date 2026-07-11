@@ -47,6 +47,11 @@ const config: Config = {
                 },
                 // ── Cream ──
                 cream: "#F7F5F0",
+                // ── Semantic ──
+                success: "var(--success)",
+                warning: "var(--warning)",
+                error: "var(--error)",
+                info: "var(--info)",
             },
             fontFamily: {
                 latin: ["Inter", "system-ui", "sans-serif"],

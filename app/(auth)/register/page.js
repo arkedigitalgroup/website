@@ -362,6 +362,11 @@ function RegisterPageContent() {
         e.preventDefault();
         setError("");
 
+        // Track the newly created auth user so we can delete it
+        // if any downstream step (Firestore write, file upload) fails.
+        // This prevents orphaned auth accounts that block re-registration.
+        let createdAuthUser = null;
+
         // Validation: teacher must select at least one course
         if (role === "teacher" && qualifiedCourses.length === 0) {
             setError(
@@ -381,6 +386,7 @@ function RegisterPageContent() {
                 email,
                 password,
             );
+            createdAuthUser = userCredential.user; // remember for cleanup on failure
             const uid = userCredential.user.uid;
 
             // 2. Generate service ID from UID slice (collision-safe)
@@ -539,7 +545,8 @@ function RegisterPageContent() {
                 console.error("❌ EmailJS failed:", notifyErr);
             }
 
-            // 8. Redirect to role dashboard
+            // 8. Registration complete — clear cleanup reference and redirect
+            createdAuthUser = null; // no cleanup needed — everything succeeded
             if (role === "admin") router.push("/admin");
             else if (role === "teacher") router.push("/teacher");
             else router.push("/student");
@@ -547,11 +554,29 @@ function RegisterPageContent() {
             console.error("Registration error:", err);
             setUploadStatus("");
 
+            // ── Cleanup: delete the auth account if it was created this attempt
+            // but something downstream (Firestore write, file upload) failed.
+            // Without this, the student is permanently stuck — every retry hits
+            // "email already in use" even though they never finished registering.
+            if (createdAuthUser) {
+                try {
+                    await createdAuthUser.delete();
+                    console.log("🧹 Cleaned up partial auth account after registration failure.");
+                } catch (cleanupErr) {
+                    // Cleanup failed — log and continue to show the original error.
+                    // User may need to reset password and contact support.
+                    console.error("⚠️ Could not delete partial auth account:", cleanupErr);
+                }
+                createdAuthUser = null;
+            }
+
             if (err.code === "auth/email-already-in-use") {
+                // This path should now be rare: only if the student previously
+                // fully registered. Point them to login instead.
                 setError(
                     lang === "am"
-                        ? "ይህ ኢሜል ቀደም ሲል ተመዝግቧል።"
-                        : "This email is already in use.",
+                        ? "ይህ ኢሜል አስቀድሞ ተመዝግቧል። ወደ ስርዓቱ ለመግባት ይሞክሩ።"
+                        : "This email is already registered. Please try logging in instead.",
                 );
             } else if (err.code === "auth/weak-password") {
                 setError(
@@ -579,6 +604,12 @@ function RegisterPageContent() {
                     lang === "am"
                         ? "ፋይል ለመስቀል ፈቃድ የለም። Firebase Storage Rules ያረጋግጡ።"
                         : "Not authorized to upload files. Check your Firebase Storage Rules.",
+                );
+            } else if (err.code === "permission-denied" || err.message?.includes("permission-denied")) {
+                setError(
+                    lang === "am"
+                        ? "ምዝገባ አልተሳካም: የ Firestore ፈቃድ ተከልክሏል። Firestore Rules ያረጋግጡ።"
+                        : "Registration failed: Firestore permission denied. Please check Firestore security rules.",
                 );
             } else {
                 setError(

@@ -683,8 +683,8 @@ export default function TeacherAccount() {
                 </div>
                 <p className="text-[10px] text-text-muted">
                     {lang === "am"
-                        ? "ሚናን ወይም አገልግሎት ለመቀየር admin@arke.et ያነጋግሩ።"
-                        : "To change your role or service line, contact admin@arke.et."}
+                        ? "ሚናን ወይም አገልግሎት ለመቀየር info@arke-group.com ያነጋግሩ።"
+                        : "To change your role or service line, contact info@arke-group.com."}
                 </p>
             </div>
         </div>
