@@ -9,6 +9,7 @@ import {
     updateDoc,
     query,
     orderBy,
+    addDoc,
 } from "firebase/firestore";
 import { db } from "../../../../src/lib/firebase";
 import { useLanguage } from "../../../../src/context/LanguageContext";
@@ -198,6 +199,14 @@ export default function AdminSupport() {
     const [sending, setSending] = useState(false);
     const [filter, setFilter] = useState("all"); // all | pending | replied
 
+    // New Message states
+    const [isNewMessageOpen, setIsNewMessageOpen] = useState(false);
+    const [allRecipients, setAllRecipients] = useState([]);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [selectedRecipient, setSelectedRecipient] = useState(null);
+    const [adminMessage, setAdminMessage] = useState("");
+    const [threadInputText, setThreadInputText] = useState("");
+
     const loadMessages = async () => {
         try {
             setLoading(true);
@@ -278,6 +287,118 @@ export default function AdminSupport() {
         }
     };
 
+    const openNewMessageModal = async () => {
+        setIsNewMessageOpen(true);
+        setSearchQuery("");
+        setSelectedRecipient(null);
+        setAdminMessage("");
+        try {
+            const studentsSnap = await getDocs(collection(db, "students"));
+            const teachersSnap = await getDocs(collection(db, "teachers"));
+            
+            const list = [];
+            studentsSnap.forEach((doc) => {
+                const d = doc.data();
+                list.push({ uid: doc.id, name: d.fullName, role: "student", email: d.email });
+            });
+            teachersSnap.forEach((doc) => {
+                const d = doc.data();
+                list.push({ uid: doc.id, name: d.fullName, role: "teacher", email: d.email });
+            });
+            setAllRecipients(list);
+        } catch (err) {
+            console.error("Failed to load recipients list:", err);
+        }
+    };
+
+    const handleSendNewMessage = async (e) => {
+        e.preventDefault();
+        if (!selectedRecipient || !adminMessage.trim()) return;
+        setSending(true);
+        try {
+            const messageSubject = lang === "am" ? "የአስተዳዳሪ መልዕክት" : "Message from Admin";
+            await addDoc(collection(db, "supportMessages"), {
+                senderId: selectedRecipient.uid,
+                senderName: selectedRecipient.name || "User",
+                senderRole: selectedRecipient.role,
+                message: messageSubject,
+                createdAt: new Date(),
+                reply: adminMessage.trim(),
+            });
+            
+            setIsNewMessageOpen(false);
+            await loadMessages();
+            
+            // Automatically select the active thread for this recipient
+            const q = query(
+                collection(db, "supportMessages"),
+                orderBy("createdAt", "asc"),
+            );
+            const snap = await getDocs(q);
+            const raw = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+            const threadMap = {};
+            raw.forEach((msg) => {
+                if (!threadMap[msg.senderId]) {
+                    threadMap[msg.senderId] = {
+                        senderId: msg.senderId,
+                        senderName: msg.senderName,
+                        senderRole: msg.senderRole,
+                        messages: [],
+                    };
+                }
+                threadMap[msg.senderId].messages.push(msg);
+            });
+            const refreshed = Object.values(threadMap).find(t => t.senderId === selectedRecipient.uid);
+            if (refreshed) setActiveThread(refreshed);
+        } catch (err) {
+            console.error("Failed to send admin message:", err);
+        } finally {
+            setSending(false);
+        }
+    };
+
+    const filteredRecipients = allRecipients.filter(r => 
+        r.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        r.email?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const handleThreadSend = async (e) => {
+        e.preventDefault();
+        const text = threadInputText.trim();
+        if (!text || !activeThread) return;
+        setSending(true);
+        try {
+            // Find if there is any unreplied message in this thread
+            const unreplied = activeThread.messages.find(
+                (m) => !m.reply || m.reply.trim() === "",
+            );
+
+            if (unreplied) {
+                // Reply to the unreplied message
+                await updateDoc(doc(db, "supportMessages", unreplied.id), {
+                    reply: text,
+                });
+            } else {
+                // If all are replied to, create a new document in the collection
+                const messageSubject = lang === "am" ? "የአስተዳዳሪ መልዕክት" : "Message from Admin";
+                await addDoc(collection(db, "supportMessages"), {
+                    senderId: activeThread.senderId,
+                    senderName: activeThread.senderName || "User",
+                    senderRole: activeThread.senderRole,
+                    message: messageSubject,
+                    createdAt: new Date(),
+                    reply: text,
+                });
+            }
+            setThreadInputText("");
+            await loadMessages();
+        } catch (err) {
+            console.error("Failed to send message to thread:", err);
+        } finally {
+            setSending(false);
+        }
+    };
+
     // Filter sidebar threads
     const filteredThreads = threads.filter((thread) => {
         if (filter === "pending")
@@ -332,12 +453,21 @@ export default function AdminSupport() {
                         )}
                     </p>
                 </div>
-                <button
-                    onClick={loadMessages}
-                    className="px-4 py-2 border border-navy-border text-text-secondary rounded-lg text-xs font-semibold hover:border-gold-primary hover:text-gold-primary transition-all"
-                >
-                    ↻ Refresh
-                </button>
+                <div className="flex gap-2">
+                    <button
+                        onClick={openNewMessageModal}
+                        className="px-4 py-2 bg-gold-primary hover:bg-gold-hover text-navy-deep font-bold rounded-lg text-xs transition-all flex items-center gap-1.5"
+                    >
+                        <span>➕</span>
+                        <span>{lang === "am" ? "አዲስ መልዕክት" : "New Message"}</span>
+                    </button>
+                    <button
+                        onClick={loadMessages}
+                        className="px-4 py-2 border border-navy-border text-text-secondary rounded-lg text-xs font-semibold hover:border-gold-primary hover:text-gold-primary transition-all"
+                    >
+                        ↻ Refresh
+                    </button>
+                </div>
             </div>
 
             {threads.length === 0 ? (
@@ -482,11 +612,166 @@ export default function AdminSupport() {
                                 {/* Sending indicator */}
                                 {sending && (
                                     <div className="px-6 py-3 border-t border-navy-border text-xs text-text-muted animate-pulse flex-shrink-0">
-                                        Sending reply...
+                                        Sending...
                                     </div>
                                 )}
+
+                                {/* ── Persistent bottom chat input ── */}
+                                <form
+                                    onSubmit={handleThreadSend}
+                                    className="p-4 border-t border-navy-border bg-navy-mid/50 flex gap-3 flex-shrink-0"
+                                >
+                                    <input
+                                        type="text"
+                                        placeholder={
+                                            lang === "am"
+                                                ? "ለተጠቃሚው መልዕክት ይጻፉ..."
+                                                : "Type a message to this user..."
+                                        }
+                                        value={threadInputText}
+                                        onChange={(e) =>
+                                            setThreadInputText(e.target.value)
+                                        }
+                                        className="flex-grow px-4 py-3 bg-navy-deep border border-navy-border rounded-xl text-white placeholder-text-muted text-sm focus:outline-none focus:border-gold-primary transition-colors"
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={
+                                            sending ||
+                                            !threadInputText.trim()
+                                        }
+                                        className="px-6 py-3 bg-gold-primary text-navy-deep hover:bg-gold-hover font-bold rounded-xl text-sm transition-all shadow-gold disabled:opacity-50"
+                                    >
+                                        {sending
+                                            ? "..."
+                                            : lang === "am"
+                                              ? "ላክ"
+                                              : "Send"}
+                                    </button>
+                                </form>
                             </>
                         )}
+                    </div>
+                </div>
+            )}
+
+            {/* ── New Message Modal ─────────────────────────────────────────── */}
+            {isNewMessageOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                    <div className="w-full max-w-lg bg-navy-surface border border-navy-border rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+                        {/* Modal Header */}
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-navy-border">
+                            <h3 className="text-base font-bold text-white">
+                                {lang === "am" ? "ለተማሪ ወይም መምህር መልዕክት መላኪያ" : "Send Message to Student/Teacher"}
+                            </h3>
+                            <button
+                                type="button"
+                                onClick={() => setIsNewMessageOpen(false)}
+                                className="text-text-secondary hover:text-white transition-colors"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleSendNewMessage} className="p-6 space-y-4 flex-grow overflow-y-auto">
+                            {/* Step 1: Select recipient */}
+                            <div className="space-y-1.5">
+                                <label className="block text-xs font-semibold text-text-secondary uppercase">
+                                    {lang === "am" ? "ተቀባይ ፈልግ" : "Search Recipient"}
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder={lang === "am" ? "በስም ወይም በኢሜል ይፈልጉ..." : "Search by name or email..."}
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="w-full px-4 py-2.5 bg-navy-mid border border-navy-border rounded-xl text-white placeholder-text-muted text-sm focus:outline-none focus:border-gold-primary transition-colors"
+                                />
+
+                                {/* Search results */}
+                                {searchQuery.trim() && (
+                                    <div className="mt-2 border border-navy-border rounded-xl max-h-40 overflow-y-auto bg-navy-deep/40 divide-y divide-navy-border/40">
+                                        {filteredRecipients.length === 0 ? (
+                                            <p className="p-3 text-xs text-text-muted text-center">
+                                                No matches found.
+                                            </p>
+                                        ) : (
+                                            filteredRecipients.map((rec) => (
+                                                <div
+                                                    key={rec.uid}
+                                                    onClick={() => {
+                                                        setSelectedRecipient(rec);
+                                                        setSearchQuery("");
+                                                    }}
+                                                    className="p-3 text-xs flex justify-between items-center cursor-pointer hover:bg-navy-mid/60 transition-colors"
+                                                >
+                                                    <div>
+                                                        <p className="font-bold text-white">{rec.name}</p>
+                                                        <p className="text-[10px] text-text-muted">{rec.email}</p>
+                                                    </div>
+                                                    <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase ${rec.role === 'teacher' ? 'bg-gold-primary/10 text-gold-primary border border-gold-primary/20' : 'bg-sky-400/10 text-sky-400 border border-sky-400/20'}`}>
+                                                        {rec.role}
+                                                    </span>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Selected recipient badge */}
+                            {selectedRecipient && (
+                                <div className="p-3 bg-navy-mid/60 border border-gold-primary/30 rounded-xl flex justify-between items-center">
+                                    <div>
+                                        <p className="text-xs text-text-secondary uppercase font-bold tracking-wider mb-0.5">
+                                            {lang === "am" ? "የተመረጠ ተቀባይ" : "Selected Recipient"}
+                                        </p>
+                                        <p className="text-sm font-bold text-white">
+                                            {selectedRecipient.name} ({selectedRecipient.email})
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setSelectedRecipient(null)}
+                                        className="text-xs text-error hover:underline font-bold"
+                                    >
+                                        {lang === "am" ? "ቀይር" : "Change"}
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Step 2: Message input */}
+                            <div className="space-y-1.5">
+                                <label className="block text-xs font-semibold text-text-secondary uppercase">
+                                    {lang === "am" ? "መልዕክት" : "Message"}
+                                </label>
+                                <textarea
+                                    required
+                                    rows={4}
+                                    value={adminMessage}
+                                    onChange={(e) => setAdminMessage(e.target.value)}
+                                    placeholder={lang === "am" ? "መልዕክትዎን እዚህ ይጻፉ..." : "Type your message to support inbox..."}
+                                    className="w-full px-4 py-3 bg-navy-mid border border-navy-border rounded-xl text-white placeholder-text-muted text-sm focus:outline-none focus:border-gold-primary resize-none transition-colors"
+                                />
+                            </div>
+
+                            {/* Modal Actions */}
+                            <div className="pt-2 flex justify-end gap-3 border-t border-navy-border">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsNewMessageOpen(false)}
+                                    className="px-5 py-2.5 border border-navy-border text-text-secondary rounded-xl text-xs font-bold hover:text-white hover:border-white/30 transition-all"
+                                >
+                                    {lang === "am" ? "ይቅር" : "Cancel"}
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={sending || !selectedRecipient || !adminMessage.trim()}
+                                    className="px-5 py-2.5 bg-gold-primary text-navy-deep font-bold rounded-xl text-xs hover:bg-gold-hover transition-all shadow-gold disabled:opacity-40 disabled:cursor-not-allowed"
+                                >
+                                    {sending ? "..." : (lang === "am" ? "መልዕክት ላክ" : "Send Message")}
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}

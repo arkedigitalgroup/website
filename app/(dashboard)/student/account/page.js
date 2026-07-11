@@ -193,10 +193,10 @@ export default function StudentAccount() {
                         {data &&
                             (() => {
                                 const fields = [
-                                    data.fullName,
-                                    data.christianName,
-                                    data.phone,
-                                    data.locationPin?.lat,
+                                    fullName,
+                                    christianName,
+                                    phone,
+                                    lat,
                                     profileUrl,
                                 ];
                                 const filled = fields.filter(Boolean).length;
@@ -237,13 +237,17 @@ export default function StudentAccount() {
             {/* Identity Card */}
             <div className="bg-navy-surface border border-navy-border rounded-xl p-6 sm:p-8 space-y-6 shadow-md">
                 <div className="flex items-center gap-3 border-b border-navy-border pb-4">
-                    <div className="rounded-full bg-gold-primary/20 border border-gold-primary/40 flex items-center justify-center text-xl">
+                    {profileUrl ? (
                         <img
                             src={profileUrl}
                             alt="Profile"
                             className="w-16 h-16 rounded-xl border-2 border-gold-primary object-cover shadow-gold flex-shrink-0"
                         />
-                    </div>
+                    ) : (
+                        <div className="w-16 h-16 rounded-xl border-2 border-navy-border bg-navy-mid flex items-center justify-center text-3xl flex-shrink-0 text-text-secondary">
+                            👤
+                        </div>
+                    )}
                     <div>
                         <h2 className="font-bold text-white text-base">
                             {lang === "am" ? "ግላዊ መረጃ" : "Personal Information"}
@@ -476,8 +480,8 @@ export default function StudentAccount() {
                 </div>
                 <p className="text-[10px] text-text-muted">
                     {lang === "am"
-                        ? "ሚናን ወይም አገልግሎትን ለመቀየር admin@arke.et ያነጋግሩ።"
-                        : "To change your role or service line, contact admin@arke.et."}
+                        ? "ሚናን ወይም አገልግሎትን ለመቀየር info@arke-group.com ያነጋግሩ።"
+                        : "To change your role or service line, contact info@arke-group.com."}
                 </p>
             </div>
         </div>
