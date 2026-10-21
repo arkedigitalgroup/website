@@ -4,10 +4,10 @@
 import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { auth, db, storage } from "../../../src/lib/firebase";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc, getDoc, updateDoc, arrayUnion } from "firebase/firestore";
+import { auth, db } from "../../../src/lib/firebase";
+import { uploadToSupabase } from "../../../src/lib/supabase";
 import { useLanguage } from "../../../src/context/LanguageContext";
 import { useAuth } from "../../../src/context/AuthContext";
 import AuthNavbar from "../../../src/components/layout/AuthNavbar";
@@ -28,7 +28,7 @@ function ServiceLineBadge({ serviceLine, lang }) {
                 ${
                     isYeneta
                         ? "bg-yt-maroon/10 border-yt-maroon/40 text-yt-maroon"
-                        : "bg-ft-teal/10 border-ft-teal/40 text-ft-teal"
+                        : "bg-ft-teal/10 border-ft-teal/40 text-ft-teal-text"
                 }
             `}
         >
@@ -245,16 +245,10 @@ function TutorGenderPreference({ value, onChange, lang }) {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // UPLOAD HELPER
-// Uploads a file to Firebase Storage and returns its download URL.
-// Throws a descriptive error instead of silently falling back —
-// now that the project is on Blaze, uploads should work and failures
-// should be visible so you can diagnose them.
+// Uploads a file to Supabase Storage and returns its public URL.
 // ─────────────────────────────────────────────────────────────────────────────
 async function uploadFile(file, storagePath) {
-    const storageRef = ref(storage, storagePath);
-    const snapshot = await uploadBytes(storageRef, file);
-    const url = await getDownloadURL(snapshot.ref);
-    return url;
+    return await uploadToSupabase(file, storagePath);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -293,17 +287,21 @@ function RegisterPageContent() {
     const [serviceLine] = useState(urlLine);
 
     const { config } = usePlatformConfig();
-    const { courses: yenetaCourses, loading: coursesLoading } = useCourses(
+    const { courses: yenetaCourses, loading: yenetaLoading } = useCourses(
         "yeneta",
         lang,
     );
-    const { courses: fidelCourses } = useCourses("fidel", lang);
+    const { courses: fidelCourses, loading: fidelLoading } = useCourses(
+        "fidel",
+        lang,
+    );
     const courses = serviceLine === "yeneta" ? yenetaCourses : fidelCourses;
+    const coursesLoading =
+        serviceLine === "yeneta" ? yenetaLoading : fidelLoading;
 
-    // Keep role in sync if user navigates back/forward with different params
-    useEffect(() => {
-        if (searchParams.get("role")) setRole(searchParams.get("role"));
-    }, [searchParams]);
+    // NOTE: role is intentionally NOT synced back from searchParams after mount.
+    // The user should be free to switch between Student / Teacher tabs regardless
+    // of the ?role= URL param. The URL param only sets the initial default.
 
     // ── Derived ──
     const isYeneta = serviceLine === "yeneta";
@@ -321,6 +319,17 @@ function RegisterPageContent() {
     const [courseId, setCourseId] = useState(urlCourse);
     const [locationPin, setLocationPin] = useState({ lat: 9.03, lng: 38.74 });
     const [preferredTutorGender, setPreferredTutorGender] = useState("any");
+
+    // Safe fallback: the URL may carry a course that is not in the active
+    // Firestore list (for example a catalog slug that has been deactivated).
+    // Keep the enrollment usable by selecting the first available course.
+    // Declared after the `courseId` state so the value is initialised.
+    useEffect(() => {
+        if (coursesLoading || courses.length === 0) return;
+        if (!courses.some((course) => course.id === courseId)) {
+            setCourseId(courses[0].id);
+        }
+    }, [courses, coursesLoading, courseId]);
 
     // ── Teacher-only fields ──
     const [bankProvider, setBankProvider] = useState("CBE");
@@ -571,13 +580,101 @@ function RegisterPageContent() {
             }
 
             if (err.code === "auth/email-already-in-use") {
-                // This path should now be rare: only if the student previously
-                // fully registered. Point them to login instead.
-                setError(
-                    lang === "am"
-                        ? "ይህ ኢሜል አስቀድሞ ተመዝግቧል። ወደ ስርዓቱ ለመግባት ይሞክሩ።"
-                        : "This email is already registered. Please try logging in instead.",
-                );
+                try {
+                    setUploadStatus(
+                        lang === "am"
+                            ? "የነበረ መለያን በመቀላቀል ላይ..."
+                            : "Adding service line to existing account...",
+                    );
+                    const existingUserCred = await signInWithEmailAndPassword(
+                        auth,
+                        email,
+                        password,
+                    );
+                    const uid = existingUserCred.user.uid;
+
+                    // Update /users/{uid}
+                    const userRef = doc(db, "users", uid);
+                    const userSnap = await getDoc(userRef);
+                    let existingLines = [serviceLine];
+                    let userRole = role;
+                    if (userSnap.exists()) {
+                        const data = userSnap.data();
+                        userRole = data.role || role;
+                        existingLines = Array.isArray(data.service_lines)
+                            ? data.service_lines
+                            : [data.serviceLine || serviceLine];
+                    }
+                    const updatedLines = Array.from(
+                        new Set([...existingLines, serviceLine]),
+                    );
+                    await updateDoc(userRef, {
+                        service_lines: updatedLines,
+                        serviceLine: serviceLine,
+                    }).catch((userUpdateErr) => {
+                        console.warn("Notice: /users update bypassed or pending rule deployment:", userUpdateErr);
+                    });
+
+                    // Update role sub-profile
+                    if (userRole === "teacher") {
+                        const teacherRef = doc(db, "teachers", uid);
+                        await updateDoc(teacherRef, {
+                            service_lines: updatedLines,
+                            ...(qualifiedCourses.length > 0 && {
+                                qualifiedCourses: arrayUnion(...qualifiedCourses),
+                            }),
+                        }).catch(async () => {
+                            await setDoc(
+                                teacherRef,
+                                {
+                                    id: uid,
+                                    fullName,
+                                    email: email.toLowerCase().trim(),
+                                    phone,
+                                    serviceLine,
+                                    qualifiedCourses,
+                                },
+                                { merge: true },
+                            );
+                        });
+                    } else {
+                        const studentRef = doc(db, "students", uid);
+                        await updateDoc(studentRef, {
+                            service_lines: updatedLines,
+                            enrolledCourses: arrayUnion({
+                                courseId,
+                                serviceLine,
+                                enrolledAt: new Date().toISOString(),
+                            }),
+                            courseId,
+                        }).catch(async () => {
+                            await setDoc(
+                                studentRef,
+                                {
+                                    id: uid,
+                                    fullName,
+                                    email: email.toLowerCase().trim(),
+                                    phone,
+                                    serviceLine,
+                                    courseId,
+                                },
+                                { merge: true },
+                            );
+                        });
+                    }
+
+                    if (userRole === "admin") router.push("/admin");
+                    else if (userRole === "teacher") router.push("/teacher");
+                    else router.push("/student");
+                    return;
+                } catch (signInErr) {
+                    console.error("Multi-niche sign in failed:", signInErr);
+                    setError(
+                        lang === "am"
+                            ? "ይህ ኢሜል አስቀድሞ ተመዝግቧል። በዚህ ኢሜል አዲስ niche/ትምህርት ለመጨመር ትክክለኛውን የይለፍ ቃል ያስገቡ።"
+                            : "This email is already registered. To add this niche to your account, please enter your existing account password.",
+                    );
+                }
             } else if (err.code === "auth/weak-password") {
                 setError(
                     lang === "am"
@@ -820,7 +917,15 @@ function RegisterPageContent() {
                                         >
                                             {coursesLoading ? (
                                                 <option disabled>
-                                                    Loading courses...
+                                                    {lang === "am"
+                                                        ? "ኮርሶች በመጫን ላይ..."
+                                                        : "Loading courses..."}
+                                                </option>
+                                            ) : courses.length === 0 ? (
+                                                <option disabled value="">
+                                                    {lang === "am"
+                                                        ? "ንቁ ኮርስ አልተገኘም"
+                                                        : "No active course available"}
                                                 </option>
                                             ) : (
                                                 courses.map((c) => (
@@ -871,105 +976,23 @@ function RegisterPageContent() {
                          * ════════════════════════════════════════════════ */}
                         {role === "teacher" && (
                             <div className="space-y-4 pt-2 border-t border-navy-border">
-                                {/* File uploads */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    {/* Profile Photo */}
-                                    <div className="space-y-1">
-                                        <label className="text-xs text-text-secondary font-semibold uppercase">
+                                {/* Notice explaining doc upload is deferred */}
+                                <div className="bg-navy-mid border border-gold-primary/30 p-3.5 rounded-xl flex items-start gap-3">
+                                    <span className="text-lg text-gold-primary mt-0.5">ℹ️</span>
+                                    <div className="text-xs text-text-secondary leading-relaxed">
+                                        <span className="font-bold text-white block mb-0.5">
                                             {lang === "am"
-                                                ? "የፎቶ ምስል (JPG)"
-                                                : "Profile Photo (JPG)"}
-                                        </label>
-                                        <input
-                                            type="file"
-                                            accept="image/jpeg,image/png"
-                                            onChange={(e) =>
-                                                setProfilePhoto(
-                                                    e.target.files[0],
-                                                )
-                                            }
-                                            className="w-full text-xs text-text-secondary border border-navy-border rounded bg-navy-mid px-2 py-1.5 focus:outline-none"
-                                        />
-                                    </div>
-
-                                    {/* Church Doc — Yeneta only */}
-                                    {isYeneta && (
-                                        <div className="space-y-1">
-                                            <label className="text-xs text-text-secondary font-semibold uppercase">
-                                                {t("churchDocLabel")}
-                                            </label>
-                                            <input
-                                                type="file"
-                                                accept="application/pdf"
-                                                onChange={(e) =>
-                                                    setChurchDoc(
-                                                        e.target.files[0],
-                                                    )
-                                                }
-                                                className="w-full text-xs text-text-secondary border border-navy-border rounded bg-navy-mid px-2 py-1.5 focus:outline-none"
-                                            />
-                                        </div>
-                                    )}
-
-                                    {/* Kebele ID */}
-                                    <div className="space-y-1">
-                                        <label className="text-xs text-text-secondary font-semibold uppercase">
-                                            {t("kebeleId")}
-                                        </label>
-                                        <input
-                                            type="file"
-                                            accept="application/pdf"
-                                            onChange={(e) =>
-                                                setKebeleDoc(e.target.files[0])
-                                            }
-                                            className="w-full text-xs text-text-secondary border border-navy-border rounded bg-navy-mid px-2 py-1.5 focus:outline-none"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Bank Provider + Account */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div className="space-y-1">
-                                        <label className="text-xs text-text-secondary font-semibold uppercase">
-                                            {t("bankNameLabel")}
-                                        </label>
-                                        <select
-                                            value={bankProvider}
-                                            onChange={(e) =>
-                                                setBankProvider(e.target.value)
-                                            }
-                                            className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
-                                        >
-                                            <option value="CBE">
-                                                Commercial Bank of Ethiopia
-                                                (CBE)
-                                            </option>
-                                            <option value="BOA">
-                                                Bank of Abyssinia (BOA)
-                                            </option>
-                                            <option value="Telebirr">
-                                                Telebirr Wallet
-                                            </option>
-                                        </select>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <label className="text-xs text-text-secondary font-semibold uppercase">
-                                            {t("bankAccountLabel")}
-                                        </label>
-                                        <input
-                                            type="text"
-                                            required
-                                            value={bankAccount}
-                                            onChange={(e) =>
-                                                setBankAccount(e.target.value)
-                                            }
-                                            className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
-                                        />
+                                                ? "የሰነዶችና የባንክ ሂሳብ መረጃ"
+                                                : "Document & Bank Account Setup"}
+                                        </span>
+                                        {lang === "am"
+                                            ? "የመታወቂያ፣ የትምህርት ማስረጃዎች እና የባንክ መረጃዎችን ከምዝገባ በኋላ በአስተማሪ ዳሽቦርድዎ (Account Settings) ውስጥ በቀላሉ ማጠናቀቅ ይችላሉ።"
+                                            : "Profile photos, IDs, certificates, and bank account numbers can be uploaded in your Teacher Dashboard after registration."}
                                     </div>
                                 </div>
 
                                 {/* Course Qualification Multi-Select */}
-                                <div className="pt-1 border-t border-navy-border">
+                                <div className="pt-1">
                                     <CourseMultiSelect
                                         courses={courses}
                                         selectedCourses={qualifiedCourses}

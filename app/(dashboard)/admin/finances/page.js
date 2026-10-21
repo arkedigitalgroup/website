@@ -32,6 +32,11 @@ export default function AdminFinances() {
     const [students, setStudents] = useState([]);
     const [dataLoading, setDataLoading] = useState(true);
 
+    // Reject-with-reason modal state
+    const [rejectTarget, setRejectTarget] = useState(null); // { paymentId, studentId }
+    const [rejectReason, setRejectReason] = useState("");
+    const [rejecting, setRejecting] = useState(false);
+
     useEffect(() => {
         const load = async () => {
             try {
@@ -60,12 +65,18 @@ export default function AdminFinances() {
         load();
     }, []);
 
-    const handleApprove = async (paymentId) => {
+    const handleApprove = async (paymentId, studentId) => {
         try {
             await updateDoc(doc(db, "payments", paymentId), {
                 status: "paid",
                 approvedAt: serverTimestamp(),
             });
+            // Unlock student dashboard when payment is verified
+            if (studentId) {
+                await updateDoc(doc(db, "students", studentId), {
+                    dashboardLocked: false,
+                });
+            }
             // Optimistic local update — no need to re-fetch all payments
             setPayments((prev) =>
                 prev.map((p) =>
@@ -74,6 +85,31 @@ export default function AdminFinances() {
             );
         } catch (err) {
             console.error("Approval failed:", err);
+        }
+    };
+
+    const handleReject = async () => {
+        if (!rejectTarget) return;
+        setRejecting(true);
+        try {
+            await updateDoc(doc(db, "payments", rejectTarget.paymentId), {
+                status: "rejected",
+                rejectedAt: serverTimestamp(),
+                rejectionReason: rejectReason.trim() || "Receipt could not be verified.",
+            });
+            setPayments((prev) =>
+                prev.map((p) =>
+                    p.id === rejectTarget.paymentId
+                        ? { ...p, status: "rejected", rejectionReason: rejectReason.trim() }
+                        : p,
+                ),
+            );
+            setRejectTarget(null);
+            setRejectReason("");
+        } catch (err) {
+            console.error("Reject payment failed:", err);
+        } finally {
+            setRejecting(false);
         }
     };
 
@@ -149,6 +185,7 @@ export default function AdminFinances() {
     }
 
     return (
+        <>
         <div className="space-y-10">
             {/* Title */}
             <div>
@@ -240,12 +277,9 @@ export default function AdminFinances() {
                                             <th className="p-4">
                                                 Course Price
                                             </th>
-                                            <th className="p-4">
-                                                Transaction #
-                                            </th>
-                                            <th className="p-4">
-                                                Submitted At
-                                            </th>
+                                            <th className="p-4">Transaction #</th>
+                                            <th className="p-4">Receipt Proof</th>
+                                            <th className="p-4">Submitted At</th>
                                             <th className="p-4">Action</th>
                                         </tr>
                                     </thead>
@@ -280,6 +314,20 @@ export default function AdminFinances() {
                                                         {p.transactionRef ??
                                                             "—"}
                                                     </td>
+                                                    <td className="p-4 text-xs">
+                                                        {p.receiptUrl ? (
+                                                            <a
+                                                                href={p.receiptUrl}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-gold-primary/10 border border-gold-primary/30 text-gold-primary font-semibold hover:bg-gold-primary/20 transition-all text-xs"
+                                                            >
+                                                                📸 View Receipt
+                                                            </a>
+                                                        ) : (
+                                                            <span className="text-text-muted italic">No Photo</span>
+                                                        )}
+                                                    </td>
                                                     <td className="p-4 text-text-secondary text-xs">
                                                         {p.submittedAt
                                                             ? new Date(
@@ -289,16 +337,26 @@ export default function AdminFinances() {
                                                               ).toLocaleDateString()
                                                             : "—"}
                                                     </td>
-                                                    <td className="p-4">
-                                                        <button
+                                                    <td className="p-4 flex items-center gap-2">
+                                                    <button
                                                             onClick={() =>
                                                                 handleApprove(
                                                                     p.id,
+                                                                    p.studentId,
                                                                 )
                                                             }
                                                             className="px-3 py-1.5 bg-gold-primary hover:bg-gold-hover text-navy-deep text-xs font-bold rounded-md transition-colors"
                                                         >
                                                             Approve
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                setRejectTarget({ paymentId: p.id, studentId: p.studentId });
+                                                                setRejectReason("");
+                                                            }}
+                                                            className="px-3 py-1.5 bg-error/20 hover:bg-error/30 text-error border border-error/30 text-xs font-bold rounded-md transition-colors"
+                                                        >
+                                                            Reject
                                                         </button>
                                                     </td>
                                                 </tr>
@@ -448,5 +506,42 @@ export default function AdminFinances() {
                 )}
             </div>
         </div>
+
+            {/* Reject-with-reason modal */}
+            {rejectTarget && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+                    <div className="bg-navy-surface border border-error/40 rounded-xl max-w-md w-full p-6 shadow-2xl space-y-4">
+                        <h3 className="text-lg font-bold text-white">
+                            Reject Receipt — Add Reason
+                        </h3>
+                        <p className="text-xs text-text-secondary">
+                            This reason will be visible to the student so they know what to fix.
+                        </p>
+                        <textarea
+                            rows={3}
+                            value={rejectReason}
+                            onChange={(e) => setRejectReason(e.target.value)}
+                            placeholder="e.g. Receipt photo is blurry. Please re-upload a clear photo."
+                            className="w-full px-3 py-2 bg-navy-mid border border-navy-border rounded-md text-white text-sm placeholder-text-muted focus:outline-none focus:border-error resize-none"
+                        />
+                        <div className="flex justify-end gap-2">
+                            <button
+                                onClick={() => { setRejectTarget(null); setRejectReason(""); }}
+                                className="px-4 py-2 text-xs font-semibold rounded border border-navy-border text-text-secondary hover:bg-navy-mid transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleReject}
+                                disabled={rejecting}
+                                className="px-4 py-2 text-xs font-bold rounded bg-error/80 hover:bg-error text-white transition-all"
+                            >
+                                {rejecting ? "Rejecting..." : "Confirm Reject"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
     );
 }

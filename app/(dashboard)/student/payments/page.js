@@ -12,6 +12,7 @@ import {
     updateDoc,
 } from "firebase/firestore";
 import { db } from "../../../../src/lib/firebase";
+import { uploadToSupabase } from "../../../../src/lib/supabase";
 import { useAuth } from "../../../../src/context/AuthContext";
 import { useLanguage } from "../../../../src/context/LanguageContext";
 import {
@@ -31,10 +32,13 @@ export default function StudentPayments() {
     const [student, setStudent] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Manual payment entry simulation
+    // Receipt submission state
     const [payReference, setPayReference] = useState("");
+    const [receiptFile, setReceiptFile] = useState(null);
     const [payingId, setPayingId] = useState(null);
     const [submitting, setSubmitting] = useState(false);
+    const [submitSuccess, setSubmitSuccess] = useState(false);
+    const [submitError, setSubmitError] = useState("");
 
     const fetchPaymentData = async () => {
         if (!user) return;
@@ -72,31 +76,40 @@ export default function StudentPayments() {
 
     const handlePaySubmit = async (e) => {
         e.preventDefault();
-        if (!payReference || !payingId) return;
+        if (!payingId) return;
         setSubmitting(true);
 
         try {
-            // 1. Update /payments/{payingId} status = "paid", submittedAt = now
+            let receiptUrl = "";
+            if (receiptFile) {
+                const storagePath = `receipts/${user.uid}/${payingId}_${Date.now()}.jpg`;
+                receiptUrl = await uploadToSupabase(receiptFile, storagePath);
+            }
+
+            // 1. Update /payments/{payingId} status = "submitted", submittedAt = now, receiptUrl
             const paymentRef = doc(db, "payments", payingId);
 
             await updateDoc(paymentRef, {
                 status: "submitted",
                 submittedAt: new Date(),
-                transactionRef: payReference,
+                transactionRef: payReference || "PHOTO_PROOF",
+                ...(receiptUrl && { receiptUrl }),
             });
 
-            // 2. Also ensure student profile dashboardLocked is updated to false
-            const studentRef = doc(db, "students", user.uid);
-            await updateDoc(studentRef, {
-                dashboardLocked: false,
-                registrationFeePaid: true,
-            });
-
+            // 2. Clear inputs & indicate success
             setPayReference("");
+            setReceiptFile(null);
             setPayingId(null);
+            setSubmitSuccess(true);
+            setTimeout(() => setSubmitSuccess(false), 5000);
             fetchPaymentData(); // Refresh list
         } catch (err) {
             console.error("Submit payment error:", err);
+            setSubmitError(
+                lang === "am"
+                    ? "ደረሰኝ መላክ አልተሳካም። እባክዎ እንደገና ሞክሩ።"
+                    : "Failed to submit receipt. Please try again."
+            );
         } finally {
             setSubmitting(false);
         }
@@ -118,14 +131,50 @@ export default function StudentPayments() {
             {/* Title */}
             <div>
                 <h1 className="text-3xl font-extrabold text-white font-ethiopic leading-snug">
-                    Payments &amp; Invoices
+                    {lang === "am" ? "ክፍያ እና ደረሰኞች" : "Payments & Invoices"}
                 </h1>
                 <p className="text-sm text-text-secondary">
-                    Review invoices, current month status, and transfer directly
-                    to Arke corporate bank accounts. We show only unified
-                    all-inclusive rates.
+                    {lang === "am"
+                        ? "ደረሰኝ፣ የወሩ ሁኔታ ያርምዱ። ወደ አርኬ የባንክ ሂሳቦች ቀጥታ ያስተላልፉ።"
+                        : "Review invoices, current month status, and transfer directly to Arke corporate bank accounts."}
                 </p>
             </div>
+
+            {/* Success alert */}
+            {submitSuccess && (
+                <div className="flex items-center gap-3 bg-success/10 border border-success/30 rounded-lg px-4 py-3 text-success text-sm font-semibold">
+                    <span>✅</span>
+                    <span>
+                        {lang === "am"
+                            ? "ደረሰኝ ተልኳል። አስተዳዳሪ ያረጋግጣሉ።"
+                            : "Receipt submitted successfully! Admin will verify it shortly."}
+                    </span>
+                </div>
+            )}
+
+            {/* Rejection notices */}
+            {payments
+                .filter((p) => p.status === "rejected")
+                .map((p) => (
+                    <div key={p.id} className="flex items-start gap-3 bg-error/10 border border-error/30 rounded-lg px-4 py-3 text-error text-sm">
+                        <span className="mt-0.5">❌</span>
+                        <div>
+                            <p className="font-bold">
+                                {lang === "am" ? "ደረሰኝ ውድቅ ተደርጓል" : "Receipt Rejected"} — {p.month}
+                            </p>
+                            {p.rejectionReason && (
+                                <p className="text-xs text-text-secondary mt-1">
+                                    {lang === "am" ? "ምክንያት:" : "Reason:"} {p.rejectionReason}
+                                </p>
+                            )}
+                            <p className="text-xs text-text-muted mt-1">
+                                {lang === "am"
+                                    ? "እባክዎ ትክክለኛ ደረሰኝ ዳግም ይስቀሉ።"
+                                    : "Please re-submit a valid payment receipt."}
+                            </p>
+                        </div>
+                    </div>
+                ))}
 
             {/* Payment details list */}
             <div className="bg-navy-surface border border-navy-border rounded-xl p-6 sm:p-8 shadow-md space-y-6">
@@ -167,6 +216,9 @@ export default function StudentPayments() {
                                     const isOverdue =
                                         invoice.status === "overdue";
 
+                                    const isPaid = invoice.status === "paid";
+                                    const isRejected = invoice.status === "rejected";
+
                                     return (
                                         <tr
                                             key={invoice.id}
@@ -176,47 +228,49 @@ export default function StudentPayments() {
                                                 {invoice.month}
                                             </td>
                                             <td className="p-4 text-text-secondary capitalize">
-                                                Course Package: Course Package:{" "}
                                                 {courses.find(
                                                     (c) =>
                                                         c.id ===
                                                         student?.courseId,
-                                                )?.name ?? student?.courseId}
+                                                )?.name ?? student?.courseId ?? "—"}
                                             </td>
                                             <td className="p-4 text-gold-primary font-bold">
                                                 {total.toLocaleString()} ETB
                                             </td>
                                             <td className="p-4">
-                                                {isSubmitted ? (
+                                                {isPaid ? (
                                                     <span className="px-2.5 py-0.5 rounded bg-success-faint text-success font-bold text-xs uppercase border border-success/15">
-                                                        Submitted
+                                                        {lang === "am" ? "ተረጋግጧል" : "Verified"}
+                                                    </span>
+                                                ) : isSubmitted ? (
+                                                    <span className="px-2.5 py-0.5 rounded bg-blue-500/20 text-blue-400 font-bold text-xs uppercase border border-blue-400/20">
+                                                        {lang === "am" ? "በምርምር ላይ" : "Pending"}
+                                                    </span>
+                                                ) : isRejected ? (
+                                                    <span className="px-2.5 py-0.5 rounded bg-error-faint text-error font-bold text-xs uppercase border border-error/15">
+                                                        {lang === "am" ? "ውድቅ" : "Rejected"}
                                                     </span>
                                                 ) : isOverdue ? (
                                                     <span className="px-2.5 py-0.5 rounded bg-error-faint text-error font-bold text-xs uppercase border border-error/15">
-                                                        Overdue
+                                                        {lang === "am" ? "ዘግይቷል" : "Overdue"}
                                                     </span>
                                                 ) : (
                                                     <span className="px-2.5 py-0.5 rounded bg-warning-faint text-warning font-bold text-xs uppercase border border-warning/15">
-                                                        Unpaid
+                                                        {lang === "am" ? "አልተከፈለም" : "Unpaid"}
                                                     </span>
                                                 )}
                                             </td>
                                             <td className="p-4 text-right">
-                                                {!isSubmitted ? (
-                                                    <span className="text-xs text-text-muted">
-                                                        Paid at{" "}
-                                                        {invoice.submittedAt
-                                                            ? new Date(
-                                                                  invoice
-                                                                      .submittedAt
-                                                                      .seconds *
-                                                                      1000,
-                                                              ).toLocaleDateString()
-                                                            : "Just now"}
+                                                {isPaid ? (
+                                                    <span className="text-xs text-success font-semibold">
+                                                        ✅ {lang === "am" ? "ተፈቅዷል" : "Approved"}
+                                                    </span>
+                                                ) : isSubmitted ? (
+                                                    <span className="text-xs text-text-muted italic">
+                                                        {lang === "am" ? "ምርምር ይጠብቃሉ..." : "Awaiting review..."}
                                                     </span>
                                                 ) : (
                                                     <button
-                                                        disabled={isSubmitted}
                                                         onClick={() =>
                                                             setPayingId(
                                                                 invoice.id,
@@ -224,9 +278,7 @@ export default function StudentPayments() {
                                                         }
                                                         className="px-3 py-1.5 rounded bg-gold-primary text-navy-deep font-bold text-xs hover:bg-gold-hover transition-all"
                                                     >
-                                                        {isSubmitted
-                                                            ? "Done"
-                                                            : "Submit Reference"}
+                                                        {lang === "am" ? "ደረሰኝ ስቀል" : "Submit Receipt"}
                                                     </button>
                                                 )}
                                             </td>
@@ -297,23 +349,49 @@ export default function StudentPayments() {
                         </div>
 
                         <form onSubmit={handlePaySubmit} className="space-y-4">
-                            <input
-                                type="text"
-                                required
-                                placeholder="Transaction Reference"
-                                value={payReference}
-                                onChange={(e) =>
-                                    setPayReference(e.target.value)
-                                }
-                                className="w-full px-4 py-3 bg-navy-mid border border-navy-border rounded-md text-white placeholder-text-muted focus:outline-none focus:border-gold-primary text-sm font-mono uppercase text-center"
-                            />
+                            <div>
+                                <label className="text-xs text-text-secondary font-semibold uppercase block mb-1">
+                                    Transaction Reference (Optional)
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. FT26145892 or Telebirr Txn ID"
+                                    value={payReference}
+                                    onChange={(e) =>
+                                        setPayReference(e.target.value)
+                                    }
+                                    className="w-full px-4 py-3 bg-navy-mid border border-navy-border rounded-md text-white placeholder-text-muted focus:outline-none focus:border-gold-primary text-sm font-mono uppercase text-center"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="text-xs text-gold-primary font-semibold uppercase block mb-1">
+                                    📸 Upload Receipt Photo / Screenshot
+                                </label>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) =>
+                                        setReceiptFile(e.target.files[0])
+                                    }
+                                    className="w-full text-xs text-text-secondary border border-navy-border rounded bg-navy-mid px-3 py-2 focus:outline-none"
+                                />
+                                <p className="text-[11px] text-text-muted mt-1">
+                                    Attach a photo of your CBE deposit slip or Telebirr confirmation screenshot for admin authentication.
+                                </p>
+                            </div>
+                            {submitError && (
+                                <p className="text-xs text-error bg-error/10 border border-error/20 rounded px-3 py-2">
+                                    {submitError}
+                                </p>
+                            )}
                             <div className="flex justify-end space-x-2">
                                 <button
                                     type="button"
-                                    onClick={() => setPayingId(null)}
+                                    onClick={() => { setPayingId(null); setSubmitError(""); }}
                                     className="px-4 py-2 rounded border border-navy-border text-text-secondary hover:bg-navy-mid text-xs font-semibold"
                                 >
-                                    Cancel
+                                    {lang === "am" ? "ሰርዝ" : "Cancel"}
                                 </button>
                                 <button
                                     type="submit"
@@ -321,8 +399,8 @@ export default function StudentPayments() {
                                     className="px-4 py-2 rounded bg-gold-primary text-navy-deep text-xs font-bold hover:bg-gold-hover transition-all"
                                 >
                                     {submitting
-                                        ? "Verifying..."
-                                        : "Verify Transfer"}
+                                        ? (lang === "am" ? "በማስረከብ ላይ..." : "Submitting...")
+                                        : (lang === "am" ? "ደረሰኝ አስረክብ" : "Submit Receipt")}
                                 </button>
                             </div>
                         </form>

@@ -3,8 +3,8 @@
 
 import React, { useState, useEffect } from "react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage } from "../../../../src/lib/firebase";
+import { db } from "../../../../src/lib/firebase";
+import { uploadToSupabase } from "../../../../src/lib/supabase";
 import { useAuth } from "../../../../src/context/AuthContext";
 import { useLanguage } from "../../../../src/context/LanguageContext";
 
@@ -79,9 +79,7 @@ export default function StudentAccount() {
         setUploadingPhoto(true);
         setError("");
         try {
-            const fileRef = ref(storage, `students/${user.uid}/profile.jpg`);
-            await uploadBytes(fileRef, file);
-            const url = await getDownloadURL(fileRef);
+            const url = await uploadToSupabase(file, `students/${user.uid}/profile.jpg`);
             setprofileUrl(url);
             // Immediately persist to Firestore
             await updateDoc(doc(db, "students", user.uid), {

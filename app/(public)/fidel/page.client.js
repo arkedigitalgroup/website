@@ -1,235 +1,42 @@
 // app/(public)/fidel/page.client.js
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { useLanguage } from "../../../src/context/LanguageContext";
-import fidelCourseData from "../../../assets/fidelCourse.json";
+import FidelCourseCard from "../../../src/components/fidel/FidelCourseCard";
+import {
+    formatLabel,
+    publicFidelCourses,
+    subjectLabel,
+} from "../../../src/lib/fidelCatalog";
 
-const courses = fidelCourseData.courses;
-
-// Extract unique subjects and formats for filters
-const allSubjects = [...new Set(courses.map((c) => c.subject))];
-const allFormats = [...new Set(courses.map((c) => c.format))];
-
-function CourseCard({ course, lang }) {
-    const [expanded, setExpanded] = useState(false);
-    const pricing = course.pricing;
-    const institution = course.institution;
-
-    const priceLabel =
-        pricing.price === 0
-            ? lang === "am"
-                ? "ነጻ"
-                : "Free"
-            : pricing.price === pricing.price_max
-              ? `${pricing.price.toLocaleString()} ETB`
-              : `${pricing.price.toLocaleString()} – ${pricing.price_max.toLocaleString()} ETB`;
-
-    const formatBadgeColor = {
-        "In-Person": "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
-        Online: "bg-ft-teal/15 text-ft-teal border-ft-teal/30",
-        Hybrid: "bg-purple-500/15 text-purple-400 border-purple-500/30",
-        Platform: "bg-ft-amber/15 text-ft-amber border-ft-amber/30",
-    };
-
-    return (
-        <div className="group bg-ft-obsidian-surface border border-ft-obsidian-border rounded-xl overflow-hidden hover:border-ft-amber/50 transition-all duration-300 hover:shadow-lg hover:shadow-ft-amber/5 flex flex-col">
-            {/* Amber accent bar */}
-            <div className="h-1 bg-gradient-to-r from-ft-amber to-ft-teal/60" />
-
-            <div className="p-5 sm:p-6 flex flex-col flex-grow">
-                {/* Header: institution + format badge */}
-                <div className="flex items-start justify-between gap-3 mb-3">
-                    <div className="flex-1 min-w-0">
-                        {institution?.name && (
-                            <p className="text-xs font-semibold text-ft-teal uppercase tracking-wide mb-1 truncate">
-                                {institution.name}
-                            </p>
-                        )}
-                        <h3 className="text-base sm:text-lg font-bold text-white leading-snug">
-                            {course.course_name}
-                        </h3>
-                    </div>
-                    <span
-                        className={`shrink-0 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full border ${formatBadgeColor[course.format] || "bg-gray-500/15 text-gray-400 border-gray-500/30"}`}
-                    >
-                        {course.format}
-                    </span>
-                </div>
-
-                {/* Quick info pills */}
-                <div className="flex flex-wrap gap-2 mb-3">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-ft-obsidian/60 rounded text-[11px] text-white/60">
-                        📚 {course.subject}
-                    </span>
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-ft-obsidian/60 rounded text-[11px] text-white/60">
-                        🎓{" "}
-                        {lang === "am"
-                            ? `ክፍል ${course.grade_range}`
-                            : `Grade ${course.grade_range}`}
-                    </span>
-                    {institution?.rating && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-ft-amber/10 rounded text-[11px] text-ft-amber">
-                            ⭐ {institution.rating}
-                            {institution.total_reviews && (
-                                <span className="text-white/40">
-                                    (
-                                    {institution.total_reviews.toLocaleString()}
-                                    )
-                                </span>
-                            )}
-                        </span>
-                    )}
-                </div>
-
-                {/* Description */}
-                <p className="text-xs sm:text-sm text-white/60 leading-relaxed mb-4 line-clamp-3">
-                    {course.description}
-                </p>
-
-                {/* Expandable details */}
-                {expanded && (
-                    <div className="space-y-4 mb-4 animate-fadeIn">
-                        {/* Features */}
-                        {course.features?.length > 0 && (
-                            <div>
-                                <p className="text-xs font-semibold text-white/80 uppercase tracking-wide mb-2">
-                                    {lang === "am" ? "ባህሪያት" : "Features"}
-                                </p>
-                                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                                    {course.features.map((feat, i) => (
-                                        <li
-                                            key={i}
-                                            className="flex items-start gap-1.5 text-xs text-white/60"
-                                        >
-                                            <span className="text-ft-teal mt-0.5 shrink-0">
-                                                ✓
-                                            </span>
-                                            {feat}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
-
-                        {/* Learning outcomes */}
-                        {course.learning_outcomes?.length > 0 && (
-                            <div>
-                                <p className="text-xs font-semibold text-white/80 uppercase tracking-wide mb-2">
-                                    {lang === "am"
-                                        ? "የመማሪያ ውጤቶች"
-                                        : "Learning Outcomes"}
-                                </p>
-                                <ul className="space-y-1">
-                                    {course.learning_outcomes.map(
-                                        (outcome, i) => (
-                                            <li
-                                                key={i}
-                                                className="flex items-start gap-1.5 text-xs text-white/60"
-                                            >
-                                                <span className="text-ft-amber mt-0.5 shrink-0">
-                                                    →
-                                                </span>
-                                                {outcome}
-                                            </li>
-                                        ),
-                                    )}
-                                </ul>
-                            </div>
-                        )}
-
-                        {/* Session details */}
-                        <div className="grid grid-cols-2 gap-2 text-xs">
-                            <div className="bg-ft-obsidian/40 rounded-lg p-2.5">
-                                <p className="text-white/40 mb-0.5">
-                                    {lang === "am" ? "ክፍለ ጊዜ" : "Session"}
-                                </p>
-                                <p className="text-white font-medium">
-                                    {course.duration_per_session}
-                                </p>
-                            </div>
-                            <div className="bg-ft-obsidian/40 rounded-lg p-2.5">
-                                <p className="text-white/40 mb-0.5">
-                                    {lang === "am" ? "ዓይነት" : "Type"}
-                                </p>
-                                <p className="text-white font-medium">
-                                    {course.session_type}
-                                </p>
-                            </div>
-                            <div className="bg-ft-obsidian/40 rounded-lg p-2.5">
-                                <p className="text-white/40 mb-0.5">
-                                    {lang === "am" ? "አቅርቦት" : "Delivery"}
-                                </p>
-                                <p className="text-white font-medium">
-                                    {course.delivery_mode}
-                                </p>
-                            </div>
-                            <div className="bg-ft-obsidian/40 rounded-lg p-2.5">
-                                <p className="text-white/40 mb-0.5">
-                                    {lang === "am" ? "መርሃ ግብር" : "Schedule"}
-                                </p>
-                                <p className="text-white font-medium">
-                                    {course.schedule_flexibility}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Footer: price + register + expand */}
-                <div className="mt-auto pt-4 border-t border-ft-obsidian-border flex items-center justify-between gap-3">
-                    <div>
-                        <p className="text-lg font-bold text-ft-amber">
-                            {priceLabel}
-                        </p>
-                        <p className="text-[10px] text-white/40">
-                            {pricing.pricing_model}
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => setExpanded(!expanded)}
-                            className="px-3 py-1.5 text-xs font-semibold rounded-md border border-ft-obsidian-border text-white/60 hover:text-white hover:border-ft-teal/50 transition-colors"
-                        >
-                            {expanded
-                                ? lang === "am"
-                                    ? "ዝጋ"
-                                    : "Less"
-                                : lang === "am"
-                                  ? "ተጨማሪ"
-                                  : "Details"}
-                        </button>
-                        <Link
-                            href={`/register?role=student&line=fidel&course=${course.course_id}`}
-                            className="px-4 py-1.5 text-xs font-bold rounded-md bg-ft-amber text-ft-obsidian hover:bg-ft-amber-hover transition-colors shadow-sm"
-                        >
-                            {lang === "am" ? "ተመዝገብ" : "Register"}
-                        </Link>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
+const allSubjects = [
+    ...new Set(publicFidelCourses.map((course) => course.subject)),
+];
+const allFormats = [
+    ...new Set(publicFidelCourses.map((course) => course.format)),
+];
 
 export default function FidelPageClient() {
     const { t, lang } = useLanguage();
-
-    // Filters
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedSubject, setSelectedSubject] = useState("");
     const [selectedFormat, setSelectedFormat] = useState("");
+    const [openFaq, setOpenFaq] = useState(0);
 
     const filteredCourses = useMemo(() => {
-        return courses.filter((course) => {
-            const q = searchQuery.toLowerCase();
+        const query = searchQuery.trim().toLowerCase();
+
+        return publicFidelCourses.filter((course) => {
             const matchesSearch =
-                !q ||
-                course.course_name.toLowerCase().includes(q) ||
-                course.description.toLowerCase().includes(q) ||
-                course.institution?.name?.toLowerCase().includes(q) ||
-                course.subject.toLowerCase().includes(q);
+                !query ||
+                course.course_name.toLowerCase().includes(query) ||
+                course.description.toLowerCase().includes(query) ||
+                course.subject.toLowerCase().includes(query) ||
+                (course.subjects_covered ?? []).some((subject) =>
+                    subject.toLowerCase().includes(query),
+                );
 
             const matchesSubject =
                 !selectedSubject || course.subject === selectedSubject;
@@ -240,202 +47,386 @@ export default function FidelPageClient() {
         });
     }, [searchQuery, selectedSubject, selectedFormat]);
 
-    return (
-        <div className="relative space-y-16 pb-20 bg-ft-obsidian min-h-screen">
-            {/* Hero section with */}
+    const hasFilters = Boolean(
+        searchQuery || selectedSubject || selectedFormat,
+    );
 
-            <section className="relative  min-h-[60vh] max-h-[100vh] py-16 px-4 border-b border-ft-amber/20 overflow-hidden flex items-center">
-                {/* Full-width background image aligned right */}
-                <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden">
+    const clearFilters = () => {
+        setSearchQuery("");
+        setSelectedSubject("");
+        setSelectedFormat("");
+    };
+
+    const steps = [
+        t("fidelHowStep1"),
+        t("fidelHowStep2"),
+        t("fidelHowStep3"),
+    ];
+
+    const faqs = [
+        { q: t("fidelFaq1Q"), a: t("fidelFaq1A") },
+        { q: t("fidelFaq2Q"), a: t("fidelFaq2A") },
+        { q: t("fidelFaq3Q"), a: t("fidelFaq3A") },
+        { q: t("fidelFaq4Q"), a: t("fidelFaq4A") },
+        { q: t("fidelFaq5Q"), a: t("fidelFaq5A") },
+    ];
+
+    return (
+        <div className="space-y-16 bg-navy-deep pb-20">
+            {/* ─── HERO ─────────────────────────────────────────── */}
+            <section className="relative overflow-hidden border-b border-navy-border/60">
+                <div className="absolute inset-0">
                     <img
                         src="/fidelPageHero.jpg"
                         alt=""
-                        className="w-full h-full object-cover object-right opacity-80"
+                        aria-hidden="true"
+                        className="h-full w-full object-cover object-center opacity-40"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-r from-ft-obsidian via-ft-obsidian/80 to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-navy-deep via-navy-deep/90 to-navy-deep/40" />
                 </div>
 
-                <div className="relative z-10 max-w-6xl mx-auto flex flex-col items-start gap-6 text-left w-full">
-                    <div className="w-full lg:w-[60%] space-y-5">
-                        <div className="flex flex-col items-start gap-4 mb-2">
-                            <div className="relative group">
-                                <div className="absolute inset-0 bg-ft-amber/20 rounded-full blur-2xl group-hover:blur-3xl transition-all duration-300"></div>
-                                <img
-                                    src="/fidellogo.png"
-                                    alt="Fidel Logo"
-                                    className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-44 md:h-44 object-contain transition-transform duration-500 group-hover:scale-110 select-none pointer-events-none"
-                                />
-                            </div>
-                            <span className="px-4 py-1.5 rounded-full bg-ft-amber/10 border border-ft-amber/40 text-ft-amber text-sm font-semibold uppercase tracking-wider">
-                                {lang === "am"
-                                    ? "የፊደል አስጠኚ | ለብሩህ ትውልድ፣ ብቁ አስጠኚ!"
-                                    : "Fidel Academic Tutors | Quality Tutors for a Brighter Generation!"}
+                <div className="relative z-10 mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+                    <div className="max-w-2xl space-y-5">
+                        <div className="flex items-center gap-4">
+                            <img
+                                src="/fidellogo.png"
+                                alt="Fidel academic tutoring"
+                                className="h-16 w-16 object-contain"
+                            />
+                            <span className="rounded-full border border-ft-teal/40 bg-ft-teal-faint px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-ft-teal-text">
+                                {t("fidelTagline")}
                             </span>
                         </div>
-                        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white font-ethiopic leading-snug">
-                            {lang === "am"
-                                ? "ዘመናዊ አካዳሚክ አስጠኚ ለልጆችዎ"
-                                : "Modern Academic Tutoring in Ethiopia"}
+
+                        <h1 className="text-3xl font-extrabold leading-tight text-white font-ethiopic sm:text-4xl lg:text-5xl">
+                            {t("fidelHeroTitle")}
                         </h1>
-                        <p className="text-base sm:text-lg text-white/80 font-medium leading-relaxed">
-                            {lang === "am"
-                                ? "ትምህርት ቤቶች በብዛት ተማሪ ስለሚይዙ ለእያንዳንዱ ተማሪ ትኩረት ለመስጠት አዳጋች ሆኗል። እኛ መምህራኑን ቤት ድረስ በመላክ፣ ተማሪው በአለማዊ ትምህርቱ ውጤታማ እንዲሆን እና በሱስ እንዳይጠመድ የቅርብ ክትትል እና የምክር አገልግሎት እንሰጣለን።"
-                                : "Overcrowded schools often fail to provide individual attention. We bring elite educators directly to your home, ensuring students excel in their secular education while receiving mentorship to stay protected from negative influences."}
-                        </p>
-                        <p className="text-sm text-ft-teal font-medium">
-                            {lang === "am"
-                                ? "የክፍል ትምህርትን የሚያግዝ፣ በሂሳብ፣ ሳይንስ፣ እንግሊዝኛ እና ሌሎች ቋንቋዎች ከፍተኛ ውጤት እንዲያመጡ የሚያግዝ ብቁ የአካዳሚክ አስተማሪዎች ስብስብ።"
-                                : "Secure, high-quality, in-home academic tutoring covering school curriculum, STEM subjects, and languages to boost student performance."}
+
+                        <p className="text-base leading-relaxed text-text-secondary sm:text-lg">
+                            {t("fidelHeroDesc")}
                         </p>
 
-                        {/* Hero CTA */}
-                        <div className="flex flex-col sm:flex-row items-start gap-4 pt-2">
+                        <p className="text-sm font-medium text-ft-teal-text">
+                            {t("fidelHeroNote")}
+                        </p>
+
+                        <div className="flex flex-col gap-3 pt-2 sm:flex-row">
                             <a
                                 href="#courses"
-                                className="px-8 py-3.5 text-base font-bold rounded-xl bg-ft-amber text-ft-obsidian hover:bg-ft-amber-hover hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-md"
+                                className="rounded-xl bg-gold-primary px-7 py-3.5 text-center text-sm font-extrabold text-navy-deep transition-colors hover:bg-gold-hover"
                             >
-                                {lang === "am"
-                                    ? "ኮርሶችን ይመልከቱ ↓"
-                                    : "Browse Courses ↓"}
+                                {t("fidelBrowseCta")} ↓
                             </a>
                             <a
-                                href="/register?role=teacher&line=fidel"
-                                className="px-8 py-3.5 text-base font-semibold rounded-xl border border-ft-teal/60 text-ft-teal hover:bg-ft-teal/10 transition-colors"
+                                href="tel:+251990285748"
+                                className="rounded-xl border border-navy-border px-7 py-3.5 text-center text-sm font-bold text-white transition-colors hover:border-gold-primary"
                             >
-                                {lang === "am"
-                                    ? "እንደ መምህር ይመዝገቡ"
-                                    : "Register as Teacher"}
+                                {t("contactCallLabel")} +251 990 285 748
                             </a>
+                            <Link
+                                href="/register?role=teacher&line=fidel"
+                                className="rounded-xl border border-ft-teal/50 px-7 py-3.5 text-center text-sm font-bold text-ft-teal-text transition-colors hover:bg-ft-teal/10"
+                            >
+                                {t("fidelTeacherCtaBtn")}
+                            </Link>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* Course catalog */}
+            {/* ─── HOW IT WORKS ─────────────────────────────────── */}
+            <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+                <h2 className="text-2xl font-extrabold text-white font-ethiopic">
+                    {t("fidelHowTitle")}
+                </h2>
+                <ol className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3">
+                    {steps.map((step, index) => (
+                        <li
+                            key={step}
+                            className="rounded-xl border border-navy-border bg-navy-surface p-5"
+                        >
+                            <span className="text-3xl font-extrabold text-gold-primary/60">
+                                {String(index + 1).padStart(2, "0")}
+                            </span>
+                            <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+                                {step}
+                            </p>
+                        </li>
+                    ))}
+                </ol>
+            </section>
+
+            {/* ─── FOCUS PAGES ──────────────────────────────────── */}
+            <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <Link
+                        href="/fidel/mathematics-tutoring"
+                        className="group rounded-2xl border border-navy-border bg-navy-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-gold-primary/40"
+                    >
+                        <p className="text-xs font-bold uppercase tracking-wider text-ft-teal-text">
+                            {t("fidelMathPageEyebrow")}
+                        </p>
+                        <h2 className="mt-2 text-xl font-extrabold text-white font-ethiopic">
+                            {t("fidelMathPageTitle")}
+                        </h2>
+                        <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+                            {t("fidelMathPageSummary")}
+                        </p>
+                        <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-gold-primary">
+                            {t("learnMore")} <span aria-hidden="true">→</span>
+                        </span>
+                    </Link>
+
+                    <Link
+                        href="/fidel/exam-preparation"
+                        className="group rounded-2xl border border-navy-border bg-navy-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-gold-primary/40"
+                    >
+                        <p className="text-xs font-bold uppercase tracking-wider text-ft-teal-text">
+                            {t("fidelExamPageEyebrow")}
+                        </p>
+                        <h2 className="mt-2 text-xl font-extrabold text-white font-ethiopic">
+                            {t("fidelExamPageTitle")}
+                        </h2>
+                        <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+                            {t("fidelExamPageSummary")}
+                        </p>
+                        <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-gold-primary">
+                            {t("learnMore")} <span aria-hidden="true">→</span>
+                        </span>
+                    </Link>
+                </div>
+            </section>
+
+            {/* ─── CATALOG ──────────────────────────────────────── */}
             <section
                 id="courses"
-                className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 relative z-10 scroll-mt-8"
+                className="mx-auto max-w-7xl scroll-mt-8 space-y-8 px-4 sm:px-6 lg:px-8"
             >
-                {/* Section header */}
-                <div className="text-center space-y-2">
-                    <h2 className="text-2xl sm:text-3xl font-bold text-white font-ethiopic">
-                        {lang === "am" ? "የትምህርት ጥቅሎች" : "Academic Packages"}
+                <div className="space-y-3">
+                    <h2 className="text-2xl font-extrabold text-white font-ethiopic sm:text-3xl">
+                        {t("fidelCatalogTitle")}
                     </h2>
-                    <p className="text-sm text-white/60 max-w-xl mx-auto">
-                        {lang === "am"
-                            ? `${courses.length} ኮርሶች — የሚፈልጉትን ኮርስ መርጠው ይመዝገቡ`
-                            : `${courses.length} courses — Choose a course and register to get started`}
+                    <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
+                        {t("fidelCatalogSub")}
                     </p>
                 </div>
 
-                {/* Search & filters */}
-                <div className="flex flex-col sm:flex-row gap-3 max-w-3xl mx-auto">
-                    <input
-                        type="text"
-                        placeholder={
-                            lang === "am"
-                                ? "ኮርስ ወይም ተቋም ፈልግ..."
-                                : "Search courses or providers..."
-                        }
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="flex-grow px-4 py-2.5 bg-ft-obsidian-surface border border-ft-obsidian-border rounded-lg text-white placeholder-white/30 text-sm focus:outline-none focus:border-ft-amber/50 transition-colors"
-                    />
-                    <select
-                        value={selectedSubject}
-                        onChange={(e) => setSelectedSubject(e.target.value)}
-                        className="px-3 py-2.5 bg-ft-obsidian-surface border border-ft-obsidian-border rounded-lg text-sm text-white/60 focus:outline-none focus:border-ft-amber/50 transition-colors cursor-pointer"
-                    >
-                        <option value="">
-                            {lang === "am" ? "ሁሉም ትምህርቶች" : "All Subjects"}
-                        </option>
-                        {allSubjects.map((s) => (
-                            <option key={s} value={s}>
-                                {s}
-                            </option>
-                        ))}
-                    </select>
-                    <select
-                        value={selectedFormat}
-                        onChange={(e) => setSelectedFormat(e.target.value)}
-                        className="px-3 py-2.5 bg-ft-obsidian-surface border border-ft-obsidian-border rounded-lg text-sm text-white/60 focus:outline-none focus:border-ft-amber/50 transition-colors cursor-pointer"
-                    >
-                        <option value="">
-                            {lang === "am" ? "ሁሉም ቅርጾች" : "All Formats"}
-                        </option>
-                        {allFormats.map((f) => (
-                            <option key={f} value={f}>
-                                {f}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                {/* Results count */}
-                {(searchQuery || selectedSubject || selectedFormat) && (
-                    <p className="text-center text-xs text-white/40">
-                        {lang === "am"
-                            ? `${filteredCourses.length} ውጤቶች ተገኝተዋል`
-                            : `${filteredCourses.length} result${filteredCourses.length !== 1 ? "s" : ""} found`}
-                    </p>
-                )}
-
-                {/* Course grid */}
-                {filteredCourses.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredCourses.map((course) => (
-                            <CourseCard
-                                key={course.course_id}
-                                course={course}
-                                lang={lang}
-                            />
-                        ))}
+                {publicFidelCourses.length === 0 ? (
+                    <div className="rounded-xl border border-navy-border bg-navy-surface p-8 text-center">
+                        <p className="text-sm text-text-secondary">
+                            {t("fidelCatalogEmpty")}
+                        </p>
+                        <Link
+                            href="/contact"
+                            className="mt-3 inline-flex text-sm font-bold text-gold-primary hover:underline"
+                        >
+                            {t("finalCtaSecondary")}
+                        </Link>
                     </div>
                 ) : (
-                    <div className="text-center py-16 space-y-3">
-                        <p className="text-4xl">📭</p>
-                        <p className="text-white/60 text-sm">
-                            {lang === "am"
-                                ? "ምንም ኮርሶች አልተገኙም። ፍለጋዎን ይቀይሩ።"
-                                : "No courses match your filters. Try adjusting your search."}
-                        </p>
-                        <button
-                            onClick={() => {
-                                setSearchQuery("");
-                                setSelectedSubject("");
-                                setSelectedFormat("");
-                            }}
-                            className="text-xs text-ft-teal hover:underline"
-                        >
-                            {lang === "am"
-                                ? "ማጣሪያዎችን ያጽዱ"
-                                : "Clear all filters"}
-                        </button>
-                    </div>
+                    <>
+                        <div className="flex flex-col gap-3 sm:flex-row">
+                            <label className="flex-grow">
+                                <span className="sr-only">
+                                    {t("fidelSearchPlaceholder")}
+                                </span>
+                                <input
+                                    type="search"
+                                    placeholder={t("fidelSearchPlaceholder")}
+                                    value={searchQuery}
+                                    onChange={(event) =>
+                                        setSearchQuery(event.target.value)
+                                    }
+                                    className="w-full rounded-lg border border-navy-border bg-navy-surface px-4 py-2.5 text-sm text-white placeholder:text-text-muted focus:border-gold-primary focus:outline-none"
+                                />
+                            </label>
+
+                            <label>
+                                <span className="sr-only">
+                                    {t("fidelAllSubjects")}
+                                </span>
+                                <select
+                                    value={selectedSubject}
+                                    onChange={(event) =>
+                                        setSelectedSubject(event.target.value)
+                                    }
+                                    className="w-full rounded-lg border border-navy-border bg-navy-surface px-3 py-2.5 text-sm text-white focus:border-gold-primary focus:outline-none sm:w-52"
+                                >
+                                    <option value="">
+                                        {t("fidelAllSubjects")}
+                                    </option>
+                                    {allSubjects.map((subject) => (
+                                        <option key={subject} value={subject}>
+                                            {subjectLabel(subject, lang)}
+                                        </option>
+                                    ))}
+                                </select>
+                            </label>
+
+                            <label>
+                                <span className="sr-only">
+                                    {t("fidelAllFormats")}
+                                </span>
+                                <select
+                                    value={selectedFormat}
+                                    onChange={(event) =>
+                                        setSelectedFormat(event.target.value)
+                                    }
+                                    className="w-full rounded-lg border border-navy-border bg-navy-surface px-3 py-2.5 text-sm text-white focus:border-gold-primary focus:outline-none sm:w-48"
+                                >
+                                    <option value="">
+                                        {t("fidelAllFormats")}
+                                    </option>
+                                    {allFormats.map((format) => (
+                                        <option key={format} value={format}>
+                                            {formatLabel(format, lang)}
+                                        </option>
+                                    ))}
+                                </select>
+                            </label>
+                        </div>
+
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            <p className="text-xs text-text-secondary">
+                                {filteredCourses.length} {t("fidelResults")}
+                            </p>
+                            {hasFilters && (
+                                <button
+                                    type="button"
+                                    onClick={clearFilters}
+                                    className="text-xs font-semibold text-ft-teal-text hover:underline"
+                                >
+                                    {t("fidelClearFilters")}
+                                </button>
+                            )}
+                        </div>
+
+                        {filteredCourses.length > 0 ? (
+                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                                {filteredCourses.map((course) => (
+                                    <FidelCourseCard
+                                        key={course.course_slug}
+                                        course={course}
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="rounded-xl border border-navy-border bg-navy-surface p-10 text-center">
+                                <p className="text-sm text-text-secondary">
+                                    {t("fidelNoResults")}
+                                </p>
+                                <button
+                                    type="button"
+                                    onClick={clearFilters}
+                                    className="mt-3 text-sm font-bold text-gold-primary hover:underline"
+                                >
+                                    {t("fidelClearFilters")}
+                                </button>
+                            </div>
+                        )}
+
+                        <div className="space-y-2 rounded-xl border border-navy-border bg-navy-surface p-5">
+                            <p className="text-xs leading-relaxed text-text-secondary">
+                                {t("fidelFeesNote")}
+                            </p>
+                            <p className="text-xs leading-relaxed text-text-muted">
+                                {t("fidelCatalogNote")}
+                            </p>
+                        </div>
+                    </>
                 )}
             </section>
 
-            {/* CTA Join as Teacher */}
-            <section className="max-w-4xl mx-auto px-4 text-center">
-                <div className="bg-ft-obsidian-surface border border-ft-teal/30 border-l-4 border-l-ft-teal rounded-xl p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md">
-                    <div className="text-left space-y-2">
-                        <h3 className="text-xl font-bold text-white font-ethiopic">
-                            {lang === "am"
-                                ? "ብቁ አካዳሚክ መምህር ነዎት?"
-                                : "Are you a qualified Academic Tutor?"}
-                        </h3>
-                        <p className="text-sm text-white/60 max-w-md">
-                            {lang === "am"
-                                ? "በክብር ሙያዎ ተማሪዎችን እያስተማሩ ክፍያ በማግኘት ኑሮዎን ያሻሽሉ። ዛሬውኑ ይመዝገቡ።"
-                                : "Join our platform, teach students at home, and earn a premium payout. Register as a Fidel teacher now."}
+            {/* ─── TEACHER CTA ──────────────────────────────────── */}
+            <section className="mx-auto max-w-4xl px-4 sm:px-6">
+                <div className="flex flex-col items-start justify-between gap-6 rounded-xl border border-ft-teal/30 border-l-4 border-l-ft-teal bg-navy-surface p-7 sm:flex-row sm:items-center">
+                    <div className="space-y-2">
+                        <h2 className="text-xl font-extrabold text-white font-ethiopic">
+                            {t("fidelTeacherCtaTitle")}
+                        </h2>
+                        <p className="max-w-md text-sm leading-relaxed text-text-secondary">
+                            {t("fidelTeacherCtaDesc")}
                         </p>
                     </div>
                     <Link
                         href="/register?role=teacher&line=fidel"
-                        className="w-full sm:w-auto px-6 py-3 rounded-md border border-ft-amber text-ft-amber hover:bg-ft-amber/10 transition-colors text-sm font-semibold whitespace-nowrap"
+                        className="w-full whitespace-nowrap rounded-lg border border-ft-teal px-6 py-3 text-center text-sm font-bold text-ft-teal-text transition-colors hover:bg-ft-teal/10 sm:w-auto"
                     >
-                        {t("btnRegisterTeacher")}
+                        {t("fidelTeacherCtaBtn")}
                     </Link>
+                </div>
+            </section>
+
+            {/* ─── FAQ ──────────────────────────────────────────── */}
+            <section className="mx-auto max-w-4xl px-4 sm:px-6">
+                <h2 className="text-2xl font-extrabold text-white font-ethiopic">
+                    {t("fidelFaqTitle")}
+                </h2>
+                <div className="mt-5 space-y-3">
+                    {faqs.map((faq, index) => {
+                        const isOpen = openFaq === index;
+                        return (
+                            <div
+                                key={faq.q}
+                                className="overflow-hidden rounded-xl border border-navy-border bg-navy-surface"
+                            >
+                                <h3>
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setOpenFaq(isOpen ? null : index)
+                                        }
+                                        aria-expanded={isOpen}
+                                        aria-controls={`fidel-faq-${index}`}
+                                        className="flex w-full items-center justify-between gap-4 p-5 text-left text-sm font-bold text-white hover:bg-navy-deep/40"
+                                    >
+                                        <span>{faq.q}</span>
+                                        <span
+                                            aria-hidden="true"
+                                            className={`text-lg text-gold-primary transition-transform ${
+                                                isOpen ? "rotate-45" : ""
+                                            }`}
+                                        >
+                                            +
+                                        </span>
+                                    </button>
+                                </h3>
+                                <div
+                                    id={`fidel-faq-${index}`}
+                                    hidden={!isOpen}
+                                    className="border-t border-navy-border/60 p-5 text-sm leading-relaxed text-text-secondary"
+                                >
+                                    {faq.a}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </section>
+
+            {/* ─── FINAL CTA ────────────────────────────────────── */}
+            <section className="mx-auto max-w-4xl px-4 text-center sm:px-6">
+                <div className="rounded-2xl border border-gold-primary/20 bg-navy-surface p-8">
+                    <h2 className="text-2xl font-extrabold text-white font-ethiopic">
+                        {t("finalCtaTitle")}
+                    </h2>
+                    <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-secondary">
+                        {t("finalCtaDesc")}
+                    </p>
+                    <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+                        <Link
+                            href="/register?role=student&line=fidel&course=in-person-home-tutoring-all-subjects"
+                            className="rounded-xl bg-gold-primary px-7 py-3.5 text-sm font-extrabold text-navy-deep transition-colors hover:bg-gold-hover"
+                        >
+                            {t("finalCtaPrimary")}
+                        </Link>
+                        <a
+                            href="tel:+251990285748"
+                            className="rounded-xl border border-navy-border px-7 py-3.5 text-sm font-bold text-white transition-colors hover:border-gold-primary"
+                        >
+                            {t("contactCallLabel")} +251 990 285 748
+                        </a>
+                    </div>
                 </div>
             </section>
         </div>

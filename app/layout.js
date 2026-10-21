@@ -17,16 +17,29 @@ export const viewport = {
 export const metadata = {
     metadataBase: new URL("https://www.arke-group.com"),
     title: {
-        default: "Arke Digital Learning | ዕውቀት ለስኬት፣ ሥነ-ምግባር ለሕይወት",
+        default:
+            "Arke Digital Learning | Fidel Academic Tutoring for Grades 5–12",
         template: "%s | Arke Digital Learning",
     },
     description:
-        "የኦርቶዶክስ መንፈሳዊና አካዳሚክ አስጠኚ — Connecting Ethiopian students with verified, church-certified tutors for Geez, Qidasse, Zema, and academic subjects.",
+        "Fidel academic tutoring for Grades 5–12 in Addis Ababa: mathematics, sciences, languages, computer science and exam preparation. In-home, online and hybrid lessons. Yeneta is our separate religious-education branch. የአካዳሚክ አስጠኚ ለክፍል 5–12።",
+    applicationName: "Arke Digital Learning",
     openGraph: {
         siteName: "Arke Digital Learning",
         locale: "am_ET",
         alternateLocale: "en_US",
         type: "website",
+        images: [
+            {
+                url: "/fidelPageHero.jpg",
+                width: 1280,
+                height: 696,
+                alt: "Arke Fidel academic tutoring study materials",
+            },
+        ],
+    },
+    twitter: {
+        card: "summary_large_image",
     },
     robots: {
         index: true,

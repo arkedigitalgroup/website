@@ -1,0 +1,34 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper function
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Receipts: student can upload/read their own receipt, admin can read/manage all
+    match /receipts/{userId}/{fileName} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Teacher documents: photo, church doc, kebele ID, edu cert
+    match /teachers/{userId}/{fileName} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Student documents: photo, profile
+    match /students/{userId}/{fileName} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Reports media: teacher can upload report photos/videos
+    match /reports/{teacherId}/{allPaths=**} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && request.auth.uid == teacherId;
+    }
+  }
+}

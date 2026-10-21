@@ -37,6 +37,8 @@ const config: Config = {
                     teal: "#0D9488",
                     "teal-hover": "#0F766E",
                     "teal-faint": "rgba(13, 148, 136, 0.12)",
+                    // AA-safe teal for text on navy surfaces (contrast 5.2:1)
+                    "teal-text": "#14B8A6",
                     amber: "#F59E0B",
                     "amber-hover": "#D97706",
                     "amber-faint": "rgba(245, 158, 11, 0.12)",
