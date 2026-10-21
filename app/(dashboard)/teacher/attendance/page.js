@@ -11,8 +11,8 @@ import {
     query,
     where,
 } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage } from "../../../../src/lib/firebase";
+import { db } from "../../../../src/lib/firebase";
+import { uploadToSupabase } from "../../../../src/lib/supabase";
 import { useAuth } from "../../../../src/context/AuthContext";
 import { useLanguage } from "../../../../src/context/LanguageContext";
 
@@ -89,21 +89,19 @@ export default function TeacherAttendance() {
         try {
             let mediaUrl = null;
 
-            // Handle media upload (graceful fallback if Storage is not activated/unauthorized)
+            // Handle media upload
             if (mediaFile) {
                 setUploadStatus(t("uploadFileLoading"));
                 const fileExtension = mediaFile.name.split(".").pop();
                 const storagePath = `reports/${user.uid}/${studentId}/${date}_report.${fileExtension}`;
                 try {
-                    const mediaRef = ref(storage, storagePath);
-                    await uploadBytes(mediaRef, mediaFile);
-                    mediaUrl = await getDownloadURL(mediaRef);
+                    mediaUrl = await uploadToSupabase(mediaFile, storagePath);
                 } catch (storageErr) {
                     console.warn(
-                        "Storage upload failed, using mock media link:",
+                        "Supabase storage upload failed, using mock media link:",
                         storageErr,
                     );
-                    // High quality mockup educational thumbnail
+                    // Fallback educational thumbnail
                     mediaUrl =
                         "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400";
                 }

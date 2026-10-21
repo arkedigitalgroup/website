@@ -2,9 +2,9 @@
 export const en = {
     // Navigation & General
     navHome: "Home",
-    navAbout: "About Us",
-    navYeneta: "Yeneta Tutors",
-    navFidel: "Fidel Tutors",
+    navAbout: "About",
+    navYeneta: "Yeneta (Spiritual)",
+    navFidel: "Fidel Tutoring",
     navContact: "Contact",
     navSignIn: "Sign In",
     navSignOut: "Sign Out",
@@ -13,76 +13,184 @@ export const en = {
     logoText: "Arke Digital Learning",
 
     // Home Page Hero
-    heroTagline: "Fusing Excellence with Ethics!",
-    heroSubtitle: "Center for Indigenous Knowledge & Academic Excellence",
-    heroDowntitle: "Trusted by 500+ Ethiopian families",
-    heroYenetaCTA: "Start Yeneta Tutors",
-    heroFidelCTA: "Start Fidel Tutors",
+    heroTagline: "Academic tutoring for Grades 5–12",
+    heroTitle: "Stronger subjects. Confident learners.",
+    heroSubtitle:
+        "Fidel by Arke brings subject tutoring to your home or online in Addis Ababa. We focus on the learning gaps, study habits and exam preparation that help students make steady progress.",
+    heroPrimaryCta: "Find a tutor",
+    heroSecondaryCta: "Explore subjects",
+    heroNote:
+        "In-home, online and hybrid lessons. Grades 5–12. Addis Ababa.",
+    heroDowntitle: "Academic support built around each student",
+    heroYenetaCTA: "Explore Yeneta",
+    heroFidelCTA: "Explore Fidel",
     coreBeliefQuote:
-        "“Knowledge for Success, Ethics for Life; Arke for the Generation!”",
+        "“Knowledge for success. Strong habits for life.”",
+
+    // Coverage facts (from the course catalog — no invented figures)
+    coverageTitle: "What Arke covers",
+    coverageGradesValue: "5–12",
+    coverageGradesLabel: "Grades supported",
+    coverageSubjectsValue: "Maths, sciences, languages",
+    coverageSubjectsLabel: "Subject areas",
+    coverageFormatsValue: "Home, online, hybrid",
+    coverageFormatsLabel: "Lesson formats",
+    coverageLocationValue: "Addis Ababa",
+    coverageLocationLabel: "Service area",
 
     // Service Cards
-    serviceTitle: "Our Services",
-    yenetaTitle: "Yeneta Tutors (Spiritual)",
-    yenetaDesc:
-        "Teach your children spiritual values, Ge'ez language, Liturgical chants (Zema), and ethics with certified Yenetas at your home. Active Now.",
-    fidelTitle: "Fidel Tutors (Academic Tutoring)",
+    serviceTitle: "Two ways to learn with Arke",
+    serviceSubtitle:
+        "Fidel is our main academic service. Yeneta is our separate religious-education branch.",
+    fidelTitle: "Fidel Academic Tutoring",
     fidelDesc:
-        "Modern academic tutoring reinforcing school subjects, including Mathematics, Sciences, and languages. Coming Soon.",
-    comingSoon: "Coming Soon",
-    activeNow: "Active Now",
+        "Subject tutoring for Grades 5–12, built around the Ethiopian school curriculum, the student's learning gaps and exam preparation.",
+    fidelBadge: "Main academic service",
+    yenetaTitle: "Yeneta Spiritual Tutoring",
+    yenetaDesc:
+        "Home-based Geez, Zema and ethics lessons for families who specifically request religious education.",
+    yenetaBadge: "Dedicated spiritual branch",
+    comingSoon: "Coming soon",
+    activeNow: "Available",
+
+    // Subjects section
+    subjectsTitle: "Subjects, grades and learning needs",
+    subjectsSubtitle:
+        "Start with the area where your child needs the most support. The full catalog lists grades, formats and prices.",
+    subjectMath: "Mathematics",
+    subjectMathDesc:
+        "Algebra, geometry, trigonometry, calculus and statistics for secondary students.",
+    subjectSciences: "Sciences",
+    subjectSciencesDesc:
+        "Physics, chemistry and biology, with concept explanations and exam-style problem solving.",
+    subjectLanguages: "Languages",
+    subjectLanguagesDesc:
+        "English, Amharic, Afaan Oromo and Tigrinya, from reading and writing to academic language.",
+    subjectExam: "Exam preparation",
+    subjectExamDesc:
+        "Structured revision, model exams and exam timing for Grade 8 and Grade 12 assessments.",
+    subjectComputer: "Computer Science",
+    subjectComputerDesc:
+        "ICT, computer applications and programming fundamentals for Grades 6–12.",
+    subjectStudy: "Study skills",
+    subjectStudyDesc:
+        "Time management, note-taking, revision routines and exam strategy.",
+    subjectsCta: "See all Fidel courses",
 
     // Why Arke?
-    whyTitle: "Why Choose Arke?",
-    whySafetyTitle: "Verified Safety",
+    whyTitle: "What families can expect",
+    whySafetyTitle: "A clear matching process",
     whySafetyDesc:
-        "Tutors background-checked and verified by local churches and community leaders.",
-    whyMentorshipTitle: "Role-Model Mentors",
+        "Share the subject, grade, area and schedule you need. Arke reviews the request and proposes an available tutor.",
+    whyMentorshipTitle: "Teaching quality",
     whyMentorshipDesc:
-        "Teachers who teach not just knowledge, but moral values and cultural ethics.",
-    whyTechTitle: "Tech Transparency",
+        "Tutor applications and qualification documents are reviewed before a tutor is assigned to a student.",
+    whyTechTitle: "Progress you can see",
     whyTechDesc:
-        "Track your child's learning roadmap, daily attendance, and progress directly on your phone.",
-    whyLoyaltyTitle: "Teacher Loyalty",
+        "Your parent dashboard records attendance, lesson topics and the tutor's notes after lessons.",
+    whyLoyaltyTitle: "One point of contact",
     whyLoyaltyDesc:
-        "We payout a premium course fees to tutors, fostering dedication and high retention.",
-    whyIdentityTitle: "Identity Building",
+        "Enrollment, invoices and support requests are handled through your Arke account.",
+    whyIdentityTitle: "Study habits that last",
     whyIdentityDesc:
-        "Empowering children with deep-rooted indigenous wisdom, boosting confidence and character.",
+        "Lessons target subject understanding, independent study routines and exam preparation — not quick fixes.",
+
+    // How it works
+    howTitle: "How matching and lessons work",
+    howSubtitle: "From your first request to the first lesson.",
+    howStep1Title: "Tell us what you need",
+    howStep1Desc:
+        "Choose a Fidel course, then share your child's grade, subject, location and preferred lesson times.",
+    howStep2Title: "Review your match",
+    howStep2Desc:
+        "Arke checks available tutors against the subject and area. You receive the proposed tutor and lesson plan.",
+    howStep3Title: "Start learning",
+    howStep3Desc:
+        "Lessons begin at home or online. Attendance, topics and progress notes appear in your parent dashboard.",
+
+    // Progress reporting
+    progressTitle: "Parent progress reporting",
+    progressSubtitle:
+        "The parent dashboard is part of the Arke platform, not a marketing promise.",
+    progressItem1: "The tutor assigned to your child",
+    progressItem2: "Lesson attendance and dates",
+    progressItem3: "Topics covered and engagement notes",
+    progressItem4: "Payment status and invoices",
+    progressNote:
+        "Grade outcomes depend on attendance, practice and the student's starting point. Arke does not guarantee a specific result.",
+
+    // Pricing guidance
+    pricingTitle: "Packages and pricing guidance",
+    pricingSubtitle:
+        "Fidel courses are priced per hour, per month or as a full programme. Each course card shows its billing unit.",
+    pricingHourly: "Hourly tutoring",
+    pricingHourlyDesc:
+        "Pay for scheduled lessons. The listed hourly range depends on subject, grade and format.",
+    pricingMonthly: "Monthly programmes",
+    pricingMonthlyDesc:
+        "A monthly price for a structured schedule, such as weekend exam preparation.",
+    pricingProgram: "Full programme",
+    pricingProgramDesc:
+        "A fixed programme price for a defined exam-preparation package.",
+    pricingFeesNote:
+        "A one-time registration fee and a monthly service fee may also apply. The fees for your account are shown on the registration form before you submit.",
+    pricingCta: "View Fidel pricing",
+
+    // Trust / verification
+    trustTitle: "Built for parents who want clarity",
+    trustDesc:
+        "No inflated tutor counts or guaranteed scores. Arke publishes the subjects, grades, formats and prices it can support, and shows the enrollment steps before you create an account.",
+    trustPoint1: "Course cards state grades, format and billing unit.",
+    trustPoint2: "Tutor qualifications are reviewed before assignment.",
+    trustPoint3: "Fees are shown before enrollment is submitted.",
+    trustPoint4: "Yeneta religious education has its own separate page and enrollment flow.",
 
     // Founders section
-    foundersTitle: "The Founders' Brotherhood",
+    foundersTitle: "About the founders",
     foundersDesc:
-        "Arke Digital Group was founded by two brothers, Tewodros and Yonas, with a shared social mission to mold a generation that excels both in modern knowledge and moral values.",
+        "Arke Digital Group was founded by two brothers, Tewodros and Yonas, with a shared goal of making dependable educational support easier for Ethiopian families.",
 
     // Footer
     footerCopyright: "© 2026 Arke Digital Group. All rights reserved.",
+    footerTagline:
+        "Academic tutoring for Grades 5–12 in Addis Ababa. Fidel is our main academic service; Yeneta is our separate spiritual-education branch.",
+    footerLinksHeading: "Pages",
+    footerSocialHeading: "Social",
+    footerContactHeading: "Contact",
+    footerYenetaLabel: "Yeneta (Spiritual)",
+    footerCallLabel: "Call",
+    footerEmailLabel: "Email",
 
     // About Page
-    aboutTitle: "About Arke Digital",
-    aboutEssenceTitle: "The Essence and Calling of Arke",
+    aboutTitle: "About Arke",
+    aboutIntro:
+        "Arke Digital Learning is an academic tutoring company based in Addis Ababa. We help families find subject tutors who work on the specific gaps a student is facing.",
+    aboutEssenceTitle: "Our story",
     aboutEssenceDesc:
-        'Arke Digital Learning is more than just an educational institution; it is a center of transformation dedicated to writing a new chapter in Ethiopia’s educational and moral landscape. The word "Arke" stems from the ancient Ge’ez term for "Faithful Friend." In a world where the younger generation is tossed by the waves of modern distraction, our company stands as a modern "Noah’s Ark"—committed to rescuing knowledge and integrity from the storms of the 21st century.',
-    aboutBeliefTitle: "Our Core Belief",
+        "Arke began with a simple observation: in a busy classroom, not every student gets the individual attention they need. Families were looking for reliable academic support, and tutors were looking for a dependable way to teach. Arke connects the two, with a focus on teaching quality, clear communication and measurable progress. Fidel is our main academic service. Yeneta, our religious-education branch, continues separately for families who request it.",
+    aboutBeliefTitle: "What we believe",
     aboutBeliefDesc:
-        "Knowledge for Success, Ethics for Life; Arke for the Generation!",
-    aboutVisionTitle: "Vision 2035",
+        "Students make progress when lessons start from what they actually understand, when teaching is consistent, and when parents can see what is happening.",
+    aboutVisionTitle: "Where we are going",
     aboutVisionDesc:
-        'By 2035, our goal is to become the "Golden Standard" for Ethiopians at home and abroad, providing digital and physical learning experiences that build both intellect and character for thousands of young scholars, priests, and deacons.',
-    aboutMissionTitle: "Mission",
+        "To make reliable academic support easier to find and easier to follow for Ethiopian families — with clear subject coverage, honest pricing and progress information parents can use.",
+    aboutMissionTitle: "How we work",
     aboutMissionDesc:
-        "🫳Technological Excellence: Utilizing advanced GPS and database technology to make elite educators accessible directly to parents.\n🫳Guardian of the Generation: Actively combating addiction, moral erosion, and negative social influences through knowledge and professional guidance.\n🫳Economic Empowerment: Creating prestigious career opportunities and reliable income.",
-    aboutIdentityTitleYeneta: "Yeneta Tutors Identity Anchor",
+        "Match on the subject, grade, location and schedule a family actually needs.\nReview tutor applications and qualifications before assignment.\nKeep attendance, lesson topics and progress notes in the parent dashboard.\nShow applicable fees before an enrollment is submitted.\nKeep religious education within Yeneta's dedicated pages and enrollment flow.",
+    aboutApproachTitle: "Our approach to teaching",
+    aboutApproachDesc:
+        "Fidel tutoring starts with the student's current level. Tutors explain concepts, work through examples, set practice tasks and review what changed. The aim is subject understanding, better study habits and exam readiness.",
+    aboutIdentityTitleYeneta: "Yeneta — religious education branch",
     aboutIdentityDescYeneta:
-        "To prevent children from losing their roots to foreign cultural erosion, Yeneta Tutors provides spiritual and traditional wisdom (Ge’ez, Zema, and Ethics) at home. This ensures they grow up respecting their heritage, their parents, and themselves.",
-    aboutIdentityTitleFidel: "Fidel Tutors Identity Anchor",
+        "Yeneta provides home-based Geez, Zema and ethics lessons. It has its own dedicated page, course catalog and enrollment context, separate from the general academic website.",
+    aboutIdentityTitleFidel: "Fidel — main academic service",
     aboutIdentityDescFidel:
-        "Fidel Tutors, a flagship project under Arke Group, serves as a technologically advanced educational bridge designed to elevate learning standards in Ethiopia while creating prestigious career opportunities for young graduates.",
+        "Fidel provides subject tutoring for Grades 5–12 in Addis Ababa, in person, online or in a hybrid format depending on the course. The Fidel catalog lists supported grades, subjects and prices.",
 
     // Yeneta Packages
     yenetaPackagesTitle: "Yeneta Tutors Course Packages",
     yenetaPackagesSub:
-        "Select the perfect package for your child. Prices shown represent the total monthly cost (including the 100 ETB service fee).",
+        "Select the package that fits your family. Prices shown are monthly and include the 100 ETB service fee.",
     courseName: "Course Package",
     coursePrice: "Monthly Price",
     btnRegisterStudent: "Register as Student/Parent",
@@ -141,23 +249,82 @@ export const en = {
         "Advanced Expressive Harmony: Expressing emotions through melody (gratitude, joy, contemplation) and harmonizing personal vocal chants with the Begena for a complete spiritual performance.",
     ],
 
-    // Fidel waitlist
-    fidelWaitlistTitle: "Fidel Academic Tutors",
-    fidelWaitlistDesc:
-        "Fidel Tutors is launching soon! Join our exclusive waitlist to secure early access and receive updates regarding our academic tutoring packages.",
-    emailInputPlaceholder: "Enter your email address",
-    btnJoinWaitlist: "Join Waitlist",
-    waitlistSuccess: "Successfully joined the waitlist! Thank you.",
+    // Fidel catalog page
+    fidelTagline: "Fidel Academic Tutors | Quality tutors for a brighter generation",
+    fidelHeroTitle: "Academic tutoring that starts with the student",
+    fidelHeroDesc:
+        "Fidel is Arke's main academic service. We support Grades 5–12 with subject tutoring, exam preparation and study skills — at home, online or in a hybrid format in Addis Ababa.",
+    fidelHeroNote:
+        "Lessons follow the Ethiopian school curriculum. Supported grades and formats are shown on each course below.",
+    fidelBrowseCta: "Browse courses",
+    fidelHowTitle: "How Fidel lessons work",
+    fidelHowStep1: "Choose a course and register with your grade, subject and location.",
+    fidelHowStep2: "Arke reviews available tutors and proposes a match.",
+    fidelHowStep3: "Lessons start at home or online; attendance and notes appear in your dashboard.",
+    fidelCatalogTitle: "Fidel academic packages",
+    fidelCatalogSub:
+        "Every course shows supported grades, delivery format, price and billing unit. Prices are in ETB.",
+    fidelSearchPlaceholder: "Search by course or subject…",
+    fidelAllSubjects: "All subjects",
+    fidelAllFormats: "All formats",
+    fidelResults: "results found",
+    fidelNoResults: "No courses match these filters. Try a different subject or format.",
+    fidelClearFilters: "Clear filters",
+    fidelGradesLabel: "Grades",
+    fidelPriceLabel: "Price",
+    fidelIncludesLabel: "What's included",
+    fidelOutcomesLabel: "Learning focus",
+    fidelSessionLabel: "Session",
+    fidelTypeLabel: "Type",
+    fidelDeliveryLabel: "Delivery",
+    fidelScheduleLabel: "Schedule",
+    fidelDetails: "Details",
+    fidelLess: "Less",
+    fidelRegister: "Register",
+    fidelFeesNote:
+        "A one-time registration fee and a monthly service fee may apply. The exact fees for your account are shown on the registration form before you submit.",
+    fidelCatalogNote:
+        "Course prices are the published catalog rates. Your final plan is confirmed with the assigned tutor after the first assessment.",
+    fidelTeacherCtaTitle: "Are you a qualified academic tutor?",
+    fidelTeacherCtaDesc:
+        "Apply to teach with Fidel. You will be asked to provide your qualifications and complete Arke's review before being matched with students.",
+    fidelTeacherCtaBtn: "Apply to teach",
+    fidelFaqTitle: "Fidel parent questions",
+    fidelFaq1Q: "Which grades and subjects are supported?",
+    fidelFaq1A:
+        "Most Fidel courses cover Grades 5–12. Some courses are narrower — for example, Grade 8 exam preparation or Grades 9–12 mathematics. Each course card lists its supported grades and subjects.",
+    fidelFaq2Q: "How is the tutor chosen?",
+    fidelFaq2A:
+        "You choose a course and register with your child's grade, subject and location. Arke reviews available tutors for that subject and area, then proposes a match.",
+    fidelFaq3Q: "What will lessons cost?",
+    fidelFaq3A:
+        "Each course shows either an hourly range, a monthly price or a full-programme price. A one-time registration fee and a monthly service fee may apply; the registration form shows the fees that apply to your account before submission.",
+    fidelFaq4Q: "Can lessons be online or at home?",
+    fidelFaq4A:
+        "Yes. Fidel courses are delivered in person at home, online, or in a hybrid format. The format is shown on each course card and confirmed during matching.",
+    fidelFaq5Q: "Is religious education part of Fidel?",
+    fidelFaq5A:
+        "No. Religious education is provided through Yeneta, Arke's separate branch, with its own page and enrollment flow.",
 
     // Contact
-    contactTitle: "Contact Us",
-    contactSub: "Have any questions or inquiries? Send us a message below.",
+    contactTitle: "Contact Arke",
+    contactSub:
+        "Questions about tutoring, enrollment or teaching with Arke? Send us a message and we will respond.",
+    contactIntro:
+        "Arke Digital Learning is an academic tutoring company based in Addis Ababa. Fidel is our main academic service, supporting Grades 5–12 in person and online. Yeneta is our separate religious-education branch for families who request it.",
+    contactFormTitle: "Send a message",
+    contactDetailsTitle: "Reach us directly",
+    contactCallLabel: "Call",
+    contactEmailLabel: "Email",
+    contactSocialLabel: "Official channels",
+    contactResponseNote:
+        "Use the form for enrollment questions, tutor applications or support. Do not send payment details or bank account numbers in a message.",
     formName: "Full Name",
     formEmail: "Email Address",
     formMessage: "Your Message",
     btnSendMessage: "Send Message",
     contactSuccess:
-        "Your message has been sent successfully! We will get in touch soon.",
+        "Your message has been sent successfully. We will get in touch soon.",
 
     // Auth pages
     registerTitle: "Arke Registration Form",
@@ -246,28 +413,100 @@ export const en = {
     btnPostAnnouncement: "Publish Announcement",
     postSuccess: "Announcement published successfully!",
 
-    // Modern Home Additions
-    coursesTitle: "Featured Courses & Packages",
+    // Homepage — packages, FAQs and final action
+    coursesTitle: "Fidel subjects and packages",
     coursesSubtitle:
-        "Carefully designed educational paths for your child's holistic growth",
-    testimonialsTitle: "What Parents Say",
-    testimonialsSubtitle:
-        "Our success is measured by parental trust and student character growth",
-    parent1Name: "W/ro Meseret Alemu",
-    parent1Role: "Mother of Two (Bole)",
-    parent1Text:
-        "Since welcoming the Yeneta tutor to our home, a beautiful spiritual peace has settled. My children are learning Ge'ez and liturgical chants with absolute joy.",
-    parent2Name: "Ato Teklemaraym Wolde",
-    parent2Role: "Father of Student (Saris)",
-    parent2Text:
-        "The Fidel academic tutors are extremely professional and disciplined. My son improved his math grades and overall understanding in a very short time.",
-    faqTitle: "Frequently Asked Questions",
+        "Choose a subject area, then view the full catalog for grades, formats and prices.",
+    faqTitle: "Parent FAQs",
     faqSubtitle:
-        "Detailed answers to help you understand how Arke Digital works",
-    faqQ1: "How are the tutors selected and verified?",
-    faqA1: "All our tutors undergo strict background checks, educational credential verification, and must submit letters of recommendation and moral conduct from their local church or community parish.",
-    faqQ2: "How does the billing and payment system work?",
-    faqA2: "Monthly invoices are posted directly to your dashboard. You can conveniently pay using telebirr, direct bank transfers, or mobile banking systems.",
-    faqQ3: "How can I monitor my child's daily progress?",
-    faqA3: "Via your parent dashboard, you can track daily attendance, check the lesson topics covered, and read the tutor's detailed progress and moral character notes in real-time.",
+        "Clear answers about matching, lessons, fees and progress reporting.",
+    faqQ1: "How does Arke choose a tutor?",
+    faqA1: "You share the subject, grade, location and preferred schedule. Arke reviews available tutors for that subject and area, then proposes a match. Tutor applications and qualifications are reviewed before assignment.",
+    faqQ2: "How does billing work?",
+    faqA2: "Course cards show whether a course is billed hourly, monthly or as a full programme. A one-time registration fee and a monthly service fee may apply; the registration form shows the fees for your account before you submit. Invoices are available in your dashboard.",
+    faqQ3: "How can I follow my child's progress?",
+    faqA3: "Your parent dashboard shows the assigned tutor, lesson attendance, topics covered and the tutor's notes. Progress depends on attendance and practice; Arke does not guarantee a particular grade.",
+    faqQ4: "Are lessons at home or online?",
+    faqA4: "Both formats are offered. Each Fidel course card states whether it is in person, online or hybrid. The format is confirmed during matching.",
+    faqQ5: "Do you provide religious education?",
+    faqA5: "Yes, through Yeneta — a separate Arke branch with its own page and enrollment flow. The general Arke website focuses on academic tutoring.",
+    finalCtaTitle: "Ready to find the right academic support?",
+    finalCtaDesc:
+        "Browse Fidel subjects, check grades and formats, and start an enrollment. You can review the applicable fees before submitting.",
+    finalCtaPrimary: "Find a tutor",
+    finalCtaSecondary: "Talk to Arke",
+
+    // Shared UI
+    navRegister: "Register",
+    learnMore: "Learn more",
+    fidelCatalogEmpty:
+        "The Fidel catalog is temporarily unavailable. Please contact Arke to confirm current course availability.",
+    fidelMathNavLabel: "Maths tutoring (Grades 9–12)",
+    fidelExamNavLabel: "Exam preparation (Grade 8)",
+
+    // Fidel focus pages — cards on /fidel
+    fidelMathPageEyebrow: "Mathematics · Grades 9–12",
+    fidelMathPageTitle: "Mathematics tutoring for secondary students",
+    fidelMathPageSummary:
+        "Algebra, geometry, trigonometry, calculus and statistics, online or in a hybrid format.",
+    fidelExamPageEyebrow: "Exam preparation · Grade 8",
+    fidelExamPageTitle: "Grade 8 national exam preparation",
+    fidelExamPageSummary:
+        "Weekend online revision with practice questions, model exams and exam timing.",
+
+    // Mathematics landing page
+    mathHeroTitle: "Mathematics tutoring for Grades 9–12",
+    mathHeroDesc:
+        "Fidel mathematics tutoring starts from what the student already understands. Tutors explain the concept, work through examples, set practice tasks and review what changed. Lessons are available online with an interactive whiteboard, or in a hybrid format.",
+    mathHeroNote:
+        "Covers algebra, geometry, trigonometry, calculus and statistics. Grade 8 mathematics completion is the prerequisite for this course.",
+    mathFocusTitle: "What the course covers",
+    mathFocusAlgebra: "Algebra",
+    mathFocusAlgebraDesc:
+        "Expressions, equations, functions, sequences and series.",
+    mathFocusGeometry: "Geometry and trigonometry",
+    mathFocusGeometryDesc:
+        "Shapes, proofs, coordinate geometry, triangles and trigonometric ratios.",
+    mathFocusCalculus: "Calculus",
+    mathFocusCalculusDesc:
+        "Limits, derivatives and integrals with worked examples.",
+    mathFocusStatistics: "Statistics",
+    mathFocusStatisticsDesc:
+        "Data handling, probability and interpreting results.",
+    mathFocusExam: "Exam preparation",
+    mathFocusExamDesc:
+        "Exam-style problem sets, timing practice and review of recurring mistakes.",
+    mathCourseTitle: "The mathematics course",
+    mathCtaTitle: "Start with a mathematics assessment",
+    mathCtaDesc:
+        "Register for the mathematics course and share your child's grade, current topics and preferred lesson times. Arke reviews available tutors and proposes a match.",
+
+    // Exam preparation landing page
+    examHeroTitle: "Grade 8 national exam preparation",
+    examHeroDesc:
+        "A structured weekend online programme for Grade 8 students preparing for the national examination. Lessons cover Mathematics, English, Science, Social Studies and Amharic, with practice questions and model exams that mirror the test format.",
+    examHeroNote:
+        "The course runs online at weekends. Each course card shows the current price and billing unit.",
+    examIncludesTitle: "What the programme includes",
+    examInclude1: "Subject revision across the Grade 8 exam subjects",
+    examInclude2: "Practice questions and model exams",
+    examInclude3: "Exam timing and question strategy",
+    examInclude4: "Small-group online classes",
+    examInclude5: "Guidance from the assigned Fidel tutor",
+    examGradesTitle: "Who it is for",
+    examGradesDesc:
+        "Students currently enrolled in Grade 8. Grade 9–12 students can prepare through the subject courses in the Fidel catalog.",
+    examFormatTitle: "Format and schedule",
+    examFormatDesc:
+        "Online, live weekend classes, 2–3 hours per session. The timetable is confirmed during matching.",
+    examCourseTitle: "The exam-preparation course",
+    examCtaTitle: "Prepare for the Grade 8 exam",
+    examCtaDesc:
+        "Register for the Grade 8 exam-preparation course, or contact Arke if you need subject tutoring for another grade.",
+
+    // Shared landing-page labels
+    landingCourseCta: "View the course",
+    landingContactCta: "Ask a question",
+    landingOtherPage: "Other Fidel focus areas",
+    landingBackToFidel: "Back to all Fidel courses",
 };

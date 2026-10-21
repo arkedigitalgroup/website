@@ -37,6 +37,8 @@
   --ft-teal:          #0D9488;   /* Electric Teal — accent for tech sections */
   --ft-teal-hover:    #0F766E;
   --ft-teal-faint:    rgba(13, 148, 136, 0.12);
+  /* AA-safe teal for text on navy (5.2:1 on --navy-surface) */
+  --ft-teal-text:     #14B8A6;
   --ft-amber:         #F59E0B;   /* Solar Amber — primary headings/buttons */
   --ft-amber-hover:   #D97706;
   --ft-amber-faint:   rgba(245, 158, 11, 0.12);

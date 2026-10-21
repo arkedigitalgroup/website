@@ -15,6 +15,12 @@ export function LanguageProvider({ children }) {
     }
   }, []);
 
+  // Keep the document language attribute in sync so screen readers,
+  // search engines and hyphenation follow the text actually rendered.
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
   const toggleLanguage = () => {
     const newLang = lang === 'am' ? 'en' : 'am';
     setLang(newLang);

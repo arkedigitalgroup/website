@@ -65,8 +65,8 @@ export default function TeacherPayouts() {
 
     // Aggregate monthly earnings
     const monthlyAggregates = {};
-    payments.forEach((payment) => {
-        const month = payment.month;
+    (payments || []).forEach((payment) => {
+        const month = payment.month || new Date().toISOString().slice(0, 7);
         if (!monthlyAggregates[month]) {
             monthlyAggregates[month] = {
                 month,
@@ -76,10 +76,11 @@ export default function TeacherPayouts() {
             };
         }
 
+        const coursePrice = Number(payment.coursePrice) || 0;
         const payout =
             payment.teacherPayout ??
-            calcTeacherPayout(config, payment.coursePrice ?? 0);
-        monthlyAggregates[month].amount += payout;
+            (config ? calcTeacherPayout(config, coursePrice) : coursePrice * 0.85);
+        monthlyAggregates[month].amount += payout || 0;
         monthlyAggregates[month].studentsCount++;
         if (payment.status === "paid") {
             monthlyAggregates[month].status = "paid";
@@ -87,7 +88,7 @@ export default function TeacherPayouts() {
     });
 
     const monthlyList = Object.values(monthlyAggregates).sort((a, b) =>
-        b.month.localeCompare(a.month),
+        (b.month || "").localeCompare(a.month || ""),
     );
 
     if (loading) {
@@ -152,7 +153,7 @@ export default function TeacherPayouts() {
                                             {row.studentsCount} students
                                         </td>
                                         <td className="p-4 text-gold-primary font-bold">
-                                            {row.amount.toLocaleString()} ETB
+                                            {(row.amount || 0).toLocaleString()} ETB
                                         </td>
                                         <td className="p-4 text-right">
                                             {row.status === "paid" ? (
@@ -190,7 +191,9 @@ export default function TeacherPayouts() {
                                 courses,
                                 student.courseId,
                             );
-                            const netPayout = calcTeacherPayout(config, price);
+                            const netPayout = config
+                                ? calcTeacherPayout(config, price)
+                                : price * 0.85;
                             return (
                                 <div
                                     key={student.id}
@@ -206,11 +209,11 @@ export default function TeacherPayouts() {
                                     </div>
                                     <div className="text-right">
                                         <span className="font-extrabold text-gold-primary text-sm">
-                                            {netPayout.toLocaleString()} ETB
+                                            {(netPayout || 0).toLocaleString()} ETB
                                         </span>
                                         <span className="text-[10px] text-text-muted block">
                                             {(
-                                                config.teacherPayoutRatio * 100
+                                                (config?.teacherPayoutRatio ?? 0.85) * 100
                                             ).toFixed(0)}
                                             % Share
                                         </span>

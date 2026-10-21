@@ -14,11 +14,12 @@ export default function Navbar() {
     const pathname = usePathname();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+    // Academic-first order: Fidel is the main public service.
     const navItems = [
         { name: t("navHome"), path: "/" },
+        { name: t("navFidel"), path: "/fidel" },
         { name: t("navAbout"), path: "/about" },
         { name: t("navYeneta"), path: "/yeneta" },
-        { name: t("navFidel"), path: "/fidel" },
         { name: t("navContact"), path: "/contact" },
     ];
 
@@ -41,7 +42,7 @@ export default function Navbar() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-20">
                     {/* Logo */}
-                    <div className="flex-shrink-0 flex items-center">
+                    <div className="hidden flex-shrink-0 items-center lg:flex">
                         <Link href="/" className="flex items-center gap-3">
                             <Image
                                 src="/arkelogo.png"
@@ -50,20 +51,21 @@ export default function Navbar() {
                                 height={40}
                                 className="h-10 w-10 object-contain"
                             />
-                            <span className="text-xl font-bold tracking-wider text-gold-primary hover:text-gold-hover transition-colors font-ethiopic hidden sm:inline-block">
+                            <span className="hidden text-xl font-bold tracking-wider text-gold-primary transition-colors hover:text-gold-hover font-ethiopic xl:inline-block">
                                 {t("logoText")}
                             </span>
                         </Link>
                     </div>
 
                     {/* Desktop Navigation */}
-                    <div className="hidden md:flex items-center space-x-6">
+                    <div className="hidden items-center space-x-4 lg:flex xl:space-x-6">
                         {navItems.map((item) => {
                             const isActive = pathname === item.path;
                             return (
                                 <Link
                                     key={item.path}
                                     href={item.path}
+                                    aria-current={isActive ? "page" : undefined}
                                     className={`text-sm font-medium transition-all duration-200 px-3 py-2 rounded-md hover:bg-navy-surface hover:text-gold-primary ${
                                         isActive
                                             ? "text-gold-primary border-b-2 border-gold-primary rounded-none bg-transparent"
@@ -77,7 +79,7 @@ export default function Navbar() {
                     </div>
 
                     {/* Right Action buttons */}
-                    <div className="hidden md:flex items-center space-x-4">
+                    <div className="hidden items-center space-x-3 lg:flex xl:space-x-4">
                         {/* Language Toggle */}
                         <button
                             onClick={toggleLanguage}
@@ -105,17 +107,25 @@ export default function Navbar() {
                                 </button>
                             </div>
                         ) : (
-                            <Link
-                                href="/login"
-                                className="px-5 py-2 text-sm font-semibold rounded-md bg-gold-primary text-navy-deep hover:bg-gold-hover shadow-gold hover:scale-105 active:scale-95 transition-all duration-200"
-                            >
-                                {t("navSignIn")}
-                            </Link>
+                            <div className="flex items-center space-x-3">
+                                <Link
+                                    href="/register?role=student&line=fidel"
+                                    className="px-4 py-2 text-sm font-semibold rounded-md border border-gold-primary text-gold-primary hover:bg-gold-primary hover:text-navy-deep transition-all duration-200"
+                                >
+                                    {t("navRegister")}
+                                </Link>
+                                <Link
+                                    href="/login"
+                                    className="px-5 py-2 text-sm font-semibold rounded-md bg-gold-primary text-navy-deep hover:bg-gold-hover shadow-gold hover:scale-105 active:scale-95 transition-all duration-200"
+                                >
+                                    {t("navSignIn")}
+                                </Link>
+                            </div>
                         )}
                     </div>
 
                     {/* Mobile header with logo */}
-                    <div className="md:hidden flex items-center justify-between gap-2 w-full">
+                    <div className="flex w-full items-center justify-between gap-2 lg:hidden">
                         <Link href="/" className="flex items-center gap-2">
                             {/* <Image
                                 src="/arkelogo.png"
@@ -188,7 +198,7 @@ export default function Navbar() {
             {mobileMenuOpen && (
                 <div
                     id="mobile-menu"
-                    className="md:hidden w-full bg-navy-mid border-t border-navy-border px-4 pt-3 pb-4 space-y-3 shadow-lg animate-fadeIn"
+                    className="w-full bg-navy-mid lg:hidden border-t border-navy-border px-4 pt-3 pb-4 space-y-3 shadow-lg animate-fadeIn"
                 >
                     <div className="flex items-center justify-between gap-3 px-1 pb-3 border-b border-navy-border">
                         <div className="flex items-center gap-2">
@@ -230,6 +240,7 @@ export default function Navbar() {
                                 key={item.path}
                                 href={item.path}
                                 onClick={handleLinkClick}
+                                aria-current={isActive ? "page" : undefined}
                                 className={`block px-3 py-2.5 rounded-md text-base font-medium ${
                                     isActive
                                         ? "bg-navy-surface text-gold-primary border-l-4 border-gold-primary"
@@ -266,7 +277,14 @@ export default function Navbar() {
                                 </button>
                             </div>
                         ) : (
-                            <div className="px-3">
+                            <div className="space-y-2 px-3">
+                                <Link
+                                    href="/register?role=student&line=fidel"
+                                    onClick={handleLinkClick}
+                                    className="block w-full text-center px-4 py-2.5 text-base font-semibold rounded-md border border-gold-primary text-gold-primary"
+                                >
+                                    {t("navRegister")}
+                                </Link>
                                 <Link
                                     href="/login"
                                     onClick={handleLinkClick}

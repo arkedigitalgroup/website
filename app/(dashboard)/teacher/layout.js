@@ -79,16 +79,33 @@ export default function TeacherLayout({ children }) {
                             : "-translate-x-full md:translate-x-0"
                     }`}
                 >
-                    <div className="p-6 border-b border-navy-border flex items-center justify-between">
-                        <span className="text-lg font-bold text-gold-primary font-ethiopic">
-                            Arke Teacher
-                        </span>
-                        <button
-                            onClick={() => setSidebarOpen(false)}
-                            className="md:hidden text-text-secondary hover:text-white"
-                        >
-                            ✕
-                        </button>
+                    <div className="p-6 border-b border-navy-border flex flex-col gap-2">
+                        <div className="flex items-center justify-between">
+                            <span className="text-lg font-bold text-gold-primary font-ethiopic">
+                                Arke Teacher
+                            </span>
+                            <button
+                                onClick={() => setSidebarOpen(false)}
+                                className="md:hidden text-text-secondary hover:text-white"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                        {/* Multi-Niche Badges */}
+                        {profile?.service_lines && profile.service_lines.length > 1 ? (
+                            <div className="flex items-center gap-1.5 pt-1">
+                                <span className="px-2 py-0.5 rounded bg-yt-maroon/20 text-yt-maroon border border-yt-maroon/40 text-[10px] font-extrabold tracking-wider">
+                                    ✝ YENETA
+                                </span>
+                                <span className="px-2 py-0.5 rounded bg-ft-teal/20 text-ft-teal-text border border-ft-teal/40 text-[10px] font-extrabold tracking-wider">
+                                    📚 FIDEL
+                                </span>
+                            </div>
+                        ) : (
+                            <span className="text-[11px] text-text-secondary font-medium capitalize">
+                                Service: {profile?.serviceLine || "Fidel"}
+                            </span>
+                        )}
                     </div>
 
                     {/* Menu Items */}

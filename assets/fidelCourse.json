@@ -32,7 +32,7 @@
             ],
             "grade_range": "5-12",
             "curriculum": "Ethiopian National Curriculum",
-            "description": "Professional certified tutors delivered to your home for personalized one-on-one or group tutoring sessions. Tutors are selected through rigorous entry tests with proven teaching abilities.",
+            "description": "Qualified tutors delivered to your home for personalized one-on-one or small-group tutoring sessions. Tutors are selected through an application and credential review before they are matched with students.",
             "learning_outcomes": [
                 "Improved subject mastery aligned with Ethiopian curriculum",
                 "Personalized learning plan tailored to student weaknesses",
@@ -53,14 +53,14 @@
                 "trial_lesson": false
             },
             "instructor": {
-                "name": "Certified Arke Tutor",
-                "qualification": "Rigorously tested and certified",
-                "experience_years": "8+",
+                "name": "Arke tutor",
+                "qualification": "Credentials reviewed before assignment",
+                "experience_years": null,
                 "specialization": "Varies by subject assignment",
-                "background_check": true
+                "credentials_reviewed": true
             },
             "features": [
-                "Certified tutors with rigorous entry testing",
+                "Tutors reviewed before assignment",
                 "Personalized learning at your home",
                 "Flexible scheduling",
                 "Progress tracking",
@@ -82,7 +82,7 @@
                 "in-person",
                 "all-subjects",
                 "flexible",
-                "certified"
+                "curriculum-support"
             ],
             "language": ["English", "Amharic"],
             "prerequisites": "None",
@@ -109,7 +109,7 @@
                 "Master all Grade 8 national exam subjects",
                 "Practice with exam-style questions and mock tests",
                 "Develop time management skills for exams",
-                "Score in top percentiles on national assessment"
+                "Practice exam timing and question strategy"
             ],
             "format": "Online",
             "delivery_mode": "Live Weekend Classes",
@@ -125,16 +125,16 @@
                 "trial_lesson": false
             },
             "instructor": {
-                "name": "Certified Arke Tutor",
-                "qualification": "Rigorously tested and certified",
-                "experience_years": "5+",
+                "name": "Arke tutor",
+                "qualification": "Credentials reviewed before assignment",
+                "experience_years": null,
                 "specialization": "Grade 8 National Exam",
-                "background_check": true
+                "credentials_reviewed": true
             },
             "features": [
                 "Weekend online classes",
                 "Practice questions and mock exams",
-                "Expert guidance from certified tutors",
+                "Subject guidance from assigned tutors",
                 "Exam-focused curriculum",
                 "Small group setting for interaction"
             ],
@@ -187,7 +187,7 @@
             ],
             "grade_range": "5-12",
             "curriculum": "Ethiopian National Curriculum",
-            "description": "One-on-one personalized tutoring delivered to your home. 490+ expert tutors with a 95% success rate. Includes specialized Computer Science tutoring for Grades 6-12.",
+            "description": "One-on-one personalized tutoring delivered to your home, with subject support across the Ethiopian school curriculum. Includes Computer Science tutoring for Grades 6-12.",
             "learning_outcomes": [
                 "Personalized academic improvement in weak areas",
                 "Computer science literacy (Grades 6-12)",
@@ -208,18 +208,18 @@
                 "trial_lesson": true
             },
             "instructor": {
-                "name": "Certified Arke Tutor",
-                "qualification": "Rigorously tested and certified",
-                "experience_years": "5+",
+                "name": "Arke tutor",
+                "qualification": "Credentials reviewed before assignment",
+                "experience_years": null,
                 "specialization": "Varies by subject",
-                "background_check": true
+                "credentials_reviewed": true
             },
             "features": [
-                "490+ expert tutors",
+                "Tutor matched to the student's subject needs",
                 "One-on-one personalized approach",
                 "Computer Science available (Grades 6-12)",
                 "Ge'ez language tutoring",
-                "95% success rate",
+                "Regular progress checks",
                 "Trial lesson available"
             ],
             "enrollment": {
@@ -262,7 +262,7 @@
             "grade_levels": ["Grade 12"],
             "grade_range": "12",
             "curriculum": "Ethiopian National Curriculum - ESLCE/UEE",
-            "description": "Specialized preparation for Grade 12 University Entrance Exam (ESLCE) with practice exams, video lessons, and live classes through LIQ Academy platform.",
+            "description": "Preparation for the Grade 12 University Entrance Exam (ESLCE) combining online lessons, in-person support, practice exams and live classes.",
             "learning_outcomes": [
                 "Comprehensive ESLCE subject mastery",
                 "Practice with real exam-format questions",
@@ -283,15 +283,15 @@
                 "trial_lesson": true
             },
             "instructor": {
-                "name": "Certified Arke Tutor",
-                "qualification": "Rigorously tested and certified",
-                "experience_years": "7+",
+                "name": "Arke tutor",
+                "qualification": "Credentials reviewed before assignment",
+                "experience_years": null,
                 "specialization": "Grade 12 University Entrance Exam",
-                "background_check": true
+                "credentials_reviewed": true
             },
             "features": [
                 "ESLCE-focused curriculum",
-                "LIQ Academy digital platform access",
+                "Online lessons plus in-person support",
                 "Mock exams and practice questions",
                 "Video lessons and live classes",
                 "Progress tracking dashboard",
@@ -318,6 +318,8 @@
             "language": ["English", "Amharic"],
             "prerequisites": "Currently in Grade 12",
             "certificate": false,
+            "public_visibility": false,
+            "review_note": "Excluded from public promotion pending written confirmation of any LIQ Academy access, partnership or resale permission. No integration exists in this repository.",
             "last_updated": "2026-06-02"
         },
         {
@@ -359,14 +361,14 @@
                 "trial_lesson": true
             },
             "instructor": {
-                "name": "Certified Arke Tutor",
-                "qualification": "Rigorously tested and certified",
-                "experience_years": "4+",
+                "name": "Arke tutor",
+                "qualification": "Credentials reviewed before assignment",
+                "experience_years": null,
                 "specialization": "Amharic / Afaan Oromo / Tigrinya",
-                "background_check": true
+                "credentials_reviewed": true
             },
             "features": [
-                "Learn from native speakers",
+                "Learn from fluent speakers",
                 "Flexible online schedule",
                 "Beginner-friendly",
                 "Kids-specialized approach",
@@ -422,7 +424,7 @@
             "delivery_mode": "Live Virtual with Whiteboard",
             "session_type": "One-on-One or Small Group",
             "duration_per_session": "1-1.5 hours",
-            "schedule_flexibility": "24/7 Available",
+            "schedule_flexibility": "Flexible",
             "pricing": {
                 "price": 200,
                 "price_max": 500,
@@ -432,18 +434,18 @@
                 "trial_lesson": true
             },
             "instructor": {
-                "name": "Certified Arke Tutor",
-                "qualification": "Rigorously tested and certified",
-                "experience_years": "4+",
+                "name": "Arke tutor",
+                "qualification": "Credentials reviewed before assignment",
+                "experience_years": null,
                 "specialization": "Secondary Mathematics",
-                "background_check": true
+                "credentials_reviewed": true
             },
             "features": [
                 "Interactive digital whiteboard",
                 "Problem-solving focused approach",
                 "Practice worksheets and quizzes",
                 "Exam preparation modules",
-                "24/7 math support",
+                "Scheduled support between lessons",
                 "Group study sessions available"
             ],
             "enrollment": {
@@ -485,17 +487,17 @@
             "grade_levels": ["Grade 8", "Grade 12"],
             "grade_range": "8,12",
             "curriculum": "Ethiopian National Curriculum - National Exams",
-            "description": "Comprehensive exam preparation package using Yene Sekay app, flash cards, model exams, and expert tutoring. Designed for students targeting top percentile scores on national assessments.",
+            "description": "Exam preparation combining tutoring, revision materials and model exams for Grade 8 and Grade 12 national assessments.",
             "learning_outcomes": [
-                "Top percentile scores on national exams",
+                "Structured preparation for national assessments",
                 "Mastery of exam format and question types",
                 "Stress management and exam confidence",
-                "University placement for Grade 12 students"
+                "Understanding of Grade 12 progression requirements"
             ],
             "format": "Hybrid",
-            "delivery_mode": "App + Tutoring + Mock Exams",
+            "delivery_mode": "Tutoring + Mock Exams",
             "session_type": "One-on-One + Self-Study",
-            "duration_per_session": "2 hours tutoring + unlimited app access",
+            "duration_per_session": "2 hours tutoring + self-study",
             "schedule_flexibility": "Structured + Self-Paced",
             "pricing": {
                 "price": 5000,
@@ -506,14 +508,14 @@
                 "trial_lesson": false
             },
             "instructor": {
-                "name": "Certified Arke Tutor",
-                "qualification": "Rigorously tested and certified",
-                "experience_years": "8+",
+                "name": "Arke tutor",
+                "qualification": "Credentials reviewed before assignment",
+                "experience_years": null,
                 "specialization": "Grade 8 & 12 National Exams",
-                "background_check": true
+                "credentials_reviewed": true
             },
             "features": [
-                "Yene Sekay study app included",
+                "Revision materials and model exams",
                 "Flash cards for quick revision",
                 "Model exams mirroring real tests",
                 "One-on-one tutoring sessions",
@@ -543,6 +545,8 @@
             "language": ["English", "Amharic"],
             "prerequisites": "Currently in Grade 8 or Grade 12",
             "certificate": false,
+            "public_visibility": false,
+            "review_note": "Excluded from public promotion pending written confirmation of any Yene Sekay app access, partnership or resale permission. No integration exists in this repository.",
             "last_updated": "2026-06-02"
         },
         {
@@ -554,7 +558,7 @@
             "grade_levels": ["Grade 9", "Grade 10", "Grade 11", "Grade 12"],
             "grade_range": "9-12",
             "curriculum": "Ethiopian National Curriculum - Science Stream",
-            "description": "Specialized tutoring in Physics and Chemistry for science stream students. Led by MSc-qualified tutors with 8+ years experience preparing students for university science programs.",
+            "description": "Focused tutoring in Physics and Chemistry for science-stream students, with practical explanations and exam-style problem solving.",
             "learning_outcomes": [
                 "Deep understanding of physics and chemistry principles",
                 "Laboratory concept mastery",
@@ -575,14 +579,14 @@
                 "trial_lesson": false
             },
             "instructor": {
-                "name": "Certified Arke Tutor",
-                "qualification": "Rigorously tested and certified",
-                "experience_years": "8+",
+                "name": "Arke tutor",
+                "qualification": "Credentials reviewed before assignment",
+                "experience_years": null,
                 "specialization": "Physics & Chemistry for national exams",
-                "background_check": true
+                "credentials_reviewed": true
             },
             "features": [
-                "MSc-qualified specialist tutors",
+                "Subject-specialist tutor matching",
                 "Science stream focus",
                 "University program preparation",
                 "Practical concept explanations",
@@ -655,11 +659,11 @@
                 "trial_lesson": true
             },
             "instructor": {
-                "name": "Certified Arke Tutor",
-                "qualification": "Rigorously tested and certified",
-                "experience_years": "4+",
+                "name": "Arke tutor",
+                "qualification": "Credentials reviewed before assignment",
+                "experience_years": null,
                 "specialization": "Computer Science & ICT",
-                "background_check": true
+                "credentials_reviewed": true
             },
             "features": [
                 "Programming basics and coding",
@@ -741,11 +745,11 @@
                 "trial_lesson": true
             },
             "instructor": {
-                "name": "Certified Arke Tutor",
-                "qualification": "Rigorously tested and certified",
-                "experience_years": "5+",
+                "name": "Arke tutor",
+                "qualification": "Credentials reviewed before assignment",
+                "experience_years": null,
                 "specialization": "Study skills and personal development",
-                "background_check": true
+                "credentials_reviewed": true
             },
             "features": [
                 "Study skills assessment",

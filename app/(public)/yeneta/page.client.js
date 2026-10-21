@@ -56,8 +56,8 @@ export default function YenetaPageClient() {
                         </p>
                         <p className="text-sm text-gold-primary font-medium">
                             {lang === "am"
-                                ? "በቤተክርስቲያን የተመሰከረላቸውን ብቁ የኔታዎች ከተማሪዎች ጋር በማገናኘት፣ በቤቶት ሆነው ግዕዝ፣ ቅዳሴ፣ ዜማ እና ስነ-ምግባርን ይማሩ።"
-                                : "Empowering the next generation with deep cultural identity, liturgical chants, Ge'ez literacy, and Orthodox theology from vetted tutors in your home."}
+                                ? "የማመልከቻና የብቃት ሰነዳቸው ከመመደባቸው በፊት የተገመገመ የኔታዎች ጋር በመገናኘት በቤትዎ ግዕዝ፣ ቅዳሴ፣ ዜማ እና ስነ-ምግባርን ይማሩ።"
+                                : "Learn Ge'ez, Qidasse, Zema and ethics at home with Yeneta tutors whose application and qualification documents are reviewed before assignment."}
                         </p>
                         <div className="flex flex-col sm:flex-row items-start gap-4 pt-2">
                             <a
@@ -70,7 +70,7 @@ export default function YenetaPageClient() {
                             </a>
                             <a
                                 href="/register?role=teacher&line=yeneta"
-                                className="px-8 py-3.5 text-base font-semibold rounded-xl border border-ft-teal/60 text-ft-teal hover:bg-ft-teal/10 transition-colors"
+                                className="px-8 py-3.5 text-base font-semibold rounded-xl border border-ft-teal/60 text-ft-teal-text hover:bg-ft-teal/10 transition-colors"
                             >
                                 {lang === "am"
                                     ? "እንደ መምህር ይመዝገቡ"
@@ -95,7 +95,9 @@ export default function YenetaPageClient() {
                         {t("yenetaPackagesSub")}
                     </p>
                     <p className="text-sm text-text-secondary">
-                        የሚፈልጉትን ት/ት መርጠው ለአስተማር ወይም ለመማር ይመዝገቡ
+                        {lang === "am"
+                            ? "የሚፈልጉትን ት/ት መርጠው ለአስተማር ወይም ለመማር ይመዝገቡ"
+                            : "Choose a course package to teach or learn"}
                     </p>
                 </div>
 
