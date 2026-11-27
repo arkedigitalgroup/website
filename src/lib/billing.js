@@ -98,3 +98,20 @@ export function parseSupabasePublicUrl(url) {
     const m = String(url || "").match(/\/storage\/v1\/object\/public\/([^/]+)\/(.+)$/);
     return m ? { bucket: m[1], path: decodeURIComponent(m[2].split("?")[0]) } : null;
 }
+
+/**
+ * Teacher salary per month: the teacher's share of invoices admin approved as paid.
+ * Returns [{ id: "<teacherId>_<YYYY-MM>", teacherId, month, earned, invoiceCount }], newest month first.
+ */
+export function teacherEarnings(payments, config) {
+    const rows = new Map();
+    for (const p of payments) {
+        if (p.status !== "paid" || !p.teacherId || !p.month) continue;
+        const id = `${p.teacherId}_${p.month}`;
+        const row = rows.get(id) || { id, teacherId: p.teacherId, month: p.month, earned: 0, invoiceCount: 0 };
+        row.earned += p.teacherPayout ?? calcTeacherPayout(config, Number(p.coursePrice) || 0);
+        row.invoiceCount++;
+        rows.set(id, row);
+    }
+    return [...rows.values()].sort((a, b) => b.month.localeCompare(a.month));
+}

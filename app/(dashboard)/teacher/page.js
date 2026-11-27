@@ -159,7 +159,7 @@ export default function TeacherHome() {
         }
         if (!teacherProfile.phone)
             missingInfo.push(lang === "am" ? "ስልክ ቁጥር" : "phone number");
-        if (!teacherProfile.bankAccount)
+        if (!teacherProfile.hasBankAccount && !teacherProfile.bankAccount)
             missingInfo.push(lang === "am" ? "የባንክ መለያ" : "bank account");
         if (!teacherProfile.locationPin?.lat)
             missingInfo.push(lang === "am" ? "አካባቢ" : "location pin");

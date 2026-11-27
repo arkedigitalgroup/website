@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc, deleteField, writeBatch } from "firebase/firestore";
 import { db } from "../../../../src/lib/firebase";
 import { useLanguage } from "../../../../src/context/LanguageContext";
 import { isYenetaUser } from "../../../../src/lib/serviceLine";
@@ -10,6 +10,8 @@ import { isYenetaUser } from "../../../../src/lib/serviceLine";
 export default function AdminTeachers() {
     const { t, lang } = useLanguage();
     const [teachers, setTeachers] = useState([]);
+    const [banks, setBanks] = useState({}); // teacherBankAccounts/{uid}, admin + owner only
+    const [migrating, setMigrating] = useState(false);
     const [filter, setFilter] = useState("all"); // 'all', 'pending', 'verified', 'rejected'
     const [loading, setLoading] = useState(true);
     const [updatingId, setUpdatingId] = useState(null);
@@ -22,12 +24,16 @@ export default function AdminTeachers() {
     const fetchTeachers = async () => {
         try {
             setLoading(true);
-            const snap = await getDocs(collection(db, "teachers"));
+            const [snap, bankSnap] = await Promise.all([
+                getDocs(collection(db, "teachers")),
+                getDocs(collection(db, "teacherBankAccounts")),
+            ]);
             const list = [];
             snap.forEach((doc) => {
                 list.push({ id: doc.id, ...doc.data() });
             });
             setTeachers(list);
+            setBanks(Object.fromEntries(bankSnap.docs.map((d) => [d.id, d.data()])));
         } catch (err) {
             console.error("Error loading teachers list:", err);
         } finally {
@@ -38,6 +44,34 @@ export default function AdminTeachers() {
     useEffect(() => {
         fetchTeachers();
     }, []);
+
+    // One-time move of bank details off the teacher doc (which assigned students can read).
+    const legacyBank = teachers.filter((t) => t.bankAccount || t.bankProvider);
+    const migrateBankDetails = async () => {
+        setMigrating(true);
+        try {
+            const batch = writeBatch(db);
+            legacyBank.forEach((t) => {
+                if (!banks[t.id]) {
+                    batch.set(doc(db, "teacherBankAccounts", t.id), {
+                        bankProvider: t.bankProvider || "",
+                        bankAccount: t.bankAccount || "",
+                    });
+                }
+                batch.update(doc(db, "teachers", t.id), {
+                    hasBankAccount: !!(banks[t.id]?.bankAccount || t.bankAccount),
+                    bankProvider: deleteField(),
+                    bankAccount: deleteField(),
+                });
+            });
+            await batch.commit();
+            await fetchTeachers();
+        } catch (err) {
+            console.error("Bank details migration failed:", err);
+        } finally {
+            setMigrating(false);
+        }
+    };
 
     const handleApprove = async (teacherId) => {
         setUpdatingId(teacherId);
@@ -92,7 +126,7 @@ export default function AdminTeachers() {
     // Filtered teachers list
     const filteredTeachers = teachers.filter((teacher) => {
         if (filter === "pending")
-            return !teacher.verified && teacher.bankAccount; // has filled form but not verified
+            return !teacher.verified && (teacher.hasBankAccount || teacher.bankAccount); // has filled form but not verified
         if (filter === "verified") return teacher.verified;
         if (filter === "rejected")
             return !teacher.verified && teacher.rejectionReason;
@@ -125,6 +159,20 @@ export default function AdminTeachers() {
                         to teach.
                     </p>
                 </div>
+
+                {legacyBank.length > 0 && (
+                    <button
+                        onClick={migrateBankDetails}
+                        disabled={migrating}
+                        className="px-3 py-2 rounded-lg border border-warning text-warning text-xs font-semibold hover:bg-warning-faint disabled:opacity-50 self-start"
+                    >
+                        {migrating
+                            ? lang === "am" ? "በማዛወር ላይ..." : "Moving..."
+                            : lang === "am"
+                              ? `የ${legacyBank.length} መምህራን የባንክ መረጃ ወደ ግል ማከማቻ አዛውር`
+                              : `Move ${legacyBank.length} teachers' bank details to private storage`}
+                    </button>
+                )}
 
                 {/* Tab Filters */}
                 <div className="flex bg-navy-mid border border-navy-border p-1 rounded-lg self-start text-xs font-semibold">
@@ -205,8 +253,8 @@ export default function AdminTeachers() {
                                                 {teacher.phone}
                                             </div>
                                             <div className="text-[10px] text-text-secondary">
-                                                {teacher.bankProvider}:{" "}
-                                                {teacher.bankAccount}
+                                                {(banks[teacher.id] || teacher).bankProvider}:{" "}
+                                                {(banks[teacher.id] || teacher).bankAccount}
                                             </div>
                                         </td>
                                         <td className="p-4 sm:p-5 space-y-2">

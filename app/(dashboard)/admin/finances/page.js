@@ -19,8 +19,9 @@ import {
     calcCompanyRevenue,
     calcTeacherPayout,
 } from "../../../../src/hooks/Useplatformconfig";
-import { useCourses, getCoursePrice } from "../../../../src/hooks/Usecourses";
+import { useCourses } from "../../../../src/hooks/Usecourses";
 import RegistrationFeeQueue from "../../../../src/components/payments/RegistrationFeeQueue";
+import TeacherSalaries from "../../../../src/components/payments/TeacherSalaries";
 
 export default function AdminFinances() {
     const { t, lang } = useLanguage();
@@ -168,24 +169,6 @@ export default function AdminFinances() {
     const monthlyList = Object.values(monthlyAggregates).sort((a, b) =>
         b.month.localeCompare(a.month),
     );
-
-    // ── Teacher payout table ──────────────────────────────────────────────────
-    const teacherPayoutsList = teachers
-        .map((teacher) => {
-            let activeStudentsCount = 0;
-            let earnedThisMonth = 0;
-            students.forEach((student) => {
-                if (student.assignedTeacherId === teacher.id) {
-                    activeStudentsCount++;
-                    // getCoursePrice replaces the hardcoded 7100 / 4700 / 4200 switch.
-                    // It looks up the live price from Firestore courses array.
-                    const price = getCoursePrice(courses, student.courseId);
-                    earnedThisMonth += calcTeacherPayout(config, price);
-                }
-            });
-            return { ...teacher, activeStudentsCount, earnedThisMonth };
-        })
-        .filter((t) => t.verified && t.activeStudentsCount > 0);
 
     if (loading) {
         return (
@@ -459,68 +442,7 @@ export default function AdminFinances() {
                 )}
             </div>
 
-            {/* Teacher Payout Breakdown */}
-            <div className="bg-navy-surface border border-navy-border rounded-xl shadow-lg overflow-hidden space-y-4 p-6 sm:p-8">
-                <h2 className="text-xl font-bold text-white font-ethiopic border-b border-navy-border pb-3">
-                    {t("payoutBreakdown")}
-                </h2>
-                {teacherPayoutsList.length === 0 ? (
-                    <p className="text-sm text-text-muted text-center py-8">
-                        No active payouts for teachers. Complete matches and
-                        lessons first.
-                    </p>
-                ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse text-sm">
-                            <thead>
-                                <tr className="bg-navy-mid border-b border-navy-border text-xs text-text-secondary uppercase font-bold tracking-wider">
-                                    <th className="p-4">Tutor Details</th>
-                                    <th className="p-4">Payment Channel</th>
-                                    <th className="p-4">Bank Provider</th>
-                                    <th className="p-4">Active Students</th>
-                                    <th className="p-4">
-                                        This Month Payout (
-                                        {(
-                                            config.teacherPayoutRatio * 100
-                                        ).toFixed(0)}
-                                        % Net)
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-navy-border font-medium">
-                                {teacherPayoutsList.map((row) => (
-                                    <tr
-                                        key={row.id}
-                                        className="hover:bg-navy-hover transition-colors"
-                                    >
-                                        <td className="p-4 space-y-1">
-                                            <div className="font-bold text-white">
-                                                {row.fullName}
-                                            </div>
-                                            <div className="text-[10px] text-text-muted">
-                                                ID: {row.serviceId}
-                                            </div>
-                                        </td>
-                                        <td className="p-4 font-mono text-white text-xs">
-                                            {row.bankAccount}
-                                        </td>
-                                        <td className="p-4 text-white">
-                                            {row.bankProvider}
-                                        </td>
-                                        <td className="p-4 text-gold-primary">
-                                            {row.activeStudentsCount} matched
-                                        </td>
-                                        <td className="p-4 text-white font-bold">
-                                            {row.earnedThisMonth.toLocaleString()}{" "}
-                                            ETB
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-            </div>
+            <TeacherSalaries payments={payments} teachers={teachers} config={config} lang={lang} />
         </div>
 
             {/* Reject-with-reason modal */}
