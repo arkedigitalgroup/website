@@ -67,10 +67,11 @@ export async function POST(request) {
         }
 
         // ── delete ──
-        const [payments, reports, messages] = await Promise.all([
+        const [payments, reports, messages, regFee] = await Promise.all([
             db.collection("payments").where("studentId", "==", studentId).get(),
             db.collection("attendanceReports").where("studentId", "==", studentId).get(),
             db.collection("supportMessages").where("senderId", "==", studentId).get(),
+            db.doc(`registrationFees/${studentId}`).get(),
         ]);
 
         let fileErrors = [];
@@ -80,8 +81,9 @@ export async function POST(request) {
                 studentSnap.data()?.profileUrl,
                 ...payments.docs.map((d) => d.data().receiptUrl),
                 ...reports.docs.map((d) => d.data().mediaUrl),
+                regFee.data()?.receiptUrl,
             ].filter(Boolean);
-            fileErrors = await removeSupabaseFiles(supabase, urls, [`receipts/${studentId}`, `students/${studentId}`]);
+            fileErrors = await removeSupabaseFiles(supabase, urls, [`receipts/${studentId}`, `students/${studentId}`, `registration/${studentId}`]);
         } else {
             fileErrors = ["SUPABASE_SECRET_KEY not set — files were not deleted"];
         }
@@ -89,6 +91,7 @@ export async function POST(request) {
         await unassignTeacher(db, studentId, teacherId);
         const writer = db.bulkWriter();
         [...payments.docs, ...reports.docs, ...messages.docs].forEach((d) => writer.delete(d.ref));
+        writer.delete(regFee.ref);
         writer.delete(db.doc(`students/${studentId}`));
         writer.delete(db.doc(`users/${studentId}`));
         await writer.close();

@@ -20,6 +20,7 @@ import {
     calcTeacherPayout,
 } from "../../../../src/hooks/Useplatformconfig";
 import { useCourses, getCoursePrice } from "../../../../src/hooks/Usecourses";
+import RegistrationFeeQueue from "../../../../src/components/payments/RegistrationFeeQueue";
 
 export default function AdminFinances() {
     const { t, lang } = useLanguage();
@@ -258,6 +259,8 @@ export default function AdminFinances() {
                     </p>
                 </div>
             </div>
+            <RegistrationFeeQueue lang={lang} />
+
             {/* ── Pending Approvals ─────────────────────────────────────────── */}
             {(() => {
                 const submitted = payments.filter(

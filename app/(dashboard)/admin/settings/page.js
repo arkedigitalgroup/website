@@ -7,6 +7,7 @@ import { db } from "../../../../src/lib/firebase";
 import { useAuth } from "../../../../src/context/AuthContext";
 import { useLanguage } from "../../../../src/context/LanguageContext";
 import { usePlatformConfig } from "../../../../src/hooks/Useplatformconfig";
+import { bankAccountsOf } from "../../../../src/components/payments/ArkeBankAccounts";
 
 export default function AdminSettings() {
     const { user } = useAuth();
@@ -26,6 +27,7 @@ export default function AdminSettings() {
                 registrationFeeTeacher: config.registrationFeeTeacher,
                 serviceFeeMonthly: config.serviceFeeMonthly,
                 teacherPayoutRatio: config.teacherPayoutRatio * 100, // store as % in form
+                bankAccounts: bankAccountsOf(config).map((a) => ({ ...a })),
             });
         }
     }, [loading]);
@@ -67,6 +69,10 @@ export default function AdminSettings() {
                     ),
                     serviceFeeMonthly: parseFloat(form.serviceFeeMonthly),
                     teacherPayoutRatio: ratio / 100, // save as decimal
+                    // Arke accounts shown to students/teachers when they pay; empty rows are dropped
+                    bankAccounts: form.bankAccounts
+                        .map((a) => ({ bank: a.bank.trim(), number: a.number.trim(), holder: a.holder.trim() }))
+                        .filter((a) => a.bank && a.number),
                     updatedAt: serverTimestamp(),
                     updatedBy: user.uid,
                 },
@@ -190,6 +196,55 @@ export default function AdminSettings() {
                         </span>
                     </div>
                 </div>
+            </div>
+
+            {/* Arke bank accounts */}
+            <div className="bg-navy-surface border border-navy-border rounded-xl p-6 sm:p-8 shadow-md space-y-4">
+                <h2 className="text-lg font-bold text-white border-b border-navy-border pb-3">
+                    {lang === "am" ? "የአርኬ የባንክ ሂሳቦች" : "Arke bank accounts"}
+                </h2>
+                <p className="text-xs text-text-muted">
+                    {lang === "am"
+                        ? "ተማሪዎችና መምህራን ክፍያ ሲፈጽሙ የሚያዩዋቸው ሂሳቦች።"
+                        : "Shown to students and teachers wherever they pay a fee or invoice."}
+                </p>
+                {form.bankAccounts.map((a, i) => (
+                    <div key={i} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr_auto] gap-2">
+                        {[
+                            ["bank", lang === "am" ? "ባንክ" : "Bank / wallet"],
+                            ["number", lang === "am" ? "የሂሳብ ቁጥር" : "Account number"],
+                            ["holder", lang === "am" ? "የሂሳብ ባለቤት" : "Account holder"],
+                        ].map(([key, label]) => (
+                            <input
+                                key={key}
+                                aria-label={label}
+                                placeholder={label}
+                                value={a[key]}
+                                onChange={(e) =>
+                                    handleChange(
+                                        "bankAccounts",
+                                        form.bankAccounts.map((row, j) => (j === i ? { ...row, [key]: e.target.value } : row)),
+                                    )
+                                }
+                                className="px-3 py-2 bg-navy-mid border border-navy-border rounded-md text-white text-sm focus:outline-none focus:border-gold-primary"
+                            />
+                        ))}
+                        <button
+                            type="button"
+                            onClick={() => handleChange("bankAccounts", form.bankAccounts.filter((_, j) => j !== i))}
+                            className="px-3 py-2 rounded-md border border-error text-error text-xs font-semibold hover:bg-error-faint"
+                        >
+                            {lang === "am" ? "አስወግድ" : "Remove"}
+                        </button>
+                    </div>
+                ))}
+                <button
+                    type="button"
+                    onClick={() => handleChange("bankAccounts", [...form.bankAccounts, { bank: "", number: "", holder: "" }])}
+                    className="px-4 py-2 rounded-md border border-gold-primary text-gold-primary text-xs font-semibold hover:bg-navy-mid"
+                >
+                    + {lang === "am" ? "ሂሳብ ጨምር" : "Add account"}
+                </button>
             </div>
 
             {/* Save */}

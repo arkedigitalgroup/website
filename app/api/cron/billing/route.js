@@ -2,7 +2,7 @@
 // Daily billing job, triggered by Vercel Cron (see vercel.json, 06:00 Addis).
 //  1. Creates this month's invoice for every assigned student who has none.
 //  2. Marks unpaid invoices past their due date "overdue" and locks the student.
-//  3. Deletes receipt files from Supabase 30 days after admin approved/rejected them.
+//  3. Deletes receipt files (invoices + registration fees) 30 days after admin approved/rejected them.
 // Every step is idempotent, so a re-run on the same day changes nothing.
 import { NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
@@ -75,8 +75,11 @@ export async function GET(request) {
             summary.receiptCleanup = "skipped: SUPABASE_SECRET_KEY not set";
         } else {
             const cutoff = Date.now() - RECEIPT_TTL_MS;
-            const withReceipt = await db.collection("payments").where("receiptUrl", "!=", null).get();
-            for (const p of withReceipt.docs) {
+            // Monthly invoice receipts and registration-fee receipts follow the same 30-day rule.
+            const [invoiceReceipts, feeReceipts] = await Promise.all(
+                ["payments", "registrationFees"].map((c) => db.collection(c).where("receiptUrl", "!=", null).get()),
+            );
+            for (const p of [...invoiceReceipts.docs, ...feeReceipts.docs]) {
                 const d = p.data();
                 const decidedAt = (d.status === "paid" ? d.approvedAt : d.rejectedAt)?.toMillis?.();
                 if (d.status === "submitted" || !decidedAt || decidedAt > cutoff) continue;

@@ -18,6 +18,9 @@ import { sendEmailVerification } from "firebase/auth";
 import { isPhoneAuthEmail } from "../../../src/lib/phoneAuth";
 import { isYenetaUser } from "../../../src/lib/serviceLine";
 import { useCourses } from "../../../src/hooks/Usecourses";
+import ArkeBankAccounts from "../../../src/components/payments/ArkeBankAccounts";
+import { usePlatformConfig } from "../../../src/hooks/Useplatformconfig";
+import RegistrationFeeCard from "../../../src/components/payments/RegistrationFeeCard";
 
 // ─── Warning Banner Component ─────────────────────────────────────────────────
 function WarningBanner({
@@ -58,6 +61,7 @@ function WarningBanner({
 
 export default function StudentHome() {
     const { user, profile } = useAuth();
+    const { config } = usePlatformConfig();
     const { t, lang } = useLanguage();
 
     const [student, setStudent] = useState(null);
@@ -315,29 +319,7 @@ export default function StudentHome() {
 
                     {/* Payment Instructions Card */}
                     <div className="bg-navy-mid border border-navy-border p-5 rounded-xl space-y-3 text-xs leading-relaxed text-text-secondary">
-                        <h3 className="font-bold text-white text-sm">
-                            Arke Corporate Bank Channels:
-                        </h3>
-                        <div className="space-y-1 font-mono">
-                            <div>
-                                🏦 Commercial Bank of Ethiopia (CBE):{" "}
-                                <span className="text-gold-primary font-bold">
-                                    1000452367123
-                                </span>
-                            </div>
-                            <div>
-                                🏦 Bank of Abyssinia (BOA):{" "}
-                                <span className="text-gold-primary font-bold">
-                                    45210985
-                                </span>
-                            </div>
-                            <div>
-                                📱 Telebirr merchant ID:{" "}
-                                <span className="text-gold-primary font-bold">
-                                    ArkeDigital (98520)
-                                </span>
-                            </div>
-                        </div>
+                        <ArkeBankAccounts config={config} lang={lang} />
                         <div className="text-[10px] text-text-muted mt-2 border-t border-navy-border/40 pt-2">
                             Note: Include student ID{" "}
                             <span className="text-white font-bold">
@@ -368,6 +350,7 @@ export default function StudentHome() {
 
     return (
         <div className="space-y-8">
+            <RegistrationFeeCard uid={user?.uid} role="student" feePaid={student?.registrationFeePaid !== false} lang={lang} />
             {/* ── Warning Banners ─────────────────────────────────────────── */}
             {warnings.length > 0 && (
                 <div className="space-y-3">
