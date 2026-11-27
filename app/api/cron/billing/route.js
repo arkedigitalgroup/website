@@ -70,9 +70,10 @@ export async function GET(request) {
         await writer.close();
 
         // ── 3. Expired receipt files ────────────────────────────────────────
-        const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+        // Supabase "secret" key (sb_secret_…) replaced the legacy service_role key; server-only, never NEXT_PUBLIC.
+        const serviceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
         if (!serviceKey) {
-            summary.receiptCleanup = "skipped: SUPABASE_SERVICE_ROLE_KEY not set";
+            summary.receiptCleanup = "skipped: SUPABASE_SECRET_KEY not set";
         } else {
             const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, serviceKey, { auth: { persistSession: false } });
             const cutoff = Date.now() - RECEIPT_TTL_MS;
