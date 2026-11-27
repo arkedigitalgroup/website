@@ -5,6 +5,8 @@ import React, { useState, useEffect } from "react";
 import {
     collection,
     getDocs,
+    query,
+    where,
     doc,
     updateDoc,
     serverTimestamp,
@@ -73,11 +75,20 @@ export default function AdminFinances() {
                 status: "paid",
                 approvedAt: serverTimestamp(),
             });
-            // Unlock student dashboard when payment is verified
+            // Unlock only when this student has no other overdue invoice left.
             if (studentId) {
-                await updateDoc(doc(db, "students", studentId), {
-                    dashboardLocked: false,
-                });
+                const stillOverdue = await getDocs(
+                    query(
+                        collection(db, "payments"),
+                        where("studentId", "==", studentId),
+                        where("status", "==", "overdue"),
+                    ),
+                );
+                if (stillOverdue.docs.every((d) => d.id === paymentId)) {
+                    await updateDoc(doc(db, "students", studentId), {
+                        dashboardLocked: false,
+                    });
+                }
             }
             // Optimistic local update — no need to re-fetch all payments
             setPayments((prev) =>
