@@ -6,21 +6,18 @@ import {
     collection,
     getDocs,
     doc,
+    getDoc,
     setDoc,
     updateDoc,
+    serverTimestamp,
     arrayUnion,
 } from "firebase/firestore";
 import { db } from "../../../../src/lib/firebase";
 import { useLanguage } from "../../../../src/context/LanguageContext";
 import MatchingMap from "../../../../src/components/dashboard/MatchingMap";
 
-// ADD after the useLanguage line
-import {
-    usePlatformConfig,
-    calcMonthlyTotal,
-    calcCompanyRevenue,
-    calcTeacherPayout,
-} from "../../../../src/hooks/Useplatformconfig";
+import { usePlatformConfig } from "../../../../src/hooks/Useplatformconfig";
+import { buildInvoice } from "../../../../src/lib/billing";
 import { useCourses, getCoursePrice } from "../../../../src/hooks/Usecourses";
 
 export default function AdminMatching() {
@@ -104,34 +101,18 @@ export default function AdminMatching() {
                 assignedStudentIds: arrayUnion(selectedStudent.id),
             });
 
-            const currentMonth = new Date().toISOString().slice(0, 7);
-            const coursePrice = getCoursePrice(
-                courses,
-                selectedStudent.courseId,
-            );
-            const serviceFee = config.serviceFeeMonthly;
-            const totalAmount = calcMonthlyTotal(config, coursePrice);
-            const companyRevenue = calcCompanyRevenue(config, coursePrice);
-            const teacherPayout = calcTeacherPayout(config, coursePrice);
-
-            const paymentRef = doc(
-                db,
-                "payments",
-                `${selectedStudent.id}-${currentMonth}`,
-            );
-            await setDoc(paymentRef, {
-                id: `${selectedStudent.id}-${currentMonth}`,
+            // First invoice is prorated to the days left this month (src/lib/billing.js).
+            const invoice = buildInvoice(config, {
                 studentId: selectedStudent.id,
                 teacherId: selectedTeacher.id,
-                month: currentMonth,
-                coursePrice,
-                serviceFee,
-                totalAmount,
-                companyRevenue,
-                teacherPayout,
-                status: "pending",
-                paidAt: null,
+                fullCoursePrice: getCoursePrice(courses, selectedStudent.courseId),
+                prorate: true,
             });
+            const paymentRef = doc(db, "payments", invoice.id);
+            // Re-matching in the same month must not reset an invoice that already exists (it may be paid).
+            if (!(await getDoc(paymentRef)).exists()) {
+                await setDoc(paymentRef, { ...invoice, createdAt: serverTimestamp(), createdBy: "matching" });
+            }
 
             setMatchSuccess(
                 lang === "am"

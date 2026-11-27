@@ -103,32 +103,5 @@ export function usePlatformConfig() {
 //   const { config } = usePlatformConfig();
 //   const payout = calcTeacherPayout(config, student.coursePrice);
 
-/**
- * Total amount billed to parent per month.
- * = coursePrice + serviceFeeMonthly
- */
-export function calcMonthlyTotal(config, coursePrice) {
-    return coursePrice + config.serviceFeeMonthly;
-}
-
-/**
- * Arke's revenue per student per month.
- * = (coursePrice × (1 - teacherPayoutRatio)) + serviceFeeMonthly
- *
- * Example with defaults: coursePrice=4200
- *   = (4200 × 0.15) + 100 = 630 + 100 = 730 ETB
- */
-export function calcCompanyRevenue(config, coursePrice) {
-    return (coursePrice * (1 - config.teacherPayoutRatio)) + config.serviceFeeMonthly;
-}
-
-/**
- * Teacher's net payout per student per month.
- * = coursePrice × teacherPayoutRatio
- *
- * Example with defaults: coursePrice=4200
- *   = 4200 × 0.85 = 3570 ETB
- */
-export function calcTeacherPayout(config, coursePrice) {
-    return coursePrice * config.teacherPayoutRatio;
-}
+// Formulas live in src/lib/billing.js so the server cron uses the same ones.
+export { calcMonthlyTotal, calcCompanyRevenue, calcTeacherPayout } from "../lib/billing";
