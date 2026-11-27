@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp, onSnapshot } from "firebase/firestore";
 import { db } from "../../../../src/lib/firebase";
 import { useAuth } from "../../../../src/context/AuthContext";
 import { useLanguage } from "../../../../src/context/LanguageContext";
@@ -211,6 +211,61 @@ export default function AdminSettings() {
             >
                 {saving ? "Saving..." : "Save Settings"}
             </button>
+
+            <BillingRunStatus lang={lang} />
+        </div>
+    );
+}
+
+// ── Last run of the daily billing job (written by app/api/cron/billing) ─────────
+function BillingRunStatus({ lang }) {
+    const [run, setRun] = useState(undefined); // undefined = loading, null = never ran
+    useEffect(
+        () =>
+            onSnapshot(
+                doc(db, "platform_config", "lastBillingRun"),
+                (snap) => setRun(snap.exists() ? snap.data() : null),
+                () => setRun(null),
+            ),
+        [],
+    );
+    const am = lang === "am";
+    if (run === undefined) return null;
+
+    return (
+        <div className="bg-navy-surface border border-navy-border rounded-xl p-6 shadow-md space-y-2">
+            <h2 className="text-lg font-bold text-white">
+                {am ? "የዕለታዊ ክፍያ ሥራ" : "Daily billing job"}
+            </h2>
+            {!run ? (
+                <p className="text-sm text-warning">
+                    {am
+                        ? "እስካሁን አልሰራም። በየቀኑ ከጠዋቱ 12፡00 (ኢትዮጵያ) ይሰራል።"
+                        : "Has not run yet. It runs every day at 06:00 Addis time."}
+                </p>
+            ) : (
+                <>
+                    <p className={`text-sm font-semibold ${run.ok ? "text-success" : "text-error"}`}>
+                        {run.ok ? "✓ " : "✕ "}
+                        {am ? "መጨረሻ የሰራው፦ " : "Last run: "}
+                        {run.ranAt?.toDate?.().toLocaleString() ?? "—"}
+                    </p>
+                    {run.ok ? (
+                        <p className="text-xs text-text-secondary">
+                            {am
+                                ? `አዲስ ደረሰኞች፦ ${run.invoicesCreated} · ዘግይተዋል፦ ${run.markedOverdue} · የተቆለፉ ተማሪዎች፦ ${run.locked} · የተሰረዙ ደረሰኝ ፋይሎች፦ ${run.receiptsDeleted}`
+                                : `Invoices created: ${run.invoicesCreated} · Marked overdue: ${run.markedOverdue} · Students locked: ${run.locked} · Receipt files deleted: ${run.receiptsDeleted}`}
+                            {run.skippedNoPrice > 0 &&
+                                (am
+                                    ? ` · ዋጋ የሌለው ኮርስ፦ ${run.skippedNoPrice}`
+                                    : ` · Skipped (course has no price): ${run.skippedNoPrice}`)}
+                            {run.receiptCleanup && run.receiptCleanup !== "ok" && ` · ${run.receiptCleanup}`}
+                        </p>
+                    ) : (
+                        <p className="text-xs text-error">{run.error}</p>
+                    )}
+                </>
+            )}
         </div>
     );
 }

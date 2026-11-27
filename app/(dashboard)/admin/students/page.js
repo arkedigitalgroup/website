@@ -2,15 +2,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-    collection,
-    getDocs,
-    doc,
-    updateDoc,
-    query,
-    where,
-} from "firebase/firestore";
-import { db } from "../../../../src/lib/firebase";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { auth, db } from "../../../../src/lib/firebase";
 import { useLanguage } from "../../../../src/context/LanguageContext";
 
 export default function AdminStudents() {
@@ -26,6 +19,10 @@ export default function AdminStudents() {
     // Suspend modal
     const [suspendingId, setSuspendingId] = useState(null);
     const [suspendReason, setSuspendReason] = useState("");
+    // Delete modal
+    const [deletingStudent, setDeletingStudent] = useState(null);
+    const [deleteConfirm, setDeleteConfirm] = useState("");
+    const [actionError, setActionError] = useState("");
 
     const fetchStudents = async () => {
         try {
@@ -74,33 +71,46 @@ export default function AdminStudents() {
         fetchStudents();
     }, []);
 
-    const handleActivate = async (studentId) => {
+    // Deactivate / reactivate / delete run on the server (Auth + every collection), see app/api/admin/students.
+    const callStudentApi = async (action, studentId, reason = "") => {
         setUpdatingId(studentId);
+        setActionError("");
         try {
-            await updateDoc(doc(db, "users", studentId), { status: "active" });
-            fetchStudents();
+            const token = await auth.currentUser.getIdToken();
+            const res = await fetch("/api/admin/students", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ action, studentId, reason }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Request failed");
+            if (data.fileErrors?.length) setActionError(data.fileErrors.join(" · "));
+            await fetchStudents();
+            return true;
         } catch (err) {
-            console.error("Activate error:", err);
+            console.error(`${action} error:`, err);
+            setActionError(err.message);
+            return false;
         } finally {
             setUpdatingId(null);
         }
     };
 
+    const handleActivate = (studentId) => callStudentApi("reactivate", studentId);
+
     const handleSuspend = async () => {
         if (!suspendingId) return;
-        setUpdatingId(suspendingId);
-        try {
-            await updateDoc(doc(db, "users", suspendingId), {
-                status: "suspended",
-                suspendReason: suspendReason.trim(),
-            });
+        if (await callStudentApi("deactivate", suspendingId, suspendReason.trim())) {
             setSuspendingId(null);
             setSuspendReason("");
-            fetchStudents();
-        } catch (err) {
-            console.error("Suspend error:", err);
-        } finally {
-            setUpdatingId(null);
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!deletingStudent || deleteConfirm !== "DELETE") return;
+        if (await callStudentApi("delete", deletingStudent.id)) {
+            setDeletingStudent(null);
+            setDeleteConfirm("");
         }
     };
 
@@ -377,6 +387,16 @@ export default function AdminStudents() {
                                                             Suspend
                                                         </button>
                                                     )}
+
+                                                    <button
+                                                        onClick={() => {
+                                                            setDeletingStudent(student);
+                                                            setDeleteConfirm("");
+                                                        }}
+                                                        className="px-2.5 py-1 rounded bg-error text-white text-xs font-bold hover:opacity-80 transition-all"
+                                                    >
+                                                        {lang === "am" ? "ሰርዝ" : "Delete"}
+                                                    </button>
                                                 </div>
                                             )}
                                         </td>
@@ -387,6 +407,12 @@ export default function AdminStudents() {
                     </div>
                 )}
             </div>
+
+            {actionError && (
+                <p className="text-error text-xs font-semibold bg-error-faint p-2.5 rounded border border-error">
+                    {actionError}
+                </p>
+            )}
 
             {/* Result count */}
             <p className="text-xs text-text-muted text-right">
@@ -476,8 +502,9 @@ export default function AdminStudents() {
                             Suspend Student Account
                         </h3>
                         <p className="text-sm text-text-secondary">
-                            Provide a reason for suspending this student&apos;s account. They
-                            will lose access to the platform until reactivated.
+                            {lang === "am"
+                                ? "ተማሪው መግባት አይችልም፣ ከመምህሩ ይነጠላል፣ ወርሃዊ ክፍያም ይቆማል። እንደገና ሲነቃ መምህር እንደገና መመደብ አለበት።"
+                                : "The student can no longer sign in, is unassigned from their teacher, and stops being billed. After reactivating, match them with a teacher again."}
                         </p>
                         <textarea
                             rows="3"
@@ -498,6 +525,50 @@ export default function AdminStudents() {
                                 className="px-4 py-2 rounded bg-error text-white text-xs font-bold hover:opacity-80 transition-all"
                             >
                                 Confirm Suspension
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ── Delete Modal ── */}
+            {deletingStudent && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+                    <div className="bg-navy-surface border border-error rounded-xl max-w-md w-full p-6 shadow-2xl space-y-4">
+                        <h3 className="text-lg font-bold text-error">
+                            {lang === "am" ? "ተማሪውን በቋሚነት ሰርዝ" : "Permanently delete student"}
+                        </h3>
+                        <p className="text-sm text-text-secondary">
+                            <span className="text-white font-semibold">
+                                {deletingStudent.fullName || deletingStudent.phone || deletingStudent.id}
+                            </span>{" "}
+                            {lang === "am"
+                                ? "— መለያው፣ ደረሰኞች፣ ክፍያዎች፣ የትምህርት ሪፖርቶች፣ መልዕክቶች እና ፋይሎች በሙሉ ይሰረዛሉ። ይህ ሊመለስ አይችልም።"
+                                : "— their login, profile, invoices, receipts, lesson reports, messages and uploaded files are all deleted. This cannot be undone."}
+                        </p>
+                        <label className="block text-xs text-text-secondary font-semibold">
+                            {lang === "am" ? "ለማረጋገጥ DELETE ብለው ይጻፉ" : "Type DELETE to confirm"}
+                        </label>
+                        <input
+                            value={deleteConfirm}
+                            onChange={(e) => setDeleteConfirm(e.target.value)}
+                            className="w-full px-3 py-2 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-error text-sm"
+                        />
+                        <div className="flex justify-end space-x-2">
+                            <button
+                                onClick={() => setDeletingStudent(null)}
+                                className="px-4 py-2 rounded border border-navy-border text-text-secondary hover:bg-navy-mid text-xs font-semibold"
+                            >
+                                {lang === "am" ? "ተመለስ" : "Cancel"}
+                            </button>
+                            <button
+                                onClick={handleDelete}
+                                disabled={deleteConfirm !== "DELETE" || updatingId === deletingStudent.id}
+                                className="px-4 py-2 rounded bg-error text-white text-xs font-bold hover:opacity-80 transition-all disabled:opacity-40"
+                            >
+                                {updatingId === deletingStudent.id
+                                    ? lang === "am" ? "በመሰረዝ ላይ..." : "Deleting..."
+                                    : lang === "am" ? "በቋሚነት ሰርዝ" : "Delete permanently"}
                             </button>
                         </div>
                     </div>

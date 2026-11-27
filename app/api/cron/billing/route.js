@@ -6,8 +6,8 @@
 // Every step is idempotent, so a re-run on the same day changes nothing.
 import { NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
-import { createClient } from "@supabase/supabase-js";
 import { getAdminDb } from "../../../../src/lib/firebaseAdmin";
+import { getSupabaseAdmin } from "../../../../src/lib/supabaseAdmin";
 import { addisDate, buildInvoice, shouldMarkOverdue, parseSupabasePublicUrl } from "../../../../src/lib/billing";
 
 export const dynamic = "force-dynamic";
@@ -70,12 +70,10 @@ export async function GET(request) {
         await writer.close();
 
         // ── 3. Expired receipt files ────────────────────────────────────────
-        // Supabase "secret" key (sb_secret_…) replaced the legacy service_role key; server-only, never NEXT_PUBLIC.
-        const serviceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
-        if (!serviceKey) {
+        const supabase = getSupabaseAdmin();
+        if (!supabase) {
             summary.receiptCleanup = "skipped: SUPABASE_SECRET_KEY not set";
         } else {
-            const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, serviceKey, { auth: { persistSession: false } });
             const cutoff = Date.now() - RECEIPT_TTL_MS;
             const withReceipt = await db.collection("payments").where("receiptUrl", "!=", null).get();
             for (const p of withReceipt.docs) {
@@ -92,9 +90,15 @@ export async function GET(request) {
             }
         }
 
+        // Counts only (platform_config is publicly readable) — shown on /admin/settings as proof the job ran.
+        const { skippedNoPrice, ...counts } = summary;
+        await db.doc("platform_config/lastBillingRun").set({ ...counts, skippedNoPrice: skippedNoPrice.length, ok: true, ranAt: FieldValue.serverTimestamp() });
         return NextResponse.json(summary);
     } catch (err) {
         console.error("[cron/billing]", err);
+        await getAdminDb().doc("platform_config/lastBillingRun")
+            .set({ ok: false, error: String(err.message).slice(0, 300), ranAt: FieldValue.serverTimestamp() })
+            .catch(() => {});
         return NextResponse.json({ error: err.message }, { status: 500 });
     }
 }
