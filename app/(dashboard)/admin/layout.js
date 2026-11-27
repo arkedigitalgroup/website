@@ -7,12 +7,19 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "../../../src/context/AuthContext";
 import { useLanguage } from "../../../src/context/LanguageContext";
 import ProtectedRoute from "../../../src/components/auth/ProtectedRoute";
+import { useAdminBadges } from "../../../src/hooks/useAdminBadges";
 
 export default function AdminLayout({ children }) {
     const { profile, logout } = useAuth();
     const { t, lang } = useLanguage();
     const pathname = usePathname();
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const badges = useAdminBadges(profile?.role === "admin");
+    // Waiting-for-you counts per page (receipts + registration fees, pending teachers)
+    const badgeFor = {
+        "/admin/finances": badges.receipts + badges.fees,
+        "/admin/teachers": badges.teachers,
+    };
 
     const menuItems = [
         {
@@ -120,7 +127,15 @@ export default function AdminLayout({ children }) {
                                     }`}
                                 >
                                     <span>{item.icon}</span>
-                                    <span>{item.name}</span>
+                                    <span className="flex-grow">{item.name}</span>
+                                    {badgeFor[item.path] > 0 && (
+                                        <span
+                                            className="min-w-[1.25rem] px-1.5 py-0.5 rounded-full bg-error text-white text-[10px] font-bold text-center"
+                                            aria-label={lang === "am" ? `${badgeFor[item.path]} በመጠባበቅ ላይ` : `${badgeFor[item.path]} waiting`}
+                                        >
+                                            {badgeFor[item.path]}
+                                        </span>
+                                    )}
                                 </Link>
                             );
                         })}

@@ -130,7 +130,9 @@ export default function AdminMatching() {
     };
 
     // Filter out unmatched students
-    const unmatchedStudents = students.filter((s) => !s.assignedTeacherId);
+    // Students whose registration fee is not approved yet cannot be matched.
+    const feeUnpaidCount = students.filter((s) => !s.assignedTeacherId && s.registrationFeePaid === false).length;
+    const unmatchedStudents = students.filter((s) => !s.assignedTeacherId && s.registrationFeePaid !== false);
     const matchedStudents = students.filter((s) => s.assignedTeacherId);
 
     // Compute nearby teachers sorted by distance from selected student
@@ -435,6 +437,13 @@ export default function AdminMatching() {
                                     Unmatched Students (
                                     {unmatchedStudents.length})
                                 </h3>
+                                {feeUnpaidCount > 0 && (
+                                    <p className="text-xs text-warning">
+                                        {lang === "am"
+                                            ? `${feeUnpaidCount} ተማሪ(ዎች) የምዝገባ ክፍያ ማረጋገጫ ይጠብቃሉ (ፋይናንስ ገጽ)።`
+                                            : `${feeUnpaidCount} student(s) are waiting for registration fee approval (Financials page).`}
+                                    </p>
+                                )}
                                 <div className="space-y-3 max-h-80 overflow-y-auto pr-2">
                                     {unmatchedStudents.length === 0 ? (
                                         <p className="text-xs text-text-muted text-center py-6">

@@ -2,12 +2,12 @@
 // Daily billing job, triggered by Vercel Cron (see vercel.json, 06:00 Addis).
 //  1. Creates this month's invoice for every assigned student who has none.
 //  2. Marks unpaid invoices past their due date "overdue" and locks the student.
-//  3. Deletes receipt files from Supabase 30 days after admin approved/rejected them.
+//  3. Deletes receipt files (invoices + registration fees) 30 days after admin approved/rejected them.
 // Every step is idempotent, so a re-run on the same day changes nothing.
 import { NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
-import { createClient } from "@supabase/supabase-js";
 import { getAdminDb } from "../../../../src/lib/firebaseAdmin";
+import { getSupabaseAdmin } from "../../../../src/lib/supabaseAdmin";
 import { addisDate, buildInvoice, shouldMarkOverdue, parseSupabasePublicUrl } from "../../../../src/lib/billing";
 
 export const dynamic = "force-dynamic";
@@ -70,15 +70,16 @@ export async function GET(request) {
         await writer.close();
 
         // ── 3. Expired receipt files ────────────────────────────────────────
-        // Supabase "secret" key (sb_secret_…) replaced the legacy service_role key; server-only, never NEXT_PUBLIC.
-        const serviceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
-        if (!serviceKey) {
+        const supabase = getSupabaseAdmin();
+        if (!supabase) {
             summary.receiptCleanup = "skipped: SUPABASE_SECRET_KEY not set";
         } else {
-            const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, serviceKey, { auth: { persistSession: false } });
             const cutoff = Date.now() - RECEIPT_TTL_MS;
-            const withReceipt = await db.collection("payments").where("receiptUrl", "!=", null).get();
-            for (const p of withReceipt.docs) {
+            // Monthly invoice receipts and registration-fee receipts follow the same 30-day rule.
+            const [invoiceReceipts, feeReceipts] = await Promise.all(
+                ["payments", "registrationFees"].map((c) => db.collection(c).where("receiptUrl", "!=", null).get()),
+            );
+            for (const p of [...invoiceReceipts.docs, ...feeReceipts.docs]) {
                 const d = p.data();
                 const decidedAt = (d.status === "paid" ? d.approvedAt : d.rejectedAt)?.toMillis?.();
                 if (d.status === "submitted" || !decidedAt || decidedAt > cutoff) continue;
@@ -92,9 +93,15 @@ export async function GET(request) {
             }
         }
 
+        // Counts only (platform_config is publicly readable) — shown on /admin/settings as proof the job ran.
+        const { skippedNoPrice, ...counts } = summary;
+        await db.doc("platform_config/lastBillingRun").set({ ...counts, skippedNoPrice: skippedNoPrice.length, ok: true, ranAt: FieldValue.serverTimestamp() });
         return NextResponse.json(summary);
     } catch (err) {
         console.error("[cron/billing]", err);
+        await getAdminDb().doc("platform_config/lastBillingRun")
+            .set({ ok: false, error: String(err.message).slice(0, 300), ranAt: FieldValue.serverTimestamp() })
+            .catch(() => {});
         return NextResponse.json({ error: err.message }, { status: 500 });
     }
 }

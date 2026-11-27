@@ -3,12 +3,29 @@
 // from a "use client" file. Credentials: FIREBASE_SAK = service-account JSON.
 import { initializeApp, getApps, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
+import { getAuth } from "firebase-admin/auth";
 
-export function getAdminDb() {
+function app() {
     if (!getApps().length) {
         const raw = process.env.FIREBASE_SAK;
         if (!raw) throw new Error("FIREBASE_SAK is not set");
         initializeApp({ credential: cert(JSON.parse(raw)) });
     }
-    return getFirestore();
+    return getApps()[0];
+}
+
+export const getAdminDb = () => getFirestore(app());
+export const getAdminAuth = () => getAuth(app());
+
+/** Returns the caller's uid if the request carries a valid ID token of an admin, else null. */
+export async function verifyAdmin(request) {
+    const token = (request.headers.get("authorization") || "").replace(/^Bearer /, "");
+    if (!token) return null;
+    try {
+        const { uid } = await getAdminAuth().verifyIdToken(token);
+        const user = await getAdminDb().doc(`users/${uid}`).get();
+        return user.data()?.role === "admin" ? uid : null;
+    } catch {
+        return null;
+    }
 }

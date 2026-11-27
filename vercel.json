@@ -1,10 +1,6 @@
 {
     "$schema": "https://openapi.vercel.sh/vercel.json",
-    "schedules": {
-        "daily-billing": {
-            "schedule": "0 3 * * *",
-            "path": "/api/cron/billing",
-            "requestMethod": "GET"
-        }
-    }
+    "crons": [
+        { "path": "/api/cron/billing", "schedule": "0 3 * * *" }
+    ]
 }

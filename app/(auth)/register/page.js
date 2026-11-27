@@ -19,6 +19,8 @@ import AuthNavbar from "../../../src/components/layout/AuthNavbar";
 import { useCourses } from "../../../src/hooks/Usecourses";
 import { usePlatformConfig } from "../../../src/hooks/Useplatformconfig";
 import emailjs from "@emailjs/browser";
+import { registrationFeeFor, submitRegistrationFee } from "../../../src/lib/registrationFee";
+import RegistrationFeeFields from "../../../src/components/payments/RegistrationFeeFields";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TEACHER COURSE MULTI-SELECT
@@ -169,7 +171,7 @@ function RegisterPageContent() {
 
     const [role, setRole] = useState(urlRole);
 
-    const { config } = usePlatformConfig();
+    const { config, loading: configLoading } = usePlatformConfig();
     const { courses, loading: coursesLoading } = useCourses(serviceLine, lang);
 
     // ── Form fields ──
@@ -192,6 +194,12 @@ function RegisterPageContent() {
     const [loading, setLoading] = useState(false);
     const [uploadStatus, setUploadStatus] = useState("");
     const [error, setError] = useState("");
+
+    // Registration fee set by admin on /admin/settings; 0 = free, otherwise a receipt is required.
+    const feeAmount = registrationFeeFor(config, role);
+    const feeRequired = feeAmount > 0;
+    const [receiptFile, setReceiptFile] = useState(null);
+    const [transactionRef, setTransactionRef] = useState("");
 
     // Service ID tied to Firebase UID slice — no collision risk
     const generateServiceId = (selectedRole, selectedLine, uid) => {
@@ -239,6 +247,7 @@ function RegisterPageContent() {
                 serviceLine,
                 qualifiedCourses,
                 assignedStudentIds: [],
+                registrationFeePaid: !feeRequired,
                 // Real phone verification via Africa's Talking will come in Phase 2.
                 phoneVerified: true,
             });
@@ -250,11 +259,16 @@ function RegisterPageContent() {
                 email: profileEmail,
                 courseId,
                 assignedTeacherId: null,
-                registrationFeePaid: true,
+                registrationFeePaid: !feeRequired,
                 serviceId,
                 serviceLine,
                 dashboardLocked: false,
             });
+        }
+        if (feeRequired) {
+            setUploadStatus(lang === "am" ? "ደረሰኝ በመላክ ላይ..." : "Sending receipt...");
+            await submitRegistrationFee({ uid, role, amount: feeAmount, file: receiptFile, transactionRef })
+                .catch((feeErr) => console.error("Receipt upload failed; dashboard will ask again:", feeErr));
         }
         setProfile(userDoc);
         return userDoc;
@@ -311,6 +325,14 @@ function RegisterPageContent() {
     };
 
     const validateTeacherCourses = () => {
+        if (feeRequired && (!receiptFile || !transactionRef.trim())) {
+            setError(
+                lang === "am"
+                    ? "የምዝገባ ክፍያ ደረሰኝ እና የግብይት ቁጥር ያስፈልጋሉ።"
+                    : "Please upload the registration fee receipt and enter the transaction reference.",
+            );
+            return false;
+        }
         if (role === "teacher" && qualifiedCourses.length === 0) {
             setError(
                 lang === "am"
@@ -605,22 +627,6 @@ function RegisterPageContent() {
                                         )}
                                     </select>
                                 </div>
-
-                                <div className="bg-navy-mid border border-gold-primary/30 p-4 rounded-xl space-y-2">
-                                    <div className="flex justify-between items-center text-sm">
-                                        <span className="font-semibold text-white">
-                                            {lang === "am" ? "የምዝገባ ክፍያ" : "Registration Fee"}
-                                        </span>
-                                        <span className="font-extrabold text-gold-primary">
-                                            {config.registrationFeeStudent} ETB
-                                        </span>
-                                    </div>
-                                    <p className="text-xs text-text-secondary">
-                                        {lang === "am"
-                                            ? "አካውንት ለመክፈት አንድ ጊዜ ብቻ የሚከፈል የምዝገባ ክፍያ ነው። ለሙከራ እንዲመች አሁን በራስ-ሰር ተከፍሏል ተብሎ ይመዘገባል።"
-                                            : "This is a one-time registration fee required to activate student profiles. Mock payment is automatically authorized."}
-                                    </p>
-                                </div>
                             </div>
                         )}
 
@@ -634,6 +640,12 @@ function RegisterPageContent() {
                                     lang={lang}
                                 />
                             </div>
+                        )}
+
+                        {feeRequired && (
+                            <RegistrationFeeFields amount={feeAmount} config={config} lang={lang}
+                                file={receiptFile} onFile={setReceiptFile}
+                                transactionRef={transactionRef} onRef={setTransactionRef} />
                         )}
 
                         {error && (
@@ -650,7 +662,7 @@ function RegisterPageContent() {
 
                         <button
                             type="submit"
-                            disabled={loading}
+                            disabled={loading || configLoading}
                             className="w-full py-3.5 font-bold rounded-md bg-gold-primary text-navy-deep hover:bg-gold-hover shadow-gold transition-all duration-200 disabled:opacity-50 text-sm"
                         >
                             {loading
@@ -672,7 +684,7 @@ function RegisterPageContent() {
                     <button
                         type="button"
                         onClick={handleGoogleRegister}
-                        disabled={loading}
+                        disabled={loading || configLoading}
                         className="w-full py-3 px-4 rounded-md border border-navy-border hover:border-gold-primary text-white bg-navy-mid font-semibold hover:bg-navy-hover flex items-center justify-center space-x-2 text-sm transition-all duration-200 disabled:opacity-50"
                     >
                         <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">

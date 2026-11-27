@@ -15,6 +15,7 @@ import { db } from "../../../src/lib/firebase";
 import { useAuth } from "../../../src/context/AuthContext";
 import { useLanguage } from "../../../src/context/LanguageContext";
 import { isYenetaUser } from "../../../src/lib/serviceLine";
+import RegistrationFeeCard from "../../../src/components/payments/RegistrationFeeCard";
 
 // ─── Warning Banner Component ─────────────────────────────────────────────────
 function WarningBanner({
@@ -292,6 +293,7 @@ export default function TeacherHome() {
     // ─── Main dashboard ───────────────────────────────────────────────────────
     return (
         <div className="space-y-8">
+            <RegistrationFeeCard uid={user?.uid} role="teacher" feePaid={teacherProfile?.registrationFeePaid !== false} lang={lang} />
             {/* Warning Banners */}
             {warnings.length > 0 && (
                 <div className="space-y-3">

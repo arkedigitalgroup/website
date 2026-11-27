@@ -308,7 +308,12 @@ export default function AdminTeachers() {
                                                 </span>
                                             ) : (
                                                 <div className="flex justify-end space-x-2">
-                                                    {!teacher.verified && (
+                                                    {!teacher.verified && teacher.registrationFeePaid === false && (
+                                                        <span className="px-2.5 py-1 rounded bg-warning-faint text-warning text-xs font-semibold">
+                                                            {lang === "am" ? "ክፍያ ይጠበቃል" : "Fee unpaid"}
+                                                        </span>
+                                                    )}
+                                                    {!teacher.verified && teacher.registrationFeePaid !== false && (
                                                         <button
                                                             onClick={() =>
                                                                 handleApprove(

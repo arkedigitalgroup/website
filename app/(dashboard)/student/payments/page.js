@@ -19,6 +19,7 @@ import {
     usePlatformConfig,
     calcMonthlyTotal,
 } from "../../../../src/hooks/Useplatformconfig";
+import ArkeBankAccounts from "../../../../src/components/payments/ArkeBankAccounts";
 import { useCourses } from "../../../../src/hooks/Usecourses";
 
 export default function StudentPayments() {
@@ -291,46 +292,9 @@ export default function StudentPayments() {
                 )}
             </div>
 
-            {/* Bank Account options card */}
-            <div className="bg-navy-surface border border-navy-border rounded-xl p-6 sm:p-8 shadow-md space-y-4">
-                <h2 className="text-lg font-bold text-white uppercase tracking-wider border-b border-navy-border pb-2">
-                    Arke Bank Channels For Transfers
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-sm">
-                    <div className="bg-navy-mid border border-navy-border p-4 rounded-lg space-y-1">
-                        <span className="text-[10px] text-text-secondary uppercase font-semibold block">
-                            Commercial Bank of Ethiopia (CBE)
-                        </span>
-                        <div className="text-base font-extrabold text-gold-primary font-mono">
-                            1000452367123
-                        </div>
-                        <span className="text-[10px] text-text-muted block">
-                            Account: Arke Digital Group
-                        </span>
-                    </div>
-                    <div className="bg-navy-mid border border-navy-border p-4 rounded-lg space-y-1">
-                        <span className="text-[10px] text-text-secondary uppercase font-semibold block">
-                            Bank of Abyssinia (BOA)
-                        </span>
-                        <div className="text-base font-extrabold text-gold-primary font-mono">
-                            45210985
-                        </div>
-                        <span className="text-[10px] text-text-muted block">
-                            Account: Arke Digital Group
-                        </span>
-                    </div>
-                    <div className="bg-navy-mid border border-navy-border p-4 rounded-lg space-y-1">
-                        <span className="text-[10px] text-text-secondary uppercase font-semibold block">
-                            Telebirr Merchant Wallet
-                        </span>
-                        <div className="text-base font-extrabold text-gold-primary font-mono">
-                            98520
-                        </div>
-                        <span className="text-[10px] text-text-muted block">
-                            Merchant ID: ArkeDigital
-                        </span>
-                    </div>
-                </div>
+            {/* Arke bank accounts (managed on /admin/settings) */}
+            <div className="bg-navy-surface border border-navy-border rounded-xl p-6 sm:p-8 shadow-md">
+                <ArkeBankAccounts config={config} lang={lang} />
             </div>
 
             {/* Submit transaction reference modal */}
