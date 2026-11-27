@@ -22,6 +22,7 @@ import {
 import { useCourses } from "../../../../src/hooks/Usecourses";
 import RegistrationFeeQueue from "../../../../src/components/payments/RegistrationFeeQueue";
 import TeacherSalaries from "../../../../src/components/payments/TeacherSalaries";
+import InvoiceLedger from "../../../../src/components/payments/InvoiceLedger";
 
 export default function AdminFinances() {
     const { t, lang } = useLanguage();
@@ -368,6 +369,8 @@ export default function AdminFinances() {
                     </div>
                 );
             })()}
+            <InvoiceLedger payments={payments} students={students} teachers={teachers} lang={lang} />
+
             {/* Monthly Billings */}
             <div className="bg-navy-surface border border-navy-border rounded-xl shadow-lg overflow-hidden space-y-4 p-6 sm:p-8">
                 <h2 className="text-xl font-bold text-white font-ethiopic border-b border-navy-border pb-3">

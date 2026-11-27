@@ -14,45 +14,11 @@ import {
 import { db } from "../../../src/lib/firebase";
 import { useAuth } from "../../../src/context/AuthContext";
 import { useLanguage } from "../../../src/context/LanguageContext";
-import { isYenetaUser } from "../../../src/lib/serviceLine";
 import RegistrationFeeCard from "../../../src/components/payments/RegistrationFeeCard";
-
-// ─── Warning Banner Component ─────────────────────────────────────────────────
-function WarningBanner({
-    type = "warning",
-    icon,
-    title,
-    description,
-    actionLabel,
-    actionHref,
-}) {
-    const colors = {
-        warning: "border-warning/40 bg-warning/10 text-warning",
-        error: "border-error/40 bg-error/10 text-error",
-        info: "border-gold-primary/40 bg-gold-primary/10 text-gold-primary",
-    };
-    return (
-        <div
-            className={`border rounded-xl px-5 py-4 flex items-start gap-4 ${colors[type]}`}
-        >
-            <span className="text-2xl flex-shrink-0 mt-0.5">{icon}</span>
-            <div className="flex-grow min-w-0">
-                <p className="font-bold text-sm">{title}</p>
-                <p className="text-xs opacity-80 mt-0.5 leading-relaxed">
-                    {description}
-                </p>
-            </div>
-            {actionLabel && actionHref && (
-                <Link
-                    href={actionHref}
-                    className="flex-shrink-0 px-3 py-1.5 rounded-md text-xs font-bold border border-current hover:opacity-80 transition-opacity whitespace-nowrap"
-                >
-                    {actionLabel}
-                </Link>
-            )}
-        </div>
-    );
-}
+import TeacherChecklist from "../../../src/components/teacher/TeacherChecklist";
+import EarningsCard from "../../../src/components/teacher/EarningsCard";
+import { usePlatformConfig } from "../../../src/hooks/Useplatformconfig";
+import { addisDate } from "../../../src/lib/billing";
 
 export default function TeacherHome() {
     const { user, profile } = useAuth();
@@ -61,6 +27,9 @@ export default function TeacherHome() {
     const [reports, setReports] = useState([]);
     const [announcements, setAnnouncements] = useState([]);
     const [teacherProfile, setTeacherProfile] = useState(null);
+    const [payments, setPayments] = useState([]);
+    const [payouts, setPayouts] = useState([]);
+    const { config } = usePlatformConfig();
     const [loading, setLoading] = useState(true);
 
     const fetchTeacherData = async () => {
@@ -96,6 +65,14 @@ export default function TeacherHome() {
             reportsSnap.forEach((d) => repList.push({ id: d.id, ...d.data() }));
             setReports(repList);
 
+            // 2b. Invoices for my students + salary transfers (earnings card)
+            const [paySnap, payoutSnap] = await Promise.all([
+                getDocs(query(collection(db, "payments"), where("teacherId", "==", user.uid))),
+                getDocs(query(collection(db, "payouts"), where("teacherId", "==", user.uid))),
+            ]);
+            setPayments(paySnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+            setPayouts(payoutSnap.docs.map((d) => d.data()));
+
             // 3. Fetch announcements targeting "all" or "teacher"
             const annSnap = await getDocs(collection(db, "announcements"));
             const anns = [];
@@ -119,23 +96,24 @@ export default function TeacherHome() {
             setLoading(false);
         }
     };
-    console.log("Teacher Profile", teacherProfile);
     useEffect(() => {
         fetchTeacherData();
     }, [user]);
 
     // ─── Calculations ─────────────────────────────────────────────────────────
-    const sessionsThisMonth = reports.filter((r) => {
-        const reportDate = r.date
-            ? new Date(r.date.seconds * 1000)
-            : new Date();
-        const currentMonth = new Date().getMonth();
-        const currentYear = new Date().getFullYear();
-        return (
-            reportDate.getMonth() === currentMonth &&
-            reportDate.getFullYear() === currentYear
-        );
-    }).length;
+    const dayOf = (r) => (r.date?.seconds ? addisDate(new Date(r.date.seconds * 1000)).today : "");
+    const { monthKey, today } = addisDate();
+    const sessionsThisMonth = reports.filter((r) => dayOf(r).startsWith(monthKey)).length;
+    const studentStats = (id) => {
+        const mine = reports.filter((r) => r.studentId === id);
+        const days = mine.map(dayOf).filter(Boolean).sort();
+        return {
+            month: mine.filter((r) => dayOf(r).startsWith(monthKey)).length,
+            last: days[days.length - 1],
+            loggedToday: days.includes(today),
+            stars: mine.length ? (mine.reduce((n, r) => n + (r.engagementStars || 5), 0) / mine.length).toFixed(1) : null,
+        };
+    };
 
     const totalRatingStars = reports.reduce(
         (acc, curr) => acc + (curr.engagementStars || 5),
@@ -145,93 +123,6 @@ export default function TeacherHome() {
         reports.length > 0
             ? (totalRatingStars / reports.length).toFixed(1)
             : "5.0";
-
-    // ─── Compute warnings ────────────────────────────────────────────────────
-    const warnings = [];
-    if (teacherProfile) {
-        const missingInfo = [];
-
-        if (!teacherProfile.fullName)
-            missingInfo.push(lang === "am" ? "ሙሉ ስም" : "full name");
-        // christianName warning only applies to Yeneta teachers
-        if (isYenetaUser(teacherProfile) && !teacherProfile.christianName) {
-            missingInfo.push(lang === "am" ? "የክርስትና ስም" : "Christian name");
-        }
-        if (!teacherProfile.phone)
-            missingInfo.push(lang === "am" ? "ስልክ ቁጥር" : "phone number");
-        if (!teacherProfile.hasBankAccount && !teacherProfile.bankAccount)
-            missingInfo.push(lang === "am" ? "የባንክ መለያ" : "bank account");
-        if (!teacherProfile.locationPin?.lat)
-            missingInfo.push(lang === "am" ? "አካባቢ" : "location pin");
-
-        if (missingInfo.length > 0) {
-            warnings.push({
-                type: "info",
-                icon: "👤",
-                title: lang === "am" ? "መገለጫ ሙሉ አይደለም" : "Profile Incomplete",
-                description:
-                    lang === "am"
-                        ? `የሚጎድሉ ሜዳዎች: ${missingInfo.join("، ")}። ሙሉ ካልሆነ ምደባ ሊፈጠር አይችልም።`
-                        : `Missing fields: ${missingInfo.join(", ")}. Complete your profile so students can be matched to you.`,
-                actionLabel: lang === "am" ? "አሳካ" : "Complete Profile",
-                actionHref: "/teacher/account",
-            });
-        }
-
-        // Missing documents
-        const missingDocs = [];
-        // churchDocUrl only required for Yeneta teachers
-        if (isYenetaUser(teacherProfile) && !teacherProfile.churchDocUrl) {
-            missingDocs.push(
-                lang === "am" ? "የቤተ ክርስቲያን ደብዳቤ" : "church endorsement letter",
-            );
-        }
-        if (!teacherProfile.idCardUrl)
-            missingDocs.push(lang === "am" ? "የመታወቂያ" : "ID");
-        if (!teacherProfile.eduCertUrl)
-            missingDocs.push(
-                lang === "am" ? "የትምህርት ሰርተፊኬት" : "education certificate",
-            );
-
-        if (missingDocs.length > 0) {
-            warnings.push({
-                type: "warning",
-                icon: "📄",
-                title:
-                    lang === "am"
-                        ? "ሰነዶች ያልተሰቀሉ"
-                        : "Required Documents Missing",
-                description:
-                    lang === "am"
-                        ? `ያልተሰቀሉ ሰነዶች: ${missingDocs.join("، ")}። ለማረጋጠ አስፈላጊ ናቸው።`
-                        : `Missing: ${missingDocs.join(", ")}. Upload these documents to be approved by the admin and start teaching.`,
-                actionLabel: lang === "am" ? "ሰነዶች ስቀል" : "Upload Documents",
-                actionHref: "/teacher/account",
-            });
-        }
-
-        // Awaiting admin approval (all docs present but not yet verified)
-        if (
-            !teacherProfile.verified &&
-            missingDocs.length === 0 &&
-            missingInfo.length === 0
-        ) {
-            warnings.push({
-                type: "info",
-                icon: "⏳",
-                title:
-                    lang === "am"
-                        ? "ማረጋገጫ በመጠባበቅ ላይ"
-                        : "Awaiting Admin Approval",
-                description:
-                    lang === "am"
-                        ? "ሰነዶችዎ ተሰቅለዋል። አድሚን እየገመገሙ ነው — ሲጠናቀቅ ስልክ ቁጥርዎ ላይ ይደርስዎታል።"
-                        : "Your documents have been submitted. The admin is reviewing them — you'll be notified once approved.",
-                actionLabel: null,
-                actionHref: null,
-            });
-        }
-    }
 
     // ─── Loading state ────────────────────────────────────────────────────────
     if (loading) {
@@ -294,14 +185,7 @@ export default function TeacherHome() {
     return (
         <div className="space-y-8">
             <RegistrationFeeCard uid={user?.uid} role="teacher" feePaid={teacherProfile?.registrationFeePaid !== false} lang={lang} />
-            {/* Warning Banners */}
-            {warnings.length > 0 && (
-                <div className="space-y-3">
-                    {warnings.map((w, i) => (
-                        <WarningBanner key={i} {...w} />
-                    ))}
-                </div>
-            )}
+            <TeacherChecklist teacher={teacherProfile} lang={lang} />
 
             {/* Title */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-navy-border pb-6">
@@ -363,6 +247,8 @@ export default function TeacherHome() {
                 </div>
             </div>
 
+            <EarningsCard payments={payments} payouts={payouts} config={config} lang={lang} />
+
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Left: Student List */}
                 <div className="lg:col-span-7 bg-navy-surface border border-navy-border rounded-xl p-6 shadow-md space-y-4">
@@ -380,7 +266,9 @@ export default function TeacherHome() {
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            {studentsList.map((student) => (
+                            {studentsList.map((student) => {
+                                const st = studentStats(student.id);
+                                return (
                                 <div
                                     key={student.id}
                                     className="bg-navy-mid border border-navy-border rounded-lg p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
@@ -406,18 +294,29 @@ export default function TeacherHome() {
                                             {lang === "am" ? "ስልክ" : "Phone"}:{" "}
                                             {student.phone}
                                         </p>
+                                        <p className="text-xs text-text-secondary">
+                                            📅 {lang === "am" ? `በዚህ ወር ${st.month} ትምህርቶች` : `${st.month} lesson${st.month === 1 ? "" : "s"} this month`}
+                                            {" · "}
+                                            {lang === "am" ? "የመጨረሻ" : "Last"}: {st.last || "—"}
+                                            {st.stars && <> · ⭐ {st.stars}</>}
+                                        </p>
                                     </div>
 
-                                    <Link
-                                        href={`/teacher/attendance?studentId=${student.id}`}
-                                        className="px-3 py-1.5 rounded bg-gold-primary text-navy-deep font-bold text-xs hover:bg-gold-hover transition-all"
-                                    >
-                                        {lang === "am"
-                                            ? "ሪፖርት አስገባ"
-                                            : "Submit Report"}
-                                    </Link>
+                                    {st.loggedToday ? (
+                                        <span className="px-3 py-1.5 rounded bg-success-faint text-success font-bold text-xs">
+                                            ✓ {lang === "am" ? "ዛሬ ተመዝግቧል" : "Logged today"}
+                                        </span>
+                                    ) : (
+                                        <Link
+                                            href={`/teacher/attendance?studentId=${student.id}`}
+                                            className="px-3 py-1.5 rounded bg-gold-primary text-navy-deep font-bold text-xs hover:bg-gold-hover transition-all whitespace-nowrap"
+                                        >
+                                            📝 {lang === "am" ? "የዛሬን ትምህርት መዝግብ" : "Log today's lesson"}
+                                        </Link>
+                                    )}
                                 </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     )}
                 </div>

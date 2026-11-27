@@ -21,6 +21,7 @@ import {
 } from "../../../../src/hooks/Useplatformconfig";
 import ArkeBankAccounts from "../../../../src/components/payments/ArkeBankAccounts";
 import { useCourses } from "../../../../src/hooks/Usecourses";
+import { invoiceDueDate } from "../../../../src/lib/billing";
 
 export default function StudentPayments() {
     const { user } = useAuth();
@@ -180,28 +181,26 @@ export default function StudentPayments() {
             {/* Payment details list */}
             <div className="bg-navy-surface border border-navy-border rounded-xl p-6 sm:p-8 shadow-md space-y-6">
                 <h2 className="text-lg font-bold text-white uppercase tracking-wider border-b border-navy-border pb-3">
-                    Billing Statements &amp; Statements
+                    {lang === "am" ? "የክፍያ ታሪክ" : "Payment History"}
                 </h2>
 
                 {payments.length === 0 ? (
                     <p className="text-sm text-text-muted text-center py-6">
-                        No billing statements available yet. Invoices are
-                        generated monthly upon tutor match.
+                        {lang === "am"
+                            ? "እስካሁን ደረሰኝ የለም። መምህር ሲመደብልዎ ወርሃዊ ደረሰኝ ይዘጋጃል።"
+                            : "No invoices yet. Monthly invoices start once a tutor is matched."}
                     </p>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse text-sm">
                             <thead>
                                 <tr className="bg-navy-mid border-b border-navy-border text-xs text-text-secondary uppercase font-bold tracking-wider">
-                                    <th className="p-4">Invoice Month</th>
-                                    <th className="p-4">Description</th>
-                                    <th className="p-4">
-                                        Total Amount (Inc. Service Fee)
-                                    </th>
-                                    <th className="p-4">Status</th>
-                                    <th className="p-4 text-right">
-                                        Payment Action
-                                    </th>
+                                    <th className="p-4">{lang === "am" ? "ወር" : "Month"}</th>
+                                    <th className="p-4">{lang === "am" ? "ኮርስ" : "Course"}</th>
+                                    <th className="p-4">{lang === "am" ? "ጠቅላላ (ከአገልግሎት ክፍያ ጋር)" : "Total (incl. service fee)"}</th>
+                                    <th className="p-4">{lang === "am" ? "የመክፈያ ቀን" : "Due date"}</th>
+                                    <th className="p-4">{lang === "am" ? "ሁኔታ" : "Status"}</th>
+                                    <th className="p-4 text-right" />
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-navy-border font-medium">
@@ -227,6 +226,11 @@ export default function StudentPayments() {
                                         >
                                             <td className="p-4 text-white font-bold">
                                                 {invoice.month}
+                                                {invoice.prorated && (
+                                                    <span className="block text-[10px] text-text-muted font-normal">
+                                                        {lang === "am" ? "ከፊል ወር" : "Partial month"}
+                                                    </span>
+                                                )}
                                             </td>
                                             <td className="p-4 text-text-secondary capitalize">
                                                 {courses.find(
@@ -237,6 +241,9 @@ export default function StudentPayments() {
                                             </td>
                                             <td className="p-4 text-gold-primary font-bold">
                                                 {total.toLocaleString()} ETB
+                                            </td>
+                                            <td className="p-4 text-text-secondary">
+                                                {invoiceDueDate(invoice)}
                                             </td>
                                             <td className="p-4">
                                                 {isPaid ? (

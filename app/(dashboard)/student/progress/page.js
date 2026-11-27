@@ -14,6 +14,8 @@ import { db } from "../../../../src/lib/firebase";
 import { useAuth } from "../../../../src/context/AuthContext";
 import { useLanguage } from "../../../../src/context/LanguageContext";
 import { isYenetaUser } from "../../../../src/lib/serviceLine";
+import { addisDate } from "../../../../src/lib/billing";
+import LessonCalendar from "../../../../src/components/student/LessonCalendar";
 
 export default function StudentProgress() {
     const { user } = useAuth();
@@ -61,8 +63,13 @@ export default function StudentProgress() {
     // Calculate course completion progress %
     // Typically, a course package has 12 sessions per billing cycle.
     const sessionsGoal = 12;
+    // The target resets monthly, so count only this month's lessons.
+    const thisMonth = addisDate().monthKey;
+    const monthLessons = reports.filter(
+        (r) => r.date?.seconds && addisDate(new Date(r.date.seconds * 1000)).monthKey === thisMonth,
+    ).length;
     const progressPercent = Math.min(
-        Math.round((reports.length / sessionsGoal) * 100),
+        Math.round((monthLessons / sessionsGoal) * 100),
         100,
     );
 
@@ -95,11 +102,11 @@ export default function StudentProgress() {
             <div className="bg-navy-surface border border-navy-border rounded-xl p-6 sm:p-8 shadow-md space-y-4">
                 <div className="flex justify-between items-center text-sm font-semibold">
                     <span className="text-white">
-                        Active Month Syllabus Coverage
+                        {lang === "am" ? "የዚህ ወር ትምህርቶች" : "This month's lessons"}
                     </span>
                     <span className="text-gold-primary font-bold">
-                        {progressPercent}% ({reports.length} / {sessionsGoal}{" "}
-                        Sessions Completed)
+                        {progressPercent}% ({monthLessons} / {sessionsGoal}{" "}
+                        {lang === "am" ? "ትምህርቶች" : "sessions"})
                     </span>
                 </div>
 
@@ -111,8 +118,9 @@ export default function StudentProgress() {
                     />
                 </div>
                 <p className="text-xs text-text-secondary leading-relaxed">
-                    Syllabus resets every month. A total of 12 lessons
-                    represents 100% monthly target.
+                    {lang === "am"
+                        ? "ግቡ በየወሩ እንደገና ይጀምራል። 12 ትምህርቶች የወሩ 100% ናቸው።"
+                        : "The target resets every month. 12 lessons is 100% of the monthly target."}
                 </p>
             </div>
 
@@ -211,6 +219,7 @@ export default function StudentProgress() {
 
                 {/* Right Side: Quick metrics and rating rules */}
                 <div className="lg:col-span-4 space-y-6">
+                    <LessonCalendar reports={reports} lang={lang} />
                     {/* Rating Legend card */}
                     <div className="bg-navy-surface border border-navy-border rounded-xl p-6 shadow-md space-y-4">
                         <h3 className="text-sm font-bold text-white uppercase tracking-wider border-b border-navy-border pb-2">

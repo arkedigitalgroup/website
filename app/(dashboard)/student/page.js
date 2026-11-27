@@ -21,6 +21,7 @@ import { useCourses } from "../../../src/hooks/Usecourses";
 import ArkeBankAccounts from "../../../src/components/payments/ArkeBankAccounts";
 import { usePlatformConfig } from "../../../src/hooks/Useplatformconfig";
 import RegistrationFeeCard from "../../../src/components/payments/RegistrationFeeCard";
+import NextPaymentCard from "../../../src/components/student/NextPaymentCard";
 
 // ─── Warning Banner Component ─────────────────────────────────────────────────
 function WarningBanner({
@@ -67,7 +68,8 @@ export default function StudentHome() {
     const [student, setStudent] = useState(null);
     const [teacher, setTeacher] = useState(null);
     const [announcements, setAnnouncements] = useState([]);
-    const [overduePayments, setOverduePayments] = useState([]);
+    const [payments, setPayments] = useState([]);
+    const overduePayments = payments.filter((p) => ["pending", "overdue", "rejected"].includes(p.status));
     const [loading, setLoading] = useState(true);
 
 
@@ -118,16 +120,11 @@ export default function StudentHome() {
             );
             setAnnouncements(anns);
 
-            // 4. Fetch overdue / unpaid payments
-            const payQ = query(
-                collection(db, "payments"),
-                where("studentId", "==", user.uid),
-                where("status", "in", ["pending", "overdue"]),
+            // 4. All of this student's invoices (billing card + unpaid warning)
+            const paySnap = await getDocs(
+                query(collection(db, "payments"), where("studentId", "==", user.uid)),
             );
-            const paySnap = await getDocs(payQ);
-            const unpaid = [];
-            paySnap.forEach((d) => unpaid.push({ id: d.id, ...d.data() }));
-            setOverduePayments(unpaid);
+            setPayments(paySnap.docs.map((d) => ({ id: d.id, ...d.data() })));
         } catch (err) {
             console.error("Error loading student dashboard:", err);
         } finally {
@@ -163,24 +160,6 @@ export default function StudentHome() {
                         : `Missing: ${missingFields.join(", ")}. Please complete your profile so we can match you faster.`,
                 actionLabel: lang === "am" ? "አሳካ" : "Complete Profile",
                 actionHref: "/student/account",
-            });
-        }
-
-        // Unpaid registration
-        if (!student.registrationFeePaid) {
-            warnings.push({
-                type: "error",
-                icon: "💳",
-                title:
-                    lang === "am"
-                        ? "የምዝገባ ክፍያ አልተፈጸመም"
-                        : "Registration Fee Unpaid",
-                description:
-                    lang === "am"
-                        ? "የምዝገባ ክፍያ (400 ብር) ሳይፈጸም መምህር ሊመደብልዎ አይቻልም።"
-                        : "Your registration fee (400 ETB) has not been confirmed. A tutor cannot be matched until payment is cleared.",
-                actionLabel: lang === "am" ? "ክፍያ ፈጽም" : "Pay Now",
-                actionHref: "/student/payments",
             });
         }
 
@@ -384,7 +363,6 @@ export default function StudentHome() {
                         <h2 className="text-lg font-bold text-white uppercase tracking-wider border-b border-navy-border pb-3">
                             {t("assignedTeacher")}
                         </h2>
-                        {console.log("matched teacher", teacher)}
                         {teacher ? (
                             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
                                 {teacher.profileUrl && (
@@ -441,6 +419,12 @@ export default function StudentHome() {
                                             </div>
                                         )}
                                     </div>
+                                    <Link
+                                        href="/student/messages"
+                                        className="inline-block px-4 py-2 rounded border border-gold-primary text-gold-primary font-bold text-xs hover:bg-navy-mid"
+                                    >
+                                        💬 {lang === "am" ? "ለአርኬ መልዕክት ላክ" : "Message Arke support"}
+                                    </Link>
                                 </div>
                             </div>
                         ) : (
@@ -483,8 +467,10 @@ export default function StudentHome() {
                     </div>
                 </div>
 
-                {/* Right Side: Announcements */}
-                <div className="lg:col-span-5 bg-navy-surface border border-navy-border rounded-xl p-6 shadow-md space-y-4">
+                {/* Right Side: Billing + Announcements */}
+                <div className="lg:col-span-5 space-y-6">
+                <NextPaymentCard payments={payments} lang={lang} />
+                <div className="bg-navy-surface border border-navy-border rounded-xl p-6 shadow-md space-y-4">
                     <h2 className="text-lg font-bold text-white border-b border-navy-border pb-3 uppercase tracking-wider">
                         {lang === "am" ? "አስፈላጊ ማስታወቂያዎች" : "Important Notices"}
                     </h2>
@@ -519,6 +505,7 @@ export default function StudentHome() {
                             ))
                         )}
                     </div>
+                </div>
                 </div>
             </div>
         </div>

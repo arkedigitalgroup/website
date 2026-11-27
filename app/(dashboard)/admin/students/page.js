@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { auth, db } from "../../../../src/lib/firebase";
 import { useLanguage } from "../../../../src/context/LanguageContext";
+import Pager, { pageOf } from "../../../../src/components/ui/Pager";
 
 export default function AdminStudents() {
     const { t, lang } = useLanguage();
@@ -23,6 +24,12 @@ export default function AdminStudents() {
     const [deletingStudent, setDeletingStudent] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState("");
     const [actionError, setActionError] = useState("");
+    const [page, setPage] = useState(0);
+    useEffect(() => {
+        const q = new URLSearchParams(window.location.search).get("q");
+        if (q) { setSearch(q); setFilter("all"); }
+    }, []);
+    useEffect(() => setPage(0), [filter, search]);
 
     const fetchStudents = async () => {
         try {
@@ -136,6 +143,7 @@ export default function AdminStudents() {
             (s.courseId || "").toLowerCase().includes(q);
         return matchesFilter && matchesSearch;
     });
+    const paged = pageOf(filtered, page);
 
     const statusBadge = (status) => {
         if (status === "active")
@@ -235,7 +243,7 @@ export default function AdminStudents() {
                     type="text"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search by name, phone, course ID or student ID…"
+                    placeholder={lang === "am" ? "በስም፣ ስልክ፣ ኮርስ ወይም መለያ ቁጥር ፈልግ…" : "Search by name, phone, course ID or student ID…"}
                     className="w-full pl-9 pr-4 py-2.5 bg-navy-surface border border-navy-border rounded-lg text-sm text-white placeholder-text-muted focus:outline-none focus:border-gold-primary transition-colors"
                 />
             </div>
@@ -264,7 +272,7 @@ export default function AdminStudents() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-navy-border text-sm">
-                                {filtered.map((student) => (
+                                {paged.rows.map((student) => (
                                     <tr
                                         key={student.id}
                                         className="hover:bg-navy-hover transition-colors"
@@ -413,6 +421,8 @@ export default function AdminStudents() {
                     {actionError}
                 </p>
             )}
+
+            <Pager page={paged.page} pages={paged.pages} onPage={setPage} lang={lang} />
 
             {/* Result count */}
             <p className="text-xs text-text-muted text-right">
