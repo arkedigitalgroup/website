@@ -39,7 +39,7 @@ export default function AdminCourses() {
     const { user } = useAuth();
     const { lang } = useLanguage();
 
-    const [activeTab, setActiveTab] = useState("yeneta");
+    const [activeTab, setActiveTab] = useState("fidel");
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [editingCourse, setEditingCourse] = useState(null); // null = closed, {} = new, {id,...} = edit
@@ -204,7 +204,7 @@ export default function AdminCourses() {
 
             {/* Tabs */}
             <div className="flex gap-2 bg-navy-mid p-1 rounded-lg border border-navy-border w-fit">
-                {["yeneta", "fidel"].map((line) => (
+                {["fidel", "yeneta"].map((line) => (
                     <button
                         key={line}
                         onClick={() => {
@@ -217,7 +217,7 @@ export default function AdminCourses() {
                                 : "text-text-secondary hover:text-white"
                         }`}
                     >
-                        {line === "yeneta" ? "✝ Yeneta" : "📚 Fidel"}
+                        {line === "yeneta" ? "Yeneta" : "Fidel"}
                     </button>
                 ))}
             </div>

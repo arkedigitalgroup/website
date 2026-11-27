@@ -23,9 +23,11 @@ export default function AdminFinances() {
     const { t, lang } = useLanguage();
     const { config, loading: configLoading } = usePlatformConfig();
 
-    // Yeneta courses for price lookup — finance page is Yeneta-only for now.
-    // When Fidel goes live, fetch both and merge: [...yeneta, ...fidel]
-    const { courses, loading: coursesLoading } = useCourses("yeneta", lang);
+    // Price lookup needs both service lines, or Fidel payouts show as 0.
+    const { courses: yenetaCourses, loading: yenetaLoading } = useCourses("yeneta", lang);
+    const { courses: fidelCourses, loading: fidelLoading } = useCourses("fidel", lang);
+    const courses = [...yenetaCourses, ...fidelCourses];
+    const coursesLoading = yenetaLoading || fidelLoading;
 
     const [payments, setPayments] = useState([]);
     const [teachers, setTeachers] = useState([]);

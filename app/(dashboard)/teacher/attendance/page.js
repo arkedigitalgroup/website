@@ -15,9 +15,11 @@ import { db } from "../../../../src/lib/firebase";
 import { uploadToSupabase } from "../../../../src/lib/supabase";
 import { useAuth } from "../../../../src/context/AuthContext";
 import { useLanguage } from "../../../../src/context/LanguageContext";
+import { isYenetaUser } from "../../../../src/lib/serviceLine";
 
 export default function TeacherAttendance() {
-    const { user } = useAuth();
+    const { user, profile } = useAuth();
+    const isYeneta = isYenetaUser(profile);
     const { t, lang } = useLanguage();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -218,7 +220,7 @@ export default function TeacherAttendance() {
                                     required
                                     value={topic}
                                     onChange={(e) => setTopic(e.target.value)}
-                                    placeholder="e.g. Ge'ez Alphabet Introduction"
+                                    placeholder={isYeneta ? "e.g. Ge'ez Alphabet Introduction" : "e.g. Linear Equations"}
                                     className="w-full px-4 py-3 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
                                 />
                             </div>
@@ -231,7 +233,7 @@ export default function TeacherAttendance() {
                                     required
                                     value={topicAm}
                                     onChange={(e) => setTopicAm(e.target.value)}
-                                    placeholder="ምሳሌ፦ የግዕዝ ፊደላት መግቢያ"
+                                    placeholder={isYeneta ? "ምሳሌ፦ የግዕዝ ፊደላት መግቢያ" : "ምሳሌ፦ ቀጥተኛ እኩልታዎች"}
                                     className="w-full px-4 py-3 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
                                 />
                             </div>
@@ -266,7 +268,11 @@ export default function TeacherAttendance() {
                                 rows="4"
                                 value={moralNotes}
                                 onChange={(e) => setMoralNotes(e.target.value)}
-                                placeholder="Write observation details regarding student moral behavior, prayers, attention span, and responses."
+                                placeholder={
+                                    isYeneta
+                                        ? "Write observation details regarding student moral behavior, prayers, attention span, and responses."
+                                        : "Write observation details regarding student focus, participation, homework and understanding."
+                                }
                                 className="w-full px-4 py-3 bg-navy-mid border border-navy-border rounded-md text-white placeholder-text-muted focus:outline-none focus:border-gold-primary text-sm resize-none"
                             />
                         </div>

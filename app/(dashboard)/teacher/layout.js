@@ -103,7 +103,7 @@ export default function TeacherLayout({ children }) {
                             </div>
                         ) : (
                             <span className="text-[11px] text-text-secondary font-medium capitalize">
-                                Service: {profile?.serviceLine || "Fidel"}
+                                Service: {profile?.serviceLine === "yeneta" ? "✝ Yeneta" : "Fidel"}
                             </span>
                         )}
                     </div>

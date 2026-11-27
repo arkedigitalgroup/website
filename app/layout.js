@@ -22,7 +22,7 @@ export const metadata = {
         template: "%s | Arke Digital Learning",
     },
     description:
-        "Fidel academic tutoring for Grades 5–12 in Addis Ababa: mathematics, sciences, languages, computer science and exam preparation. In-home, online and hybrid lessons. Yeneta is our separate religious-education branch. የአካዳሚክ አስጠኚ ለክፍል 5–12።",
+        "Fidel academic tutoring for Grades 5–12 in Addis Ababa: mathematics, sciences, languages, computer science and exam preparation. In-home, online and hybrid lessons. የአካዳሚክ አስጠኚ ለክፍል 5–12።",
     applicationName: "Arke Digital Learning",
     openGraph: {
         siteName: "Arke Digital Learning",

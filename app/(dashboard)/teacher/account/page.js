@@ -7,6 +7,8 @@ import { db } from "../../../../src/lib/firebase";
 import { uploadToSupabase } from "../../../../src/lib/supabase";
 import { useAuth } from "../../../../src/context/AuthContext";
 import { useLanguage } from "../../../../src/context/LanguageContext";
+import { isYenetaUser } from "../../../../src/lib/serviceLine";
+import MapPicker from "../../../../src/components/ui/MapPicker";
 
 // ─── Reusable Components ──────────────────────────────────────────────────────
 function Field({ label, hint, children }) {
@@ -113,14 +115,15 @@ export default function TeacherAccount() {
     const [phone, setPhone] = useState("");
     const [bankProvider, setBankProvider] = useState("CBE");
     const [bankAccount, setBankAccount] = useState("");
-    const [lat, setLat] = useState("");
-    const [lng, setLng] = useState("");
+    const [locationPin, setLocationPin] = useState(null);
 
     // Document URLs (stored in state after upload)
     const [profileUrl, setprofileUrl] = useState("");
     const [churchDocUrl, setChurchDocUrl] = useState("");
     const [idCardUrl, setIdCardUrl] = useState("");
     const [educationCertUrl, setEducationCertUrl] = useState("");
+
+    const isYeneta = isYenetaUser(data);
 
     const loadProfile = async () => {
         if (!user) return;
@@ -136,8 +139,7 @@ export default function TeacherAccount() {
                 setPhone(d.phone || "");
                 setBankProvider(d.bankProvider || "CBE");
                 setBankAccount(d.bankAccount || "");
-                setLat(d.locationPin?.lat ?? "");
-                setLng(d.locationPin?.lng ?? "");
+                setLocationPin(d.locationPin?.lat ? d.locationPin : null);
                 setprofileUrl(d.profileUrl || "");
                 setChurchDocUrl(d.churchDocUrl || "");
                 setIdCardUrl(d.idCardUrl || "");
@@ -224,15 +226,13 @@ export default function TeacherAccount() {
         try {
             const teacherRef = doc(db, "teachers", user.uid);
             await updateDoc(teacherRef, {
-                christianName: christianName.trim(),
+                fullName: fullName.trim(),
+                ...(isYeneta && { christianName: christianName.trim() }),
                 gender,
                 phone: phone.trim(),
                 bankProvider,
                 bankAccount: bankAccount.trim(),
-                locationPin: {
-                    lat: parseFloat(lat) || 0,
-                    lng: parseFloat(lng) || 0,
-                },
+                ...(locationPin && { locationPin }),
             });
             setSaved(true);
             setTimeout(() => setSaved(false), 3000);
@@ -251,11 +251,10 @@ export default function TeacherAccount() {
     // ─── Profile completeness ─────────────────────────────────────────────────
     const completenessItems = [
         fullName,
-        christianName,
+        ...(isYeneta ? [christianName, churchDocUrl] : []),
         phone,
         bankAccount,
-        lat,
-        churchDocUrl,
+        locationPin,
         idCardUrl,
         educationCertUrl,
     ];
@@ -368,40 +367,35 @@ export default function TeacherAccount() {
                 </div>
 
                 <form onSubmit={handleSave} className="space-y-5">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div className={`grid grid-cols-1 gap-5 ${isYeneta ? "sm:grid-cols-2" : ""}`}>
                         <Field label={lang === "am" ? "ሙሉ ስም" : "Full Name"}>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    disabled
-                                    value={fullName}
-                                    className={`${INPUT_CLS} opacity-60 cursor-not-allowed pr-8`}
-                                    placeholder="e.g. Abebe Bekele"
-                                />
-                                <span
-                                    className="absolute right-3 top-3 text-xs opacity-50"
-                                    title="Locked"
-                                >
-                                    🔒
-                                </span>
-                            </div>
-                        </Field>
-                        <Field
-                            label={
-                                lang === "am" ? "የክርስትና ስም" : "Christian Name"
-                            }
-                        >
                             <input
                                 type="text"
                                 required
-                                value={christianName}
-                                onChange={(e) =>
-                                    setChristianName(e.target.value)
-                                }
+                                value={fullName}
+                                onChange={(e) => setFullName(e.target.value)}
                                 className={INPUT_CLS}
-                                placeholder="e.g. Gebre Tsion"
+                                placeholder="e.g. Abebe Bekele"
                             />
                         </Field>
+                        {isYeneta && (
+                            <Field
+                                label={
+                                    lang === "am" ? "የክርስትና ስም" : "Christian Name"
+                                }
+                            >
+                                <input
+                                    type="text"
+                                    required
+                                    value={christianName}
+                                    onChange={(e) =>
+                                        setChristianName(e.target.value)
+                                    }
+                                    className={INPUT_CLS}
+                                    placeholder="e.g. Gebre Tsion"
+                                />
+                            </Field>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -489,37 +483,17 @@ export default function TeacherAccount() {
                     </div>
 
                     {/* Location */}
-                    <div className="border-t border-navy-border pt-5 space-y-3">
-                        <p className="text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                            📍 {lang === "am" ? "አካባቢ" : "Location Coordinates"}
-                        </p>
+                    <div className="border-t border-navy-border pt-5 space-y-2">
+                        <MapPicker
+                            value={locationPin}
+                            onChange={setLocationPin}
+                            label={lang === "am" ? "📍 አካባቢ" : "📍 Location"}
+                        />
                         <p className="text-xs text-text-muted">
                             {lang === "am"
-                                ? "ትክክለኛ አካባቢ ፈጣን ምደባ ያስቻላል። Google Maps ላይ ቦታዎን ይፈልጉ።"
-                                : "Accurate location enables faster student matching. Find your coordinates on Google Maps."}
+                                ? "ትክክለኛ አካባቢ ፈጣን ምደባ ያስችላል።"
+                                : "Accurate location enables faster student matching."}
                         </p>
-                        <div className="grid grid-cols-2 gap-4">
-                            <Field label="Latitude">
-                                <input
-                                    type="number"
-                                    step="any"
-                                    value={lat}
-                                    onChange={(e) => setLat(e.target.value)}
-                                    className={INPUT_CLS}
-                                    placeholder="9.0320"
-                                />
-                            </Field>
-                            <Field label="Longitude">
-                                <input
-                                    type="number"
-                                    step="any"
-                                    value={lng}
-                                    onChange={(e) => setLng(e.target.value)}
-                                    className={INPUT_CLS}
-                                    placeholder="38.7469"
-                                />
-                            </Field>
-                        </div>
                     </div>
 
                     {/* Error / Success */}
@@ -589,6 +563,7 @@ export default function TeacherAccount() {
                     uploading={uploadingPhoto}
                     onUpload={handlePhotoUpload}
                 />
+                {isYeneta && (
                 <DocUploadRow
                     icon="⛪"
                     label={
@@ -606,6 +581,7 @@ export default function TeacherAccount() {
                     uploading={uploadingChurch}
                     onUpload={handleChurchUpload}
                 />
+                )}
                 <DocUploadRow
                     icon="🪪"
                     label={

@@ -68,7 +68,6 @@ export default function FidelPageClient() {
         { q: t("fidelFaq2Q"), a: t("fidelFaq2A") },
         { q: t("fidelFaq3Q"), a: t("fidelFaq3A") },
         { q: t("fidelFaq4Q"), a: t("fidelFaq4A") },
-        { q: t("fidelFaq5Q"), a: t("fidelFaq5A") },
     ];
 
     return (

@@ -8,7 +8,7 @@ const PAGE_URL = `${SITE_URL}/about`;
 export const metadata = {
     title: "About Arke — Fidel Academic Tutoring",
     description:
-        "Arke Digital Learning is an academic tutoring company in Addis Ababa. Fidel supports Grades 5–12 at home or online; Yeneta is a separate religious-education branch.",
+        "Arke Digital Learning is an academic tutoring company in Addis Ababa. Fidel supports Grades 5–12 at home or online.",
     alternates: {
         canonical: PAGE_URL,
     },

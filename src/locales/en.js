@@ -3,7 +3,7 @@ export const en = {
     // Navigation & General
     navHome: "Home",
     navAbout: "About",
-    navYeneta: "Yeneta (Spiritual)",
+    navYeneta: "Yeneta Tutors",
     navFidel: "Fidel Tutoring",
     navContact: "Contact",
     navSignIn: "Sign In",
@@ -39,9 +39,9 @@ export const en = {
     coverageLocationLabel: "Service area",
 
     // Service Cards
-    serviceTitle: "Two ways to learn with Arke",
+    serviceTitle: "How Arke helps you learn",
     serviceSubtitle:
-        "Fidel is our main academic service. Yeneta is our separate religious-education branch.",
+        "Personal tutoring in mathematics, sciences, languages, computer science and exam preparation — open to every learner.",
     fidelTitle: "Fidel Academic Tutoring",
     fidelDesc:
         "Subject tutoring for Grades 5–12, built around the Ethiopian school curriculum, the student's learning gaps and exam preparation.",
@@ -153,11 +153,11 @@ export const en = {
     // Footer
     footerCopyright: "© 2026 Arke Digital Group. All rights reserved.",
     footerTagline:
-        "Academic tutoring for Grades 5–12 in Addis Ababa. Fidel is our main academic service; Yeneta is our separate spiritual-education branch.",
+        "Academic tutoring for Grades 5–12 in Addis Ababa. Open to every learner.",
     footerLinksHeading: "Pages",
     footerSocialHeading: "Social",
     footerContactHeading: "Contact",
-    footerYenetaLabel: "Yeneta (Spiritual)",
+    footerYenetaLabel: "Yeneta Tutors",
     footerCallLabel: "Call",
     footerEmailLabel: "Email",
 
@@ -167,7 +167,7 @@ export const en = {
         "Arke Digital Learning is an academic tutoring company based in Addis Ababa. We help families find subject tutors who work on the specific gaps a student is facing.",
     aboutEssenceTitle: "Our story",
     aboutEssenceDesc:
-        "Arke began with a simple observation: in a busy classroom, not every student gets the individual attention they need. Families were looking for reliable academic support, and tutors were looking for a dependable way to teach. Arke connects the two, with a focus on teaching quality, clear communication and measurable progress. Fidel is our main academic service. Yeneta, our religious-education branch, continues separately for families who request it.",
+        "Arke began with a simple observation: in a busy classroom, not every student gets the individual attention they need. Families were looking for reliable academic support, and tutors were looking for a dependable way to teach. Arke connects the two, with a focus on teaching quality, clear communication and measurable progress.",
     aboutBeliefTitle: "What we believe",
     aboutBeliefDesc:
         "Students make progress when lessons start from what they actually understand, when teaching is consistent, and when parents can see what is happening.",
@@ -176,7 +176,7 @@ export const en = {
         "To make reliable academic support easier to find and easier to follow for Ethiopian families — with clear subject coverage, honest pricing and progress information parents can use.",
     aboutMissionTitle: "How we work",
     aboutMissionDesc:
-        "Match on the subject, grade, location and schedule a family actually needs.\nReview tutor applications and qualifications before assignment.\nKeep attendance, lesson topics and progress notes in the parent dashboard.\nShow applicable fees before an enrollment is submitted.\nKeep religious education within Yeneta's dedicated pages and enrollment flow.",
+        "Match on the subject, grade, location and schedule a family actually needs.\nReview tutor applications and qualifications before assignment.\nKeep attendance, lesson topics and progress notes in the parent dashboard.\nShow applicable fees before an enrollment is submitted.",
     aboutApproachTitle: "Our approach to teaching",
     aboutApproachDesc:
         "Fidel tutoring starts with the student's current level. Tutors explain concepts, work through examples, set practice tasks and review what changed. The aim is subject understanding, better study habits and exam readiness.",
@@ -311,7 +311,7 @@ export const en = {
     contactSub:
         "Questions about tutoring, enrollment or teaching with Arke? Send us a message and we will respond.",
     contactIntro:
-        "Arke Digital Learning is an academic tutoring company based in Addis Ababa. Fidel is our main academic service, supporting Grades 5–12 in person and online. Yeneta is our separate religious-education branch for families who request it.",
+        "Arke Digital Learning is an academic tutoring company based in Addis Ababa. Fidel is our main academic service, supporting Grades 5–12 in person and online.",
     contactFormTitle: "Send a message",
     contactDetailsTitle: "Reach us directly",
     contactCallLabel: "Call",
@@ -327,13 +327,13 @@ export const en = {
         "Your message has been sent successfully. We will get in touch soon.",
 
     // Auth pages
-    registerTitle: "Arke Registration Form",
-    registerSub: "Please fill in your details accurately",
+    registerTitle: "Create your Arke account",
+    registerSub: "Sign up with your phone number (email optional) or with Google. You can add the rest of your details later.",
     loginTitle: "Welcome Back",
     loginSub: "Log in to your Arke dashboard",
     roleLabel: "Role",
     studentRole: "Student / Parent",
-    teacherRole: "Teacher (Yeneta/Fidel)",
+    teacherRole: "Teacher",
     fullNameLabel: "Full Name",
     christianNameLabel: "Christian Name",
     genderLabel: "Gender",

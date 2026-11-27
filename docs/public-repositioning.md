@@ -315,6 +315,23 @@ Both pages use only public catalog records, link to `/register` with the matchin
 | Console | No errors on any public page or `/register` |
 | Unsupported claims | No tutor counts, success rates, certification claims, testimonials or external-platform affiliations on public pages |
 
+### Build requirement: Supabase environment variables
+
+`src/lib/supabase.ts` creates its Supabase client at module scope. `/register`,
+`/student/payments`, `/student/account`, `/teacher/account` and `/teacher/attendance`
+import `uploadToSupabase` for use inside event handlers, but Next still evaluates that
+module while prerendering, so a build host without the Supabase variables fails with
+`Error: supabaseUrl is required.`
+
+Resolution: set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in the
+deployment environment (Production, Preview and Development) and redeploy. They must be
+present at build time because `NEXT_PUBLIC_*` values are inlined into the client bundle.
+No code change was made; the module is deliberately left as committed.
+
+For reference, a build with **no** Firebase variables also fails with
+`auth/invalid-api-key`, because Firebase Auth is initialised eagerly. Both Firebase and
+Supabase variables are therefore required in every build environment.
+
 ### What is not verified
 
 No deployment was performed and nothing was submitted to a search engine. Live indexing,

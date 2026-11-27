@@ -101,7 +101,7 @@ export default function AboutPageClient() {
                     {t("serviceTitle")}
                 </h2>
 
-                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-5">
                     <div className="rounded-2xl border border-navy-border border-t-4 border-t-ft-teal bg-navy-surface p-6">
                         <span className="text-[11px] font-bold uppercase tracking-wider text-ft-teal-text">
                             {t("fidelBadge")}
@@ -120,23 +120,6 @@ export default function AboutPageClient() {
                         </Link>
                     </div>
 
-                    <div className="rounded-2xl border border-navy-border border-t-4 border-t-yt-maroon bg-navy-surface p-6">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-gold-primary">
-                            {t("yenetaBadge")}
-                        </span>
-                        <h3 className="mt-2 text-lg font-extrabold text-white font-ethiopic">
-                            {t("aboutIdentityTitleYeneta")}
-                        </h3>
-                        <p className="mt-2 text-sm leading-relaxed text-text-secondary">
-                            {t("aboutIdentityDescYeneta")}
-                        </p>
-                        <Link
-                            href="/yeneta"
-                            className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-gold-primary hover:text-gold-hover"
-                        >
-                            {t("heroYenetaCTA")} <span aria-hidden="true">→</span>
-                        </Link>
-                    </div>
                 </div>
             </section>
 

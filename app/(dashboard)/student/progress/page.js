@@ -13,6 +13,7 @@ import {
 import { db } from "../../../../src/lib/firebase";
 import { useAuth } from "../../../../src/context/AuthContext";
 import { useLanguage } from "../../../../src/context/LanguageContext";
+import { isYenetaUser } from "../../../../src/lib/serviceLine";
 
 export default function StudentProgress() {
     const { user } = useAuth();
@@ -84,8 +85,9 @@ export default function StudentProgress() {
                     {t("courseProgress")}
                 </h1>
                 <p className="text-sm text-text-secondary">
-                    Track session calendars, study topics, and moral/behavioral
-                    feedback submitted by your assigned teacher.
+                    {isYenetaUser(student)
+                        ? "Track session calendars, study topics, and moral/behavioral feedback submitted by your assigned teacher."
+                        : "Track session calendars, study topics, and progress feedback submitted by your assigned teacher."}
                 </p>
             </div>
 
@@ -215,27 +217,28 @@ export default function StudentProgress() {
                             Behavior Guidelines
                         </h3>
                         <p className="text-xs text-text-secondary leading-relaxed">
-                            Arke Tutors focus heavily on spiritual, cultural,
-                            and moral excellence. In addition to
-                            academia/syllabus, we rate students based on:
+                            {isYenetaUser(student)
+                                ? "Arke Tutors focus heavily on spiritual, cultural, and moral excellence. In addition to academia/syllabus, we rate students based on:"
+                                : "In addition to the syllabus, tutors rate each session based on:"}
                         </p>
                         <ul className="space-y-2.5 text-xs text-text-secondary">
-                            <li className="flex items-start space-x-2">
-                                <span className="text-gold-primary">🔹</span>
-                                <span>
-                                    Spiritual respect and attention (ሥርዓተ-አምልኮ)
-                                </span>
-                            </li>
-                            <li className="flex items-start space-x-2">
-                                <span className="text-gold-primary">🔹</span>
-                                <span>
-                                    Moral integrity &amp; listening (ሥነ-ምግባር)
-                                </span>
-                            </li>
-                            <li className="flex items-start space-x-2">
-                                <span className="text-gold-primary">🔹</span>
-                                <span>Homework completion (ትጋት)</span>
-                            </li>
+                            {(isYenetaUser(student)
+                                ? [
+                                      "Spiritual respect and attention (ሥርዓተ-አምልኮ)",
+                                      "Moral integrity & listening (ሥነ-ምግባር)",
+                                      "Homework completion (ትጋት)",
+                                  ]
+                                : [
+                                      "Focus and participation (ትኩረት)",
+                                      "Listening and conduct (ባህሪ)",
+                                      "Homework completion (ትጋት)",
+                                  ]
+                            ).map((item) => (
+                                <li key={item} className="flex items-start space-x-2">
+                                    <span className="text-gold-primary">🔹</span>
+                                    <span>{item}</span>
+                                </li>
+                            ))}
                         </ul>
                     </div>
                 </div>

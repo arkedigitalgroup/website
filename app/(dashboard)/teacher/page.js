@@ -14,6 +14,7 @@ import {
 import { db } from "../../../src/lib/firebase";
 import { useAuth } from "../../../src/context/AuthContext";
 import { useLanguage } from "../../../src/context/LanguageContext";
+import { isYenetaUser } from "../../../src/lib/serviceLine";
 
 // ─── Warning Banner Component ─────────────────────────────────────────────────
 function WarningBanner({
@@ -149,11 +150,10 @@ export default function TeacherHome() {
     if (teacherProfile) {
         const missingInfo = [];
 
+        if (!teacherProfile.fullName)
+            missingInfo.push(lang === "am" ? "ሙሉ ስም" : "full name");
         // christianName warning only applies to Yeneta teachers
-        if (
-            teacherProfile.serviceLine === "yeneta" &&
-            !teacherProfile.christianName
-        ) {
+        if (isYenetaUser(teacherProfile) && !teacherProfile.christianName) {
             missingInfo.push(lang === "am" ? "የክርስትና ስም" : "Christian name");
         }
         if (!teacherProfile.phone)
@@ -180,10 +180,7 @@ export default function TeacherHome() {
         // Missing documents
         const missingDocs = [];
         // churchDocUrl only required for Yeneta teachers
-        if (
-            teacherProfile.serviceLine === "yeneta" &&
-            !teacherProfile.churchDocUrl
-        ) {
+        if (isYenetaUser(teacherProfile) && !teacherProfile.churchDocUrl) {
             missingDocs.push(
                 lang === "am" ? "የቤተ ክርስቲያን ደብዳቤ" : "church endorsement letter",
             );
