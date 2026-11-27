@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, deleteField, serverTimestamp } from "firebase/firestore";
 import { db } from "../../../../src/lib/firebase";
 import { uploadToSupabase } from "../../../../src/lib/supabase";
 import { useAuth } from "../../../../src/context/AuthContext";
@@ -128,7 +128,12 @@ export default function TeacherAccount() {
     const loadProfile = async () => {
         if (!user) return;
         try {
-            const snap = await getDoc(doc(db, "teachers", user.uid));
+            const [snap, bankSnap] = await Promise.all([
+                getDoc(doc(db, "teachers", user.uid)),
+                getDoc(doc(db, "teacherBankAccounts", user.uid)),
+            ]);
+            // Older profiles still carry bank fields on the teacher doc until their next save.
+            const bank = bankSnap.exists() ? bankSnap.data() : snap.data() || {};
             console.log("Teacher Snap", snap.data());
             if (snap.exists()) {
                 const d = snap.data();
@@ -137,8 +142,8 @@ export default function TeacherAccount() {
                 setChristianName(d.christianName || "");
                 setGender(d.gender || "male");
                 setPhone(d.phone || "");
-                setBankProvider(d.bankProvider || "CBE");
-                setBankAccount(d.bankAccount || "");
+                setBankProvider(bank.bankProvider || "CBE");
+                setBankAccount(bank.bankAccount || "");
                 setLocationPin(d.locationPin?.lat ? d.locationPin : null);
                 setprofileUrl(d.profileUrl || "");
                 setChurchDocUrl(d.churchDocUrl || "");
@@ -225,13 +230,20 @@ export default function TeacherAccount() {
         setSaving(true);
         try {
             const teacherRef = doc(db, "teachers", user.uid);
+            await setDoc(doc(db, "teacherBankAccounts", user.uid), {
+                bankProvider,
+                bankAccount: bankAccount.trim(),
+                updatedAt: serverTimestamp(),
+            });
             await updateDoc(teacherRef, {
                 fullName: fullName.trim(),
                 ...(isYeneta && { christianName: christianName.trim() }),
                 gender,
                 phone: phone.trim(),
-                bankProvider,
-                bankAccount: bankAccount.trim(),
+                // Students can read the teacher doc, so it only keeps a yes/no flag.
+                hasBankAccount: !!bankAccount.trim(),
+                bankProvider: deleteField(),
+                bankAccount: deleteField(),
                 ...(locationPin && { locationPin }),
             });
             setSaved(true);

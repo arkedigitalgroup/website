@@ -11,12 +11,14 @@ import {
     calcTeacherPayout,
 } from "../../../../src/hooks/Useplatformconfig";
 import { useCourses, getCoursePrice } from "../../../../src/hooks/Usecourses";
+import { teacherEarnings } from "../../../../src/lib/billing";
 
 export default function TeacherPayouts() {
     const { user } = useAuth();
     const { lang } = useLanguage();
     const [payments, setPayments] = useState([]);
     const [students, setStudents] = useState([]);
+    const [payouts, setPayouts] = useState({});
     const [loading, setLoading] = useState(true);
     const { config } = usePlatformConfig();
 
@@ -53,6 +55,12 @@ export default function TeacherPayouts() {
                     sList.push({ id: doc.id, ...doc.data() });
                 });
                 setStudents(sList);
+
+                // 3. Salary transfers admin has recorded (payouts/{uid}_{month})
+                const payoutsSnap = await getDocs(
+                    query(collection(db, "payouts"), where("teacherId", "==", user.uid)),
+                );
+                setPayouts(Object.fromEntries(payoutsSnap.docs.map((d) => [d.id, d.data()])));
             } catch (err) {
                 console.error("Error loading teacher payouts:", err);
             } finally {
@@ -63,33 +71,12 @@ export default function TeacherPayouts() {
         fetchPayouts();
     }, [user]);
 
-    // Aggregate monthly earnings
-    const monthlyAggregates = {};
-    (payments || []).forEach((payment) => {
-        const month = payment.month || new Date().toISOString().slice(0, 7);
-        if (!monthlyAggregates[month]) {
-            monthlyAggregates[month] = {
-                month,
-                amount: 0,
-                status: "paid", // stays "paid" only if every payment that month is paid
-                studentsCount: 0,
-            };
-        }
-
-        const coursePrice = Number(payment.coursePrice) || 0;
-        const payout =
-            payment.teacherPayout ??
-            (config ? calcTeacherPayout(config, coursePrice) : coursePrice * 0.85);
-        monthlyAggregates[month].amount += payout || 0;
-        monthlyAggregates[month].studentsCount++;
-        if (payment.status !== "paid") {
-            monthlyAggregates[month].status = "pending";
-        }
-    });
-
-    const monthlyList = Object.values(monthlyAggregates).sort((a, b) =>
-        (b.month || "").localeCompare(a.month || ""),
-    );
+    // Salary per month counts only invoices admin approved as paid (src/lib/billing.js).
+    const monthlyList = teacherEarnings(payments, config).map((r) => ({
+        ...r,
+        paid: payouts[r.id]?.amountPaid || 0,
+        status: (payouts[r.id]?.amountPaid || 0) >= Math.round(r.earned) ? "paid" : "pending",
+    }));
 
     if (loading) {
         return (
@@ -120,6 +107,11 @@ export default function TeacherPayouts() {
                 <h2 className="text-lg font-bold text-white mb-4 border-b border-navy-border pb-2">
                     Monthly Payout Summary
                 </h2>
+                <p className="text-xs text-text-muted -mt-2 mb-4">
+                    {lang === "am"
+                        ? "ተማሪው የከፈለውና አስተዳዳሪው ያረጋገጠው ክፍያ ብቻ በደመወዝዎ ይቆጠራል።"
+                        : "Only invoices your students paid and an admin approved count toward your salary."}
+                </p>
 
                 {monthlyList.length === 0 ? (
                     <p className="text-sm text-text-muted text-center py-6">
@@ -131,7 +123,7 @@ export default function TeacherPayouts() {
                             <thead>
                                 <tr className="bg-navy-mid border-b border-navy-border text-xs text-text-secondary uppercase font-bold tracking-wider">
                                     <th className="p-4">Billing Month</th>
-                                    <th className="p-4">Total Students</th>
+                                    <th className="p-4">{lang === "am" ? "የተከፈሉ ደረሰኞች" : "Paid invoices"}</th>
                                     <th className="p-4">
                                         Payout Amount
                                     </th>
@@ -150,10 +142,15 @@ export default function TeacherPayouts() {
                                             {row.month}
                                         </td>
                                         <td className="p-4 text-white">
-                                            {row.studentsCount} students
+                                            {row.invoiceCount}
                                         </td>
                                         <td className="p-4 text-gold-primary font-bold">
-                                            {(row.amount || 0).toLocaleString()} ETB
+                                            {Math.round(row.earned).toLocaleString()} ETB
+                                            {row.paid > 0 && row.status !== "paid" && (
+                                                <span className="block text-[10px] text-text-muted font-normal">
+                                                    {lang === "am" ? "የተላከ" : "Sent"}: {row.paid.toLocaleString()} ETB
+                                                </span>
+                                            )}
                                         </td>
                                         <td className="p-4 text-right">
                                             {row.status === "paid" ? (
