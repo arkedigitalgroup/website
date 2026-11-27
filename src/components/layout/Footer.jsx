@@ -88,14 +88,6 @@ export default function Footer() {
                             </li>
                             <li>
                                 <Link
-                                    href="/yeneta"
-                                    className="hover:text-gold-primary"
-                                >
-                                    {t("footerYenetaLabel")}
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
                                     href="/contact"
                                     className="hover:text-gold-primary"
                                 >

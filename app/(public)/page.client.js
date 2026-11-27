@@ -140,7 +140,6 @@ export default function HomePageClient() {
         { q: t("faqQ2"), a: t("faqA2") },
         { q: t("faqQ3"), a: t("faqA3") },
         { q: t("faqQ4"), a: t("faqA4") },
-        { q: t("faqQ5"), a: t("faqA5") },
     ];
 
     const pricingItems = [
@@ -227,10 +226,6 @@ export default function HomePageClient() {
                             <Link href="/contact" className="hover:text-white">
                                 {t("finalCtaSecondary")}
                             </Link>
-                            <span aria-hidden="true">·</span>
-                            <Link href="/yeneta" className="hover:text-white">
-                                {t("heroYenetaCTA")}
-                            </Link>
                         </div>
                     </div>
 
@@ -310,9 +305,9 @@ export default function HomePageClient() {
                     subtitle={t("serviceSubtitle")}
                 />
 
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <div className="grid grid-cols-1 gap-6">
                     {/* Fidel — main academic service */}
-                    <div className="rounded-2xl border border-navy-border border-l-4 border-l-ft-teal bg-navy-surface p-7 lg:col-span-2">
+                    <div className="rounded-2xl border border-navy-border border-l-4 border-l-ft-teal bg-navy-surface p-7">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                             <span className="rounded-full border border-ft-teal/30 bg-ft-teal-faint px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-ft-teal-text">
                                 {t("fidelBadge")}
@@ -363,24 +358,6 @@ export default function HomePageClient() {
                         </div>
                     </div>
 
-                    {/* Yeneta — dedicated branch */}
-                    <div className="rounded-2xl border border-navy-border border-l-4 border-l-yt-maroon bg-navy-surface p-7">
-                        <span className="rounded-full border border-yt-maroon/30 bg-yt-maroon/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-gold-primary">
-                            {t("yenetaBadge")}
-                        </span>
-                        <h3 className="mt-4 text-xl font-extrabold text-white font-ethiopic">
-                            {t("yenetaTitle")}
-                        </h3>
-                        <p className="mt-3 text-sm leading-relaxed text-text-secondary">
-                            {t("yenetaDesc")}
-                        </p>
-                        <Link
-                            href="/yeneta"
-                            className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-gold-primary hover:text-gold-hover"
-                        >
-                            {t("heroYenetaCTA")} <span aria-hidden="true">→</span>
-                        </Link>
-                    </div>
                 </div>
             </section>
 
@@ -617,7 +594,6 @@ export default function HomePageClient() {
                             t("trustPoint1"),
                             t("trustPoint2"),
                             t("trustPoint3"),
-                            t("trustPoint4"),
                         ].map((point) => (
                             <li
                                 key={point}

@@ -7,6 +7,9 @@ import { db } from "../../../../src/lib/firebase";
 import { uploadToSupabase } from "../../../../src/lib/supabase";
 import { useAuth } from "../../../../src/context/AuthContext";
 import { useLanguage } from "../../../../src/context/LanguageContext";
+import { useCourses } from "../../../../src/hooks/Usecourses";
+import { isYenetaUser } from "../../../../src/lib/serviceLine";
+import MapPicker from "../../../../src/components/ui/MapPicker";
 
 // ─── Reusable Field Component ─────────────────────────────────────────────────
 function Field({ label, children }) {
@@ -42,9 +45,14 @@ export default function StudentAccount() {
     const [age, setAge] = useState("");
     const [gender, setGender] = useState("male");
     const [phone, setPhone] = useState("");
-    const [courseId, setCourseId] = useState("meserete-imnet");
-    const [lat, setLat] = useState("");
-    const [lng, setLng] = useState("");
+    const [courseId, setCourseId] = useState("");
+    const [locationPin, setLocationPin] = useState(null);
+    const { courses: yenetaCourses } = useCourses("yeneta", lang);
+    const { courses: fidelCourses } = useCourses("fidel", lang);
+    const courseName =
+        [...yenetaCourses, ...fidelCourses].find((c) => c.id === courseId)?.name ||
+        courseId;
+    const isYeneta = isYenetaUser(data);
     const [profileUrl, setprofileUrl] = useState("");
     const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
@@ -62,9 +70,8 @@ export default function StudentAccount() {
                     setAge(d.age ?? "");
                     setGender(d.gender || "male");
                     setPhone(d.phone || "");
-                    setCourseId(d.courseId || "meserete-imnet");
-                    setLat(d.locationPin?.lat ?? "");
-                    setLng(d.locationPin?.lng ?? "");
+                    setCourseId(d.courseId || "");
+                    setLocationPin(d.locationPin?.lat ? d.locationPin : null);
                     setprofileUrl(d.profileUrl || "");
                 }
             } catch (e) {
@@ -106,14 +113,12 @@ export default function StudentAccount() {
         try {
             const studentRef = doc(db, "students", user.uid);
             const updates = {
-                christianName: christianName.trim(),
+                fullName: fullName.trim(),
+                ...(isYeneta && { christianName: christianName.trim() }),
                 age: Number(age),
                 gender,
                 phone: phone.trim(),
-                locationPin: {
-                    lat: parseFloat(lat) || 0,
-                    lng: parseFloat(lng) || 0,
-                },
+                ...(locationPin && { locationPin }),
             };
             await updateDoc(studentRef, updates);
 
@@ -192,9 +197,9 @@ export default function StudentAccount() {
                             (() => {
                                 const fields = [
                                     fullName,
-                                    christianName,
+                                    ...(isYeneta ? [christianName] : []),
                                     phone,
-                                    lat,
+                                    locationPin,
                                     profileUrl,
                                 ];
                                 const filled = fields.filter(Boolean).length;
@@ -260,39 +265,34 @@ export default function StudentAccount() {
                 </div>
 
                 <form onSubmit={handleSave} className="space-y-5">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div className={`grid grid-cols-1 gap-5 ${isYeneta ? "sm:grid-cols-2" : ""}`}>
                         <Field label={lang === "am" ? "ሙሉ ስም" : "Full Name"}>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    disabled
-                                    value={fullName}
-                                    className={`${INPUT_CLS} opacity-60 cursor-not-allowed pr-8`}
-                                    placeholder="e.g. Abebe Bekele"
-                                />
-                                <span
-                                    className="absolute right-3 top-3 text-xs opacity-50"
-                                    title="Locked"
-                                >
-                                    🔒
-                                </span>
-                            </div>
-                        </Field>
-                        <Field
-                            label={
-                                lang === "am" ? "የክርስትና ስም" : "Christian Name"
-                            }
-                        >
                             <input
                                 type="text"
-                                value={christianName}
-                                onChange={(e) =>
-                                    setChristianName(e.target.value)
-                                }
+                                required
+                                value={fullName}
+                                onChange={(e) => setFullName(e.target.value)}
                                 className={INPUT_CLS}
-                                placeholder="e.g. Gebre Mariam"
+                                placeholder="e.g. Abebe Bekele"
                             />
                         </Field>
+                        {isYeneta && (
+                            <Field
+                                label={
+                                    lang === "am" ? "የክርስትና ስም" : "Christian Name"
+                                }
+                            >
+                                <input
+                                    type="text"
+                                    value={christianName}
+                                    onChange={(e) =>
+                                        setChristianName(e.target.value)
+                                    }
+                                    className={INPUT_CLS}
+                                    placeholder="e.g. Gebre Mariam"
+                                />
+                            </Field>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
@@ -338,27 +338,12 @@ export default function StudentAccount() {
                         label={lang === "am" ? "የትምህርት ጥቅል" : "Course Package"}
                     >
                         <div className="relative">
-                            <select
+                            <input
+                                type="text"
                                 disabled
-                                value={courseId}
-                                className={`${SELECT_CLS} opacity-60 cursor-not-allowed pr-8`}
-                            >
-                                <option value="meserete-imnet">
-                                    Meserete Imnet (Foundation of Faith)
-                                </option>
-                                <option value="quanquanna-zema">
-                                    Quanquanna & Zema (Liturgical Chant)
-                                </option>
-                                <option value="diquna-zegajat">
-                                    Diquna & Zegajat (Deacon Training)
-                                </option>
-                                <option value="begena">
-                                    Begena (Sacred Harp)
-                                </option>
-                                <option value="all-courses">
-                                    All Courses Bundle
-                                </option>
-                            </select>
+                                value={courseName || "—"}
+                                className={`${INPUT_CLS} opacity-60 cursor-not-allowed pr-8`}
+                            />
                             <span
                                 className="absolute right-3 top-3 text-xs opacity-50"
                                 title="Locked"
@@ -369,42 +354,13 @@ export default function StudentAccount() {
                     </Field>
 
                     {/* Location */}
-                    <div className="border-t border-navy-border pt-5 space-y-3">
-                        <p className="text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                            📍{" "}
-                            {lang === "am"
-                                ? "አካባቢ (ኬክሮስ / ቁመት)"
-                                : "Location Coordinates"}
-                        </p>
-                        <p className="text-xs text-text-muted -mt-1">
-                            {lang === "am"
-                                ? "Google Maps ላይ ቦታዎን ፈልገው ኬክሮስና ቁመት ያስገቡ።"
-                                : "Find your location on Google Maps and paste the latitude and longitude values."}
-                        </p>
-                        <div className="grid grid-cols-2 gap-4">
-                            <Field label="Latitude">
-                                <input
-                                    type="number"
-                                    step="any"
-                                    value={lat}
-                                    onChange={(e) => setLat(e.target.value)}
-                                    className={INPUT_CLS}
-                                    placeholder="9.0320"
-                                />
-                            </Field>
-                            <Field label="Longitude">
-                                <input
-                                    type="number"
-                                    step="any"
-                                    value={lng}
-                                    onChange={(e) => setLng(e.target.value)}
-                                    className={INPUT_CLS}
-                                    placeholder="38.7469"
-                                />
-                            </Field>
-                        </div>
+                    <div className="border-t border-navy-border pt-5">
+                        <MapPicker
+                            value={locationPin}
+                            onChange={setLocationPin}
+                            label={lang === "am" ? "📍 አካባቢ" : "📍 Location"}
+                        />
                     </div>
-
                     {/* Error / Success */}
                     {error && (
                         <p className="text-error text-xs font-semibold bg-error/10 border border-error/30 px-3 py-2 rounded-lg">

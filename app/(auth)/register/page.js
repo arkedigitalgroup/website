@@ -4,60 +4,21 @@
 import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import {
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signInWithPopup,
+    getAdditionalUserInfo,
+} from "firebase/auth";
 import { doc, setDoc, getDoc, updateDoc, arrayUnion } from "firebase/firestore";
-import { auth, db } from "../../../src/lib/firebase";
-import { uploadToSupabase } from "../../../src/lib/supabase";
+import { auth, db, googleProvider } from "../../../src/lib/firebase";
+import { normalizePhone, phoneToAuthEmail } from "../../../src/lib/phoneAuth";
 import { useLanguage } from "../../../src/context/LanguageContext";
 import { useAuth } from "../../../src/context/AuthContext";
 import AuthNavbar from "../../../src/components/layout/AuthNavbar";
-import MapPicker from "../../../src/components/ui/MapPicker";
 import { useCourses } from "../../../src/hooks/Usecourses";
 import { usePlatformConfig } from "../../../src/hooks/Useplatformconfig";
 import emailjs from "@emailjs/browser";
-
-// ─────────────────────────────────────────────────────────────────────────────
-// BRAND DECLARATION BANNER
-// ─────────────────────────────────────────────────────────────────────────────
-function ServiceLineBadge({ serviceLine, lang }) {
-    const isYeneta = serviceLine === "yeneta";
-    return (
-        <div
-            className={`
-                flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-semibold
-                ${
-                    isYeneta
-                        ? "bg-yt-maroon/10 border-yt-maroon/40 text-yt-maroon"
-                        : "bg-ft-teal/10 border-ft-teal/40 text-ft-teal-text"
-                }
-            `}
-        >
-            <span className="text-xl text-gold-primary">
-                {isYeneta ? "✝" : "📚"}
-            </span>
-            <div className="flex-1">
-                <p className="font-bold text-gold-primary tracking-wide uppercase text-xs opacity-70">
-                    {lang === "am" ? "የምዝገባ አይነት" : "Registering under"}
-                </p>
-                <p className="text-base font-extrabold text-gold-primary">
-                    {isYeneta
-                        ? lang === "am"
-                            ? "የኔታ — መንፈሳዊ ትምህርት"
-                            : "Yeneta — Spiritual Education"
-                        : lang === "am"
-                          ? "ፊደል — አካዳሚያዊ ትምህርት"
-                          : "Fidel — Academic Tutoring"}
-                </p>
-            </div>
-            <span
-                className="text-xs opacity-50 flex items-center gap-1"
-                title={lang === "am" ? "ከኮርስ ገጽ የተወሰደ" : "Set from course page"}
-            >
-                🔒
-            </span>
-        </div>
-    );
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TEACHER COURSE MULTI-SELECT
@@ -175,84 +136,14 @@ function CourseMultiSelect({ courses, selectedCourses, onChange, t, lang }) {
     );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PREFERRED TUTOR GENDER — Student field
-// ─────────────────────────────────────────────────────────────────────────────
-function TutorGenderPreference({ value, onChange, lang }) {
-    const options = [
-        {
-            value: "any",
-            labelEn: "No Preference",
-            labelAm: "ምንም ምርጫ የለኝም",
-            icon: "⚖",
-        },
-        {
-            value: "male",
-            labelEn: "Male Tutor",
-            labelAm: "ወንድ አስተማሪ",
-            icon: "👨‍🏫",
-        },
-        {
-            value: "female",
-            labelEn: "Female Tutor",
-            labelAm: "ሴት አስተማሪ",
-            icon: "👩‍🏫",
-        },
-    ];
 
-    return (
-        <div className="space-y-2">
-            <label className="text-xs text-text-secondary font-semibold uppercase block">
-                {lang === "am" ? "የሚፈልጉት አስተማሪ ጾታ" : "Preferred Tutor Gender"}
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-                {options.map((opt) => (
-                    <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => onChange(opt.value)}
-                        className={`
-                            flex flex-col items-center gap-1.5 px-2 py-3 rounded-xl border
-                            text-center cursor-pointer transition-all duration-150
-                            ${
-                                value === opt.value
-                                    ? "bg-gold-primary/15 border-gold-primary shadow-[0_0_0_1px] shadow-gold-primary"
-                                    : "bg-navy-mid border-navy-border hover:border-gold-primary/40"
-                            }
-                        `}
-                    >
-                        <span className="text-2xl">{opt.icon}</span>
-                        <span
-                            className={`text-xs font-bold leading-tight ${
-                                value === opt.value
-                                    ? "text-gold-primary"
-                                    : "text-text-secondary"
-                            }`}
-                        >
-                            {lang === "am" ? opt.labelAm : opt.labelEn}
-                        </span>
-                    </button>
-                ))}
-            </div>
-            <p className="text-xs text-text-secondary/60 italic">
-                {lang === "am"
-                    ? "* ምርጫዎ ሁልጊዜ ሊረጋገጥ ላይችል ይችላል — ይህ ቅድሚያ ይሰጠዋል።"
-                    : "* Preference is honoured where available — not always guaranteed."}
-            </p>
-        </div>
-    );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// UPLOAD HELPER
-// Uploads a file to Supabase Storage and returns its public URL.
-// ─────────────────────────────────────────────────────────────────────────────
-async function uploadFile(file, storagePath) {
-    return await uploadToSupabase(file, storagePath);
-}
+const INPUT_CLS =
+    "w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MAIN REGISTER PAGE
+// Sign up with email + password, phone + password, or Google.
+// Everything else (name, location, documents) is completed in the dashboard.
 // ─────────────────────────────────────────────────────────────────────────────
 function RegisterPageContent() {
     const { t, lang } = useLanguage();
@@ -264,66 +155,32 @@ function RegisterPageContent() {
     useEffect(() => {
         if (process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY) {
             emailjs.init(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY);
-            console.log("✅ EmailJS initialized");
-        } else {
-            console.error("❌ NEXT_PUBLIC_EMAILJS_PUBLIC_KEY missing");
         }
     }, []);
 
-    // ── URL-derived state (locked — user cannot change these on this page) ──
+    // ── URL-derived state ──
+    // The general site is academic-first: only course pages that pass
+    // ?line=yeneta register under Yeneta.
     const urlRole =
         searchParams.get("role") === "teacher" ? "teacher" : "student";
-    const urlLine = searchParams.get("line") === "fidel" ? "fidel" : "yeneta";
-    const urlCourse =
-        searchParams.get("course") ||
-        (urlLine === "yeneta" ? "meserete-imnet" : "MT-001");
+    const serviceLine =
+        searchParams.get("line") === "yeneta" ? "yeneta" : "fidel";
+    const urlCourse = searchParams.get("course") || "";
 
     const [role, setRole] = useState(urlRole);
 
-    /**
-     * serviceLine is read-only on this form.
-     * Derived from ?line= query param set by the course page.
-     */
-    const [serviceLine] = useState(urlLine);
-
     const { config } = usePlatformConfig();
-    const { courses: yenetaCourses, loading: yenetaLoading } = useCourses(
-        "yeneta",
-        lang,
-    );
-    const { courses: fidelCourses, loading: fidelLoading } = useCourses(
-        "fidel",
-        lang,
-    );
-    const courses = serviceLine === "yeneta" ? yenetaCourses : fidelCourses;
-    const coursesLoading =
-        serviceLine === "yeneta" ? yenetaLoading : fidelLoading;
+    const { courses, loading: coursesLoading } = useCourses(serviceLine, lang);
 
-    // NOTE: role is intentionally NOT synced back from searchParams after mount.
-    // The user should be free to switch between Student / Teacher tabs regardless
-    // of the ?role= URL param. The URL param only sets the initial default.
-
-    // ── Derived ──
-    const isYeneta = serviceLine === "yeneta";
-
-    // ── Shared form fields ──
+    // ── Form fields ──
     const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [fullName, setFullName] = useState("");
-    const [christianName, setChristianName] = useState("");
-    const [gender, setGender] = useState("male");
     const [phone, setPhone] = useState("");
-
-    // ── Student-only fields ──
-    const [age, setAge] = useState(10);
+    const [password, setPassword] = useState("");
     const [courseId, setCourseId] = useState(urlCourse);
-    const [locationPin, setLocationPin] = useState({ lat: 9.03, lng: 38.74 });
-    const [preferredTutorGender, setPreferredTutorGender] = useState("any");
+    const [qualifiedCourses, setQualifiedCourses] = useState([]);
 
     // Safe fallback: the URL may carry a course that is not in the active
-    // Firestore list (for example a catalog slug that has been deactivated).
-    // Keep the enrollment usable by selecting the first available course.
-    // Declared after the `courseId` state so the value is initialised.
+    // Firestore list. Keep the enrollment usable by selecting the first one.
     useEffect(() => {
         if (coursesLoading || courses.length === 0) return;
         if (!courses.some((course) => course.id === courseId)) {
@@ -331,23 +188,12 @@ function RegisterPageContent() {
         }
     }, [courses, coursesLoading, courseId]);
 
-    // ── Teacher-only fields ──
-    const [bankProvider, setBankProvider] = useState("CBE");
-    const [bankAccount, setBankAccount] = useState("");
-    const [churchDoc, setChurchDoc] = useState(null);
-    const [kebeleDoc, setKebeleDoc] = useState(null);
-    const [profilePhoto, setProfilePhoto] = useState(null);
-    const [qualifiedCourses, setQualifiedCourses] = useState([]);
-
     // ── Statuses ──
     const [loading, setLoading] = useState(false);
     const [uploadStatus, setUploadStatus] = useState("");
     const [error, setError] = useState("");
 
-    // ─────────────────────────────────────────────────────────────────────
-    // Service ID generator
-    // Tied to Firebase UID slice — no collision risk
-    // ─────────────────────────────────────────────────────────────────────
+    // Service ID tied to Firebase UID slice — no collision risk
     const generateServiceId = (selectedRole, selectedLine, uid) => {
         const prefix =
             selectedRole === "teacher"
@@ -360,357 +206,243 @@ function RegisterPageContent() {
         return `${prefix}-${uid.slice(0, 6).toUpperCase()}`;
     };
 
-    // ─────────────────────────────────────────────────────────────────────
-    // SUBMIT
-    // Email + password for ALL roles (teachers and students).
-    // Phone verification will be handled post-registration via Africa's Talking
-    // in a future phase — for now phoneVerified is set true at registration
-    // so the dashboard gate does not block teachers.
-    // ─────────────────────────────────────────────────────────────────────
-    const handleRegister = async (e) => {
-        e.preventDefault();
-        setError("");
+    const goToDashboard = (r) => {
+        if (r === "admin") router.push("/admin");
+        else if (r === "teacher") router.push("/teacher");
+        else router.push("/student");
+    };
 
-        // Track the newly created auth user so we can delete it
-        // if any downstream step (Firestore write, file upload) fails.
-        // This prevents orphaned auth accounts that block re-registration.
-        let createdAuthUser = null;
+    // Writes /users/{uid} plus the role sub-profile, right after Auth creation.
+    const createProfile = async (uid, { profileEmail, profilePhone, fullName }) => {
+        const serviceId = generateServiceId(role, serviceLine, uid);
+        const userDoc = {
+            id: uid,
+            role,
+            serviceId,
+            serviceLine,
+            email: profileEmail,
+            phone: profilePhone,
+            status: role === "teacher" ? "pending" : "active",
+            createdAt: new Date(),
+        };
+        await setDoc(doc(db, "users", uid), userDoc);
 
-        // Validation: teacher must select at least one course
+        if (role === "teacher") {
+            await setDoc(doc(db, "teachers", uid), {
+                id: uid,
+                fullName,
+                phone: profilePhone,
+                email: profileEmail,
+                verified: false,
+                rating: 0.0,
+                serviceId,
+                serviceLine,
+                qualifiedCourses,
+                assignedStudentIds: [],
+                // Real phone verification via Africa's Talking will come in Phase 2.
+                phoneVerified: true,
+            });
+        } else {
+            await setDoc(doc(db, "students", uid), {
+                id: uid,
+                fullName,
+                phone: profilePhone,
+                email: profileEmail,
+                courseId,
+                assignedTeacherId: null,
+                registrationFeePaid: true,
+                serviceId,
+                serviceLine,
+                dashboardLocked: false,
+            });
+        }
+        setProfile(userDoc);
+        return userDoc;
+    };
+
+    // Welcome email is non-blocking and only sent to a real address.
+    const sendWelcome = async (toEmail, toName, serviceId) => {
+        if (!toEmail) return;
+        try {
+            await emailjs.send(
+                process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+                role === "teacher"
+                    ? process.env.NEXT_PUBLIC_EMAILJS_TEACH_TEMPLATE_ID
+                    : process.env.NEXT_PUBLIC_EMAILJS_STU_TEMPLATE_ID,
+                {
+                    to_name: toName || toEmail,
+                    to_email: toEmail,
+                    service_id: serviceId,
+                    role: role === "teacher" ? "Teacher" : "Student",
+                    message:
+                        role === "teacher"
+                            ? lang === "am"
+                                ? "ሰላም መምህር፣ ምዝገባዎ ተሳክቷል። መገለጫዎን በዳሽቦርዱ ያጠናቅቁ።"
+                                : "Welcome Tutor! Your registration is successful. Please complete your profile in the dashboard."
+                            : lang === "am"
+                              ? "እንኳን ደህና መጡ! የተማሪ ምዝገባዎ ተሳክቷል።"
+                              : "Welcome! Your student registration was successful.",
+                },
+            );
+        } catch (notifyErr) {
+            console.error("EmailJS failed:", notifyErr);
+        }
+    };
+
+    const describeError = (err) => {
+        const am = lang === "am";
+        switch (err.code) {
+            case "auth/weak-password":
+                return am ? "የይለፍ ቃሉ ቢያንስ 6 ቁምፊ መሆን አለበት።" : "Password must be at least 6 characters.";
+            case "auth/invalid-email":
+                return am ? "የኢሜል አድራሻው ትክክል አይደለም።" : "The email address is not valid.";
+            case "auth/configuration-not-found":
+            case "auth/operation-not-allowed":
+                return am
+                    ? "ይህ የመመዝገቢያ መንገድ በFirebase አልነቃም። Console → Authentication → Sign-in method ውስጥ ያብሩ።"
+                    : "This sign-up method is not enabled. Enable it in Firebase Console → Authentication → Sign-in method.";
+            case "permission-denied":
+                return am
+                    ? "ምዝገባ አልተሳካም: የ Firestore ፈቃድ ተከልክሏል።"
+                    : "Registration failed: Firestore permission denied.";
+            default:
+                return err.message || (am ? "ምዝገባ አልተሳካም። እንደገና ይሞክሩ።" : "Registration failed. Please try again.");
+        }
+    };
+
+    const validateTeacherCourses = () => {
         if (role === "teacher" && qualifiedCourses.length === 0) {
             setError(
                 lang === "am"
                     ? "ቢያንስ አንድ ኮርስ ይምረጡ።"
                     : "Please select at least one course you are qualified to teach.",
             );
+            return false;
+        }
+        return true;
+    };
+
+    // ─────────────────────────────────────────────────────────────────────
+    // SUBMIT — email + password or phone + password
+    // ─────────────────────────────────────────────────────────────────────
+    const handleRegister = async (e) => {
+        e.preventDefault();
+        setError("");
+        if (!validateTeacherCourses()) return;
+
+        // Phone is the sign-in identity; email is optional contact info only.
+        const normalizedPhone = normalizePhone(phone);
+        if (!normalizedPhone) {
+            setError(
+                lang === "am"
+                    ? "ትክክለኛ ስልክ ቁጥር ያስገቡ (ለምሳሌ 0912345678)።"
+                    : "Enter a valid phone number (for example 0912345678).",
+            );
             return;
         }
+        const profileEmail = email.toLowerCase().trim();
+        const profilePhone = normalizedPhone;
+        const authEmail = phoneToAuthEmail(normalizedPhone);
 
+        // Delete the new auth user if a later step fails, so a retry is not
+        // blocked by "email already in use".
+        let createdAuthUser = null;
         setLoading(true);
 
         try {
-            // 1. Create Firebase Auth user (email + password — all roles)
-            const userCredential = await createUserWithEmailAndPassword(
-                auth,
-                email,
-                password,
-            );
-            createdAuthUser = userCredential.user; // remember for cleanup on failure
-            const uid = userCredential.user.uid;
-
-            // 2. Generate service ID from UID slice (collision-safe)
-            const serviceId = generateServiceId(role, serviceLine, uid);
-
-            // 3. Upload files (teacher only)
-            let churchDocUrl = "";
-            let kebeleDocUrl = "";
-            let profileUrl = "";
-
-            if (role === "teacher") {
-                // ── Profile Photo ──
-                if (profilePhoto) {
-                    setUploadStatus(
-                        lang === "am" ? "ፎቶ በመስቀል ላይ..." : "Uploading photo...",
-                    );
-                    profileUrl = await uploadFile(
-                        profilePhoto,
-                        `teachers/${uid}/profile.jpg`,
-                    );
-                }
-
-                // ── Church Verification Doc ──
-                if (churchDoc) {
-                    setUploadStatus(
-                        lang === "am"
-                            ? "የቤተ ክርስቲያን ሰነድ በመስቀል ላይ..."
-                            : "Uploading church document...",
-                    );
-                    churchDocUrl = await uploadFile(
-                        churchDoc,
-                        `teachers/${uid}/church-doc.pdf`,
-                    );
-                }
-
-                // ── Kebele ID ──
-                if (kebeleDoc) {
-                    setUploadStatus(
-                        lang === "am"
-                            ? "ቀበሌ መታወቂያ በመስቀል ላይ..."
-                            : "Uploading Kebele ID...",
-                    );
-                    kebeleDocUrl = await uploadFile(
-                        kebeleDoc,
-                        `teachers/${uid}/kebele-id.pdf`,
-                    );
-                }
-
-                setUploadStatus("");
-            }
-
-            // 4. Write /users/{uid}
-            const userDoc = {
-                id: uid,
-                role,
-                serviceId,
-                serviceLine,
-                email: email.toLowerCase().trim(),
-                status: role === "teacher" ? "pending" : "active",
-                createdAt: new Date(),
-            };
-            await setDoc(doc(db, "users", uid), userDoc);
-
-            // 5. Write role-specific sub-profile
-            if (role === "teacher") {
-                const teacherDoc = {
-                    id: uid,
-                    fullName,
-                    // christianName only stored for Yeneta teachers
-                    ...(isYeneta && { christianName }),
-                    gender,
-                    phone,
-                    email: email.toLowerCase().trim(),
-                    locationPin,
-                    // Store actual upload URLs, or empty string if no file was chosen
-                    profileUrl,
-                    churchDocUrl,
-                    kebeleDocUrl,
-                    bankProvider,
-                    bankAccount,
-                    verified: false,
-                    rating: 0.0,
-                    serviceId,
-                    serviceLine,
-                    qualifiedCourses,
-                    assignedStudentIds: [],
-                    // phoneVerified: true at registration so dashboard gate passes.
-                    // Real phone verification via Africa's Talking will come in Phase 2.
-                    phoneVerified: true,
-                };
-                await setDoc(doc(db, "teachers", uid), teacherDoc);
-            } else {
-                const studentDoc = {
-                    id: uid,
-                    fullName,
-                    // christianName only stored for Yeneta students
-                    ...(isYeneta && { christianName }),
-                    age: Number(age),
-                    gender,
-                    phone,
-                    email: email.toLowerCase().trim(),
-                    locationPin,
-                    courseId,
-                    preferredTutorGender,
-                    assignedTeacherId: null,
-                    registrationFeePaid: true,
-                    serviceId,
-                    serviceLine,
-                    dashboardLocked: false,
-                };
-                await setDoc(doc(db, "students", uid), studentDoc);
-            }
-
-            // 6. Update Auth context
-            setProfile(userDoc);
-
-            // 7. Send welcome email (non-blocking — failure does not stop registration)
-            try {
-                if (role === "student") {
-                    console.log("📧 Sending student welcome email to:", email);
-                    await emailjs.send(
-                        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
-                        process.env.NEXT_PUBLIC_EMAILJS_STU_TEMPLATE_ID,
-                        {
-                            to_name: fullName,
-                            to_email: email,
-                            service_id: serviceId,
-                            role: "Student",
-                            message:
-                                lang === "am"
-                                    ? "እንኳን ደህና መጡ! የተማሪ ምዝገባዎ ተሳክቷል።"
-                                    : "Welcome! Your student registration was successful.",
-                        },
-                    );
-                } else if (role === "teacher") {
-                    console.log("📧 Sending teacher welcome email to:", email);
-                    await emailjs.send(
-                        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
-                        process.env.NEXT_PUBLIC_EMAILJS_TEACH_TEMPLATE_ID,
-                        {
-                            to_name: fullName,
-                            to_email: email,
-                            service_id: serviceId,
-                            role: "Teacher",
-                            phone: phone,
-                            bank_name: bankProvider,
-                            message:
-                                lang === "am"
-                                    ? "ሰላም መምህር፣ ምዝገባዎ ተሳክቷል። ሰነዶችዎ በመገመገም ላይ ናቸው።"
-                                    : "Welcome Tutor! Your registration is successful. Documents are under review.",
-                        },
-                    );
-                }
-            } catch (notifyErr) {
-                // Email failure is non-fatal — log and continue
-                console.error("❌ EmailJS failed:", notifyErr);
-            }
-
-            // 8. Registration complete — clear cleanup reference and redirect
-            createdAuthUser = null; // no cleanup needed — everything succeeded
-            if (role === "admin") router.push("/admin");
-            else if (role === "teacher") router.push("/teacher");
-            else router.push("/student");
+            const cred = await createUserWithEmailAndPassword(auth, authEmail, password);
+            createdAuthUser = cred.user;
+            const userDoc = await createProfile(cred.user.uid, {
+                profileEmail,
+                profilePhone,
+                fullName: "",
+            });
+            createdAuthUser = null;
+            await sendWelcome(profileEmail, "", userDoc.serviceId);
+            goToDashboard(role);
         } catch (err) {
             console.error("Registration error:", err);
-            setUploadStatus("");
-
-            // ── Cleanup: delete the auth account if it was created this attempt
-            // but something downstream (Firestore write, file upload) failed.
-            // Without this, the student is permanently stuck — every retry hits
-            // "email already in use" even though they never finished registering.
             if (createdAuthUser) {
-                try {
-                    await createdAuthUser.delete();
-                    console.log("🧹 Cleaned up partial auth account after registration failure.");
-                } catch (cleanupErr) {
-                    // Cleanup failed — log and continue to show the original error.
-                    // User may need to reset password and contact support.
-                    console.error("⚠️ Could not delete partial auth account:", cleanupErr);
-                }
+                await createdAuthUser.delete().catch((cleanupErr) =>
+                    console.error("Could not delete partial auth account:", cleanupErr),
+                );
                 createdAuthUser = null;
             }
 
-            if (err.code === "auth/email-already-in-use") {
-                try {
-                    setUploadStatus(
-                        lang === "am"
-                            ? "የነበረ መለያን በመቀላቀል ላይ..."
-                            : "Adding service line to existing account...",
-                    );
-                    const existingUserCred = await signInWithEmailAndPassword(
-                        auth,
-                        email,
-                        password,
-                    );
-                    const uid = existingUserCred.user.uid;
+            if (err.code !== "auth/email-already-in-use") {
+                setError(describeError(err));
+                return;
+            }
 
-                    // Update /users/{uid}
-                    const userRef = doc(db, "users", uid);
-                    const userSnap = await getDoc(userRef);
-                    let existingLines = [serviceLine];
-                    let userRole = role;
-                    if (userSnap.exists()) {
-                        const data = userSnap.data();
-                        userRole = data.role || role;
-                        existingLines = Array.isArray(data.service_lines)
-                            ? data.service_lines
-                            : [data.serviceLine || serviceLine];
-                    }
-                    const updatedLines = Array.from(
-                        new Set([...existingLines, serviceLine]),
-                    );
-                    await updateDoc(userRef, {
-                        service_lines: updatedLines,
-                        serviceLine: serviceLine,
-                    }).catch((userUpdateErr) => {
-                        console.warn("Notice: /users update bypassed or pending rule deployment:", userUpdateErr);
-                    });
+            // Existing account: sign in and add this service line to it.
+            try {
+                setUploadStatus(
+                    lang === "am"
+                        ? "የነበረ መለያን በመቀላቀል ላይ..."
+                        : "Adding service line to existing account...",
+                );
+                const existingUserCred = await signInWithEmailAndPassword(auth, authEmail, password);
+                const uid = existingUserCred.user.uid;
 
-                    // Update role sub-profile
-                    if (userRole === "teacher") {
-                        const teacherRef = doc(db, "teachers", uid);
-                        await updateDoc(teacherRef, {
-                            service_lines: updatedLines,
-                            ...(qualifiedCourses.length > 0 && {
-                                qualifiedCourses: arrayUnion(...qualifiedCourses),
-                            }),
-                        }).catch(async () => {
-                            await setDoc(
-                                teacherRef,
-                                {
-                                    id: uid,
-                                    fullName,
-                                    email: email.toLowerCase().trim(),
-                                    phone,
-                                    serviceLine,
-                                    qualifiedCourses,
-                                },
-                                { merge: true },
-                            );
-                        });
-                    } else {
-                        const studentRef = doc(db, "students", uid);
-                        await updateDoc(studentRef, {
-                            service_lines: updatedLines,
-                            enrolledCourses: arrayUnion({
-                                courseId,
-                                serviceLine,
-                                enrolledAt: new Date().toISOString(),
-                            }),
-                            courseId,
-                        }).catch(async () => {
-                            await setDoc(
-                                studentRef,
-                                {
-                                    id: uid,
-                                    fullName,
-                                    email: email.toLowerCase().trim(),
-                                    phone,
-                                    serviceLine,
-                                    courseId,
-                                },
-                                { merge: true },
-                            );
-                        });
-                    }
-
-                    if (userRole === "admin") router.push("/admin");
-                    else if (userRole === "teacher") router.push("/teacher");
-                    else router.push("/student");
-                    return;
-                } catch (signInErr) {
-                    console.error("Multi-niche sign in failed:", signInErr);
-                    setError(
-                        lang === "am"
-                            ? "ይህ ኢሜል አስቀድሞ ተመዝግቧል። በዚህ ኢሜል አዲስ niche/ትምህርት ለመጨመር ትክክለኛውን የይለፍ ቃል ያስገቡ።"
-                            : "This email is already registered. To add this niche to your account, please enter your existing account password.",
-                    );
+                const userRef = doc(db, "users", uid);
+                const userSnap = await getDoc(userRef);
+                let existingLines = [serviceLine];
+                let userRole = role;
+                if (userSnap.exists()) {
+                    const data = userSnap.data();
+                    userRole = data.role || role;
+                    existingLines = Array.isArray(data.service_lines)
+                        ? data.service_lines
+                        : [data.serviceLine || serviceLine];
                 }
-            } else if (err.code === "auth/weak-password") {
+                const updatedLines = Array.from(new Set([...existingLines, serviceLine]));
+                await updateDoc(userRef, {
+                    service_lines: updatedLines,
+                    serviceLine,
+                }).catch((userUpdateErr) => {
+                    console.warn("Notice: /users update bypassed or pending rule deployment:", userUpdateErr);
+                });
+
+                if (userRole === "teacher") {
+                    const teacherRef = doc(db, "teachers", uid);
+                    await updateDoc(teacherRef, {
+                        service_lines: updatedLines,
+                        ...(qualifiedCourses.length > 0 && {
+                            qualifiedCourses: arrayUnion(...qualifiedCourses),
+                        }),
+                    }).catch(async () => {
+                        await setDoc(
+                            teacherRef,
+                            { id: uid, email: profileEmail, phone: profilePhone, serviceLine, qualifiedCourses },
+                            { merge: true },
+                        );
+                    });
+                } else {
+                    const studentRef = doc(db, "students", uid);
+                    await updateDoc(studentRef, {
+                        service_lines: updatedLines,
+                        enrolledCourses: arrayUnion({
+                            courseId,
+                            serviceLine,
+                            enrolledAt: new Date().toISOString(),
+                        }),
+                        courseId,
+                    }).catch(async () => {
+                        await setDoc(
+                            studentRef,
+                            { id: uid, email: profileEmail, phone: profilePhone, serviceLine, courseId },
+                            { merge: true },
+                        );
+                    });
+                }
+
+                goToDashboard(userRole);
+            } catch (signInErr) {
+                console.error("Multi-niche sign in failed:", signInErr);
                 setError(
                     lang === "am"
-                        ? "የይለፍ ቃሉ ቢያንስ 6 ቁምፊ መሆን አለበት።"
-                        : "Password must be at least 6 characters.",
-                );
-            } else if (err.code === "auth/invalid-email") {
-                setError(
-                    lang === "am"
-                        ? "የኢሜል አድራሻው ትክክል አይደለም።"
-                        : "The email address is not valid.",
-                );
-            } else if (
-                err.code === "auth/configuration-not-found" ||
-                err.message?.includes("configuration-not-found")
-            ) {
-                setError(
-                    lang === "am"
-                        ? "Firebase Email/Password አልነቃም። Console → Authentication → Sign-in method ውስጥ ያብሩ።"
-                        : "Email/Password sign-in is not enabled. Enable it in Firebase Console → Authentication → Sign-in method.",
-                );
-            } else if (err.code === "storage/unauthorized") {
-                setError(
-                    lang === "am"
-                        ? "ፋይል ለመስቀል ፈቃድ የለም። Firebase Storage Rules ያረጋግጡ።"
-                        : "Not authorized to upload files. Check your Firebase Storage Rules.",
-                );
-            } else if (err.code === "permission-denied" || err.message?.includes("permission-denied")) {
-                setError(
-                    lang === "am"
-                        ? "ምዝገባ አልተሳካም: የ Firestore ፈቃድ ተከልክሏል። Firestore Rules ያረጋግጡ።"
-                        : "Registration failed: Firestore permission denied. Please check Firestore security rules.",
-                );
-            } else {
-                setError(
-                    err.message || "Registration failed. Please try again.",
+                        ? "ይህ መለያ አስቀድሞ ተመዝግቧል። ለመግባት ትክክለኛውን የይለፍ ቃል ያስገቡ።"
+                        : "This phone number is already registered. Enter your existing password to continue.",
                 );
             }
         } finally {
@@ -720,243 +452,164 @@ function RegisterPageContent() {
     };
 
     // ─────────────────────────────────────────────────────────────────────
+    // GOOGLE SIGN-UP
+    // ─────────────────────────────────────────────────────────────────────
+    const handleGoogleRegister = async () => {
+        setError("");
+        if (!validateTeacherCourses()) return;
+        setLoading(true);
+        let createdAuthUser = null;
+        try {
+            const res = await signInWithPopup(auth, googleProvider);
+            const uid = res.user.uid;
+
+            // Already registered — just go to the dashboard.
+            const existing = await getDoc(doc(db, "users", uid));
+            if (existing.exists()) {
+                goToDashboard(existing.data().role);
+                return;
+            }
+
+            if (getAdditionalUserInfo(res)?.isNewUser) createdAuthUser = res.user;
+            const profileEmail = (res.user.email || "").toLowerCase();
+            const fullName = res.user.displayName || "";
+            const userDoc = await createProfile(uid, {
+                profileEmail,
+                profilePhone: "",
+                fullName,
+            });
+            createdAuthUser = null;
+            await sendWelcome(profileEmail, fullName, userDoc.serviceId);
+            goToDashboard(role);
+        } catch (err) {
+            console.error("Google registration error:", err);
+            if (createdAuthUser) {
+                await createdAuthUser.delete().catch((cleanupErr) =>
+                    console.error("Could not delete partial auth account:", cleanupErr),
+                );
+            }
+            if (err.code !== "auth/popup-closed-by-user" && err.code !== "auth/cancelled-popup-request") {
+                setError(describeError(err));
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // ─────────────────────────────────────────────────────────────────────
     // RENDER
     // ─────────────────────────────────────────────────────────────────────
+    const tabCls = (active) =>
+        `py-2 text-sm font-semibold rounded-md transition-colors ${
+            active ? "bg-gold-primary text-navy-deep" : "text-text-secondary hover:text-white"
+        }`;
+
     return (
         <div className="min-h-screen flex flex-col bg-navy-deep">
             <AuthNavbar />
 
             <div className="flex-grow py-12 px-4 flex items-center justify-center">
-                <div className="max-w-xl w-full bg-navy-surface border border-navy-border rounded-2xl p-8 sm:p-12 shadow-lg space-y-6 relative overflow-hidden">
-                    {/* Top gradient bar — Yeneta = maroon, Fidel = teal */}
-                    <div
-                        className={`absolute top-0 left-0 w-full h-2 ${
-                            isYeneta
-                                ? "bg-gradient-to-r from-yt-maroon to-yt-maroon/60"
-                                : "bg-gradient-to-r from-ft-teal to-ft-teal/60"
-                        }`}
-                    />
+                <div className="max-w-md w-full bg-navy-surface border border-navy-border rounded-2xl p-8 sm:p-10 shadow-lg space-y-6 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-ft-teal to-ft-teal/60" />
 
-                    {/* Page header */}
                     <div className="text-center space-y-2">
                         <h1 className="text-3xl font-extrabold text-gold-primary font-ethiopic leading-snug">
                             {t("registerTitle")}
                         </h1>
-                        <p className="text-sm text-text-secondary">
-                            {t("registerSub")}
-                        </p>
+                        <p className="text-sm text-text-secondary">{t("registerSub")}</p>
                     </div>
-
-                    {/* Service Line Badge — locked from URL */}
-                    <ServiceLineBadge serviceLine={serviceLine} lang={lang} />
 
                     {/* Role tabs — student vs teacher */}
                     <div className="grid grid-cols-2 gap-2 bg-navy-mid p-1 rounded-lg border border-navy-border">
-                        <button
-                            type="button"
-                            onClick={() => setRole("student")}
-                            className={`py-2 text-sm font-semibold rounded-md transition-colors ${
-                                role === "student"
-                                    ? "bg-gold-primary text-navy-deep"
-                                    : "text-text-secondary hover:text-white"
-                            }`}
-                        >
+                        <button type="button" onClick={() => setRole("student")} className={tabCls(role === "student")}>
                             {t("studentRole")}
                         </button>
-                        <button
-                            type="button"
-                            onClick={() => setRole("teacher")}
-                            className={`py-2 text-sm font-semibold rounded-md transition-colors ${
-                                role === "teacher"
-                                    ? "bg-gold-primary text-navy-deep"
-                                    : "text-text-secondary hover:text-white"
-                            }`}
-                        >
+                        <button type="button" onClick={() => setRole("teacher")} className={tabCls(role === "teacher")}>
                             {t("teacherRole")}
                         </button>
                     </div>
 
                     <form onSubmit={handleRegister} className="space-y-4">
-                        {/* ── Full Name + Christian Name ── */}
-                        <div
-                            className={`grid gap-4 ${isYeneta ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}
-                        >
-                            <div className="space-y-1">
-                                <label className="text-xs text-text-secondary font-semibold uppercase">
-                                    {t("fullNameLabel")}
-                                </label>
-                                <input
-                                    type="text"
-                                    required
-                                    value={fullName}
-                                    onChange={(e) =>
-                                        setFullName(e.target.value)
-                                    }
-                                    className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
-                                />
-                            </div>
-
-                            {/* Christian name — Yeneta only */}
-                            {isYeneta && (
-                                <div className="space-y-1">
-                                    <label className="text-xs text-text-secondary font-semibold uppercase">
-                                        {t("christianNameLabel")}
-                                    </label>
-                                    <input
-                                        type="text"
-                                        required
-                                        value={christianName}
-                                        onChange={(e) =>
-                                            setChristianName(e.target.value)
-                                        }
-                                        className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
-                                    />
-                                </div>
-                            )}
+                        <div className="space-y-1">
+                            <label htmlFor="reg-phone" className="text-xs text-text-secondary font-semibold uppercase">
+                                {t("phoneLabel")}
+                            </label>
+                            <input
+                                id="reg-phone"
+                                type="tel"
+                                autoComplete="tel"
+                                required
+                                value={phone}
+                                onChange={(e) => setPhone(e.target.value)}
+                                placeholder="0912345678"
+                                className={INPUT_CLS}
+                            />
                         </div>
 
-                        {/* ── Email + Password (all roles) ── */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="space-y-1">
-                                <label className="text-xs text-text-secondary font-semibold uppercase">
-                                    {lang === "am" ? "ኢሜል" : "Email Address"}
-                                </label>
-                                <input
-                                    type="email"
-                                    required
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
-                                />
-                            </div>
-                            <div className="space-y-1">
-                                <label className="text-xs text-text-secondary font-semibold uppercase">
-                                    {t("passwordLabel")}
-                                </label>
-                                <input
-                                    type="password"
-                                    required
-                                    minLength="6"
-                                    value={password}
-                                    onChange={(e) =>
-                                        setPassword(e.target.value)
-                                    }
-                                    className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
-                                />
-                            </div>
+                        <div className="space-y-1">
+                            <label htmlFor="reg-email" className="text-xs text-text-secondary font-semibold uppercase">
+                                {lang === "am" ? "ኢሜል (አማራጭ)" : "Email Address (optional)"}
+                            </label>
+                            <input
+                                id="reg-email"
+                                type="email"
+                                autoComplete="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className={INPUT_CLS}
+                            />
                         </div>
 
-                        {/* ── Gender + Phone ── */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="space-y-1">
-                                <label className="text-xs text-text-secondary font-semibold uppercase">
-                                    {t("genderLabel")}
-                                </label>
-                                <select
-                                    value={gender}
-                                    onChange={(e) => setGender(e.target.value)}
-                                    className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
-                                >
-                                    <option value="male">{t("maleOpt")}</option>
-                                    <option value="female">
-                                        {t("femaleOpt")}
-                                    </option>
-                                </select>
-                            </div>
-                            <div className="space-y-1">
-                                <label className="text-xs text-text-secondary font-semibold uppercase">
-                                    {t("phoneLabel")}
-                                </label>
-                                <input
-                                    type="tel"
-                                    required
-                                    value={phone}
-                                    onChange={(e) => setPhone(e.target.value)}
-                                    placeholder="+251 976977475"
-                                    className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
-                                />
-                            </div>
+                        <div className="space-y-1">
+                            <label htmlFor="reg-password" className="text-xs text-text-secondary font-semibold uppercase">
+                                {t("passwordLabel")}
+                            </label>
+                            <input
+                                id="reg-password"
+                                type="password"
+                                autoComplete="new-password"
+                                required
+                                minLength={6}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className={INPUT_CLS}
+                            />
                         </div>
 
-                        {/* ════════════════════════════════════════════════
-                         *  STUDENT-SPECIFIC SECTION
-                         * ════════════════════════════════════════════════ */}
                         {role === "student" && (
                             <div className="space-y-4 pt-2 border-t border-navy-border">
-                                {/* Age + Course Package */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div className="space-y-1">
-                                        <label className="text-xs text-text-secondary font-semibold uppercase">
-                                            {t("ageLabel")}
-                                        </label>
-                                        <input
-                                            type="number"
-                                            min="4"
-                                            max="99"
-                                            required
-                                            value={age}
-                                            onChange={(e) =>
-                                                setAge(e.target.value)
-                                            }
-                                            className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-1">
-                                        <label className="text-xs text-text-secondary font-semibold uppercase">
-                                            {lang === "am"
-                                                ? "የትምህርት ጥቅል"
-                                                : "Course Package"}
-                                        </label>
-                                        <select
-                                            value={courseId}
-                                            onChange={(e) =>
-                                                setCourseId(e.target.value)
-                                            }
-                                            className="w-full px-3 py-2.5 bg-navy-mid border border-navy-border rounded-md text-white focus:outline-none focus:border-gold-primary text-sm"
-                                        >
-                                            {coursesLoading ? (
-                                                <option disabled>
-                                                    {lang === "am"
-                                                        ? "ኮርሶች በመጫን ላይ..."
-                                                        : "Loading courses..."}
+                                <div className="space-y-1">
+                                    <label htmlFor="reg-course" className="text-xs text-text-secondary font-semibold uppercase">
+                                        {lang === "am" ? "የትምህርት ጥቅል" : "Course"}
+                                    </label>
+                                    <select
+                                        id="reg-course"
+                                        value={courseId}
+                                        onChange={(e) => setCourseId(e.target.value)}
+                                        className={INPUT_CLS}
+                                    >
+                                        {coursesLoading ? (
+                                            <option disabled value="">
+                                                {lang === "am" ? "ኮርሶች በመጫን ላይ..." : "Loading courses..."}
+                                            </option>
+                                        ) : courses.length === 0 ? (
+                                            <option disabled value="">
+                                                {lang === "am" ? "ንቁ ኮርስ አልተገኘም" : "No active course available"}
+                                            </option>
+                                        ) : (
+                                            courses.map((c) => (
+                                                <option key={c.id} value={c.id}>
+                                                    {c.name}
                                                 </option>
-                                            ) : courses.length === 0 ? (
-                                                <option disabled value="">
-                                                    {lang === "am"
-                                                        ? "ንቁ ኮርስ አልተገኘም"
-                                                        : "No active course available"}
-                                                </option>
-                                            ) : (
-                                                courses.map((c) => (
-                                                    <option
-                                                        key={c.id}
-                                                        value={c.id}
-                                                    >
-                                                        {c.name}
-                                                    </option>
-                                                ))
-                                            )}
-                                        </select>
-                                    </div>
+                                            ))
+                                        )}
+                                    </select>
                                 </div>
 
-                                {/* Preferred Tutor Gender */}
-                                <div className="pt-1">
-                                    <TutorGenderPreference
-                                        value={preferredTutorGender}
-                                        onChange={setPreferredTutorGender}
-                                        lang={lang}
-                                    />
-                                </div>
-
-                                {/* Registration Fee notice */}
                                 <div className="bg-navy-mid border border-gold-primary/30 p-4 rounded-xl space-y-2">
                                     <div className="flex justify-between items-center text-sm">
                                         <span className="font-semibold text-white">
-                                            {lang === "am"
-                                                ? "የምዝገባ ክፍያ"
-                                                : "Registration Fee"}
+                                            {lang === "am" ? "የምዝገባ ክፍያ" : "Registration Fee"}
                                         </span>
                                         <span className="font-extrabold text-gold-primary">
                                             {config.registrationFeeStudent} ETB
@@ -971,67 +624,34 @@ function RegisterPageContent() {
                             </div>
                         )}
 
-                        {/* ════════════════════════════════════════════════
-                         *  TEACHER-SPECIFIC SECTION
-                         * ════════════════════════════════════════════════ */}
                         {role === "teacher" && (
-                            <div className="space-y-4 pt-2 border-t border-navy-border">
-                                {/* Notice explaining doc upload is deferred */}
-                                <div className="bg-navy-mid border border-gold-primary/30 p-3.5 rounded-xl flex items-start gap-3">
-                                    <span className="text-lg text-gold-primary mt-0.5">ℹ️</span>
-                                    <div className="text-xs text-text-secondary leading-relaxed">
-                                        <span className="font-bold text-white block mb-0.5">
-                                            {lang === "am"
-                                                ? "የሰነዶችና የባንክ ሂሳብ መረጃ"
-                                                : "Document & Bank Account Setup"}
-                                        </span>
-                                        {lang === "am"
-                                            ? "የመታወቂያ፣ የትምህርት ማስረጃዎች እና የባንክ መረጃዎችን ከምዝገባ በኋላ በአስተማሪ ዳሽቦርድዎ (Account Settings) ውስጥ በቀላሉ ማጠናቀቅ ይችላሉ።"
-                                            : "Profile photos, IDs, certificates, and bank account numbers can be uploaded in your Teacher Dashboard after registration."}
-                                    </div>
-                                </div>
-
-                                {/* Course Qualification Multi-Select */}
-                                <div className="pt-1">
-                                    <CourseMultiSelect
-                                        courses={courses}
-                                        selectedCourses={qualifiedCourses}
-                                        onChange={setQualifiedCourses}
-                                        t={t}
-                                        lang={lang}
-                                    />
-                                </div>
+                            <div className="pt-2 border-t border-navy-border">
+                                <CourseMultiSelect
+                                    courses={courses}
+                                    selectedCourses={qualifiedCourses}
+                                    onChange={setQualifiedCourses}
+                                    t={t}
+                                    lang={lang}
+                                />
                             </div>
                         )}
 
-                        {/* ── Location Map Picker (shared) ── */}
-                        <div className="pt-2 border-t border-navy-border">
-                            <MapPicker
-                                value={locationPin}
-                                onChange={setLocationPin}
-                                label={t("locationLabel")}
-                            />
-                        </div>
-
-                        {/* ── Error Message ── */}
                         {error && (
-                            <p className="text-error text-xs font-semibold bg-error-faint p-2.5 rounded border border-error">
+                            <p role="alert" className="text-error text-xs font-semibold bg-error-faint p-2.5 rounded border border-error">
                                 ❌ {error}
                             </p>
                         )}
 
-                        {/* ── Upload Status ── */}
                         {uploadStatus && (
                             <p className="text-gold-primary text-xs font-semibold animate-pulse text-center">
                                 ⏳ {uploadStatus}
                             </p>
                         )}
 
-                        {/* ── Submit ── */}
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full py-4 font-bold rounded-md bg-gold-primary text-navy-deep hover:bg-gold-hover shadow-gold hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-50 text-sm"
+                            className="w-full py-3.5 font-bold rounded-md bg-gold-primary text-navy-deep hover:bg-gold-hover shadow-gold transition-all duration-200 disabled:opacity-50 text-sm"
                         >
                             {loading
                                 ? lang === "am"
@@ -1039,16 +659,36 @@ function RegisterPageContent() {
                                     : "Registering..."
                                 : t("btnRegisterSubmit")}
                         </button>
-
-                        <div className="text-center pt-2 text-xs">
-                            <Link
-                                href="/login"
-                                className="text-gold-primary hover:underline font-semibold"
-                            >
-                                {t("alreadyHaveAccount")}
-                            </Link>
-                        </div>
                     </form>
+
+                    <div className="relative flex py-1 items-center">
+                        <div className="flex-grow border-t border-navy-border"></div>
+                        <span className="flex-shrink mx-4 text-xs text-text-muted font-semibold uppercase">
+                            {lang === "am" ? "ወይም" : "Or"}
+                        </span>
+                        <div className="flex-grow border-t border-navy-border"></div>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={handleGoogleRegister}
+                        disabled={loading}
+                        className="w-full py-3 px-4 rounded-md border border-navy-border hover:border-gold-primary text-white bg-navy-mid font-semibold hover:bg-navy-hover flex items-center justify-center space-x-2 text-sm transition-all duration-200 disabled:opacity-50"
+                    >
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
+                            <path
+                                fill="#EA4335"
+                                d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.136 4.114A5.99 5.99 0 0 1 8 12.5a5.99 5.99 0 0 1 5.99-6.013c1.55 0 2.902.583 3.923 1.545l3.15-3.14A9.95 9.95 0 0 0 13.99 2 9.99 9.99 0 0 0 4 12a9.99 9.99 0 0 0 9.99 10c5.3 0 9.75-3.87 9.75-10 0-.612-.048-1.285-.16-1.715h-11.34z"
+                            />
+                        </svg>
+                        <span>{t("googleLoginBtn")}</span>
+                    </button>
+
+                    <div className="text-center text-xs">
+                        <Link href="/login" className="text-gold-primary hover:underline font-semibold">
+                            {t("alreadyHaveAccount")}
+                        </Link>
+                    </div>
                 </div>
             </div>
         </div>

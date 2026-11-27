@@ -71,7 +71,7 @@ export default function TeacherPayouts() {
             monthlyAggregates[month] = {
                 month,
                 amount: 0,
-                status: "pending",
+                status: "paid", // stays "paid" only if every payment that month is paid
                 studentsCount: 0,
             };
         }
@@ -82,8 +82,8 @@ export default function TeacherPayouts() {
             (config ? calcTeacherPayout(config, coursePrice) : coursePrice * 0.85);
         monthlyAggregates[month].amount += payout || 0;
         monthlyAggregates[month].studentsCount++;
-        if (payment.status === "paid") {
-            monthlyAggregates[month].status = "paid";
+        if (payment.status !== "paid") {
+            monthlyAggregates[month].status = "pending";
         }
     });
 

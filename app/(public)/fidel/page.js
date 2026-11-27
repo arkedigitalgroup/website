@@ -110,14 +110,6 @@ const faqData = {
                 text: "Fidel courses are delivered in person at home, online, or in a hybrid format. The format is shown on each course card and confirmed during matching.",
             },
         },
-        {
-            "@type": "Question",
-            name: "Is religious education part of Fidel?",
-            acceptedAnswer: {
-                "@type": "Answer",
-                text: "No. Religious education is provided through Yeneta, Arke's separate branch, with its own page and enrollment flow.",
-            },
-        },
     ],
 };
 

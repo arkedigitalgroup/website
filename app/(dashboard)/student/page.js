@@ -8,7 +8,6 @@ import {
     getDoc,
     getDocs,
     collection,
-    updateDoc,
     query,
     where,
 } from "firebase/firestore";
@@ -16,6 +15,9 @@ import { db, auth } from "../../../src/lib/firebase";
 import { useAuth } from "../../../src/context/AuthContext";
 import { useLanguage } from "../../../src/context/LanguageContext";
 import { sendEmailVerification } from "firebase/auth";
+import { isPhoneAuthEmail } from "../../../src/lib/phoneAuth";
+import { isYenetaUser } from "../../../src/lib/serviceLine";
+import { useCourses } from "../../../src/hooks/Usecourses";
 
 // ─── Warning Banner Component ─────────────────────────────────────────────────
 function WarningBanner({
@@ -64,9 +66,13 @@ export default function StudentHome() {
     const [overduePayments, setOverduePayments] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // Locked overlay simulated payment reference
-    const [paymentRefInput, setPaymentRefInput] = useState("");
-    const [unlocking, setUnlocking] = useState(false);
+
+    const { courses: yenetaCourses } = useCourses("yeneta", lang);
+    const { courses: fidelCourses } = useCourses("fidel", lang);
+    const isYeneta = isYenetaUser(student);
+    const courseName =
+        [...yenetaCourses, ...fidelCourses].find((c) => c.id === student?.courseId)?.name ||
+        student?.courseId;
 
     const fetchStudentDashboardData = async () => {
         if (!user) return;
@@ -129,26 +135,6 @@ export default function StudentHome() {
         fetchStudentDashboardData();
     }, [user]);
 
-    // Handler to self-verify mock payment to unlock dashboard
-    const handleVerifyMockPayment = async (e) => {
-        e.preventDefault();
-        if (!paymentRefInput) return;
-        setUnlocking(true);
-
-        try {
-            const studentRef = doc(db, "students", user.uid);
-            await updateDoc(studentRef, {
-                dashboardLocked: false,
-                registrationFeePaid: true,
-            });
-            fetchStudentDashboardData();
-        } catch (err) {
-            console.error("Unlock dashboard error:", err);
-        } finally {
-            setUnlocking(false);
-        }
-    };
-
     // ─── Compute warnings ────────────────────────────────────────────────────
     const warnings = [];
 
@@ -157,8 +143,8 @@ export default function StudentHome() {
         const missingFields = [];
         if (!student.phone)
             missingFields.push(lang === "am" ? "ስልክ ቁጥር" : "phone number");
-        if (!student.christianName)
-            missingFields.push(lang === "am" ? "የክርስትና ስም" : "Christian name");
+        if (!student.fullName)
+            missingFields.push(lang === "am" ? "ሙሉ ስም" : "full name");
         if (!student.locationPin?.lat)
             missingFields.push(lang === "am" ? "አካባቢ" : "location");
 
@@ -225,7 +211,8 @@ export default function StudentHome() {
     }
 
     // Firebase Email Verification Check
-    if (user && !user.emailVerified) {
+    // Phone accounts use a placeholder email that can never be verified.
+    if (user && !user.emailVerified && !isPhoneAuthEmail(user.email)) {
         return (
             <div className="min-h-[80vh] flex items-center justify-center p-4">
                 <div className="max-w-xl w-full bg-navy-surface border border-gold-primary/30 rounded-2xl p-8 sm:p-12 shadow-2xl space-y-6 relative overflow-hidden text-center">
@@ -321,7 +308,7 @@ export default function StudentHome() {
                         </h1>
                         <p className="text-sm text-text-secondary">
                             {lang === "am"
-                                ? "የየኔታ አስጠኚ ወርሃዊ ክፍያ ባለመፈጸሙ ምክንያት የርስዎ ዳሽቦርድ ለጊዜው ተዘግቷል። እባክዎን ክፍያ ፈጽመው የማረጋገጫ ቁጥር ያስገቡ።"
+                                ? "ወርሃዊ የትምህርት ክፍያ ባለመፈጸሙ ምክንያት የርስዎ ዳሽቦርድ ለጊዜው ተዘግቷል። እባክዎን ክፍያ ፈጽመው የማረጋገጫ ቁጥር ያስገቡ።"
                                 : "Your parent portal has been temporarily locked past the 10th of the month due to an outstanding invoice. Please clear payment to restore access."}
                         </p>
                     </div>
@@ -360,33 +347,20 @@ export default function StudentHome() {
                         </div>
                     </div>
 
-                    {/* Quick Mock Verify ref to self-unlock */}
-                    <form
-                        onSubmit={handleVerifyMockPayment}
-                        className="space-y-3"
+                    {/* Unlock happens when admin approves the submitted receipt */}
+                    <Link
+                        href="/student/payments"
+                        className="block w-full py-3.5 font-bold rounded-md bg-error text-white text-center hover:opacity-90 transition-all duration-200 text-sm"
                     >
-                        <input
-                            type="text"
-                            required
-                            placeholder={
-                                lang === "am"
-                                    ? "የማስተላለፊያ ማረጋገጫ ቁጥር (Transaction Ref)"
-                                    : "Enter Bank Transaction Reference"
-                            }
-                            value={paymentRefInput}
-                            onChange={(e) => setPaymentRefInput(e.target.value)}
-                            className="w-full px-4 py-3 bg-navy-mid border border-navy-border rounded-md text-white placeholder-text-muted focus:outline-none focus:border-error text-sm text-center font-mono"
-                        />
-                        <button
-                            type="submit"
-                            disabled={unlocking}
-                            className="w-full py-3.5 font-bold rounded-md bg-error text-white hover:bg-error-faint hover:text-error transition-all duration-200 text-sm"
-                        >
-                            {unlocking
-                                ? "Verifying payment..."
-                                : "Confirm Payment & Unlock"}
-                        </button>
-                    </form>
+                        {lang === "am"
+                            ? "ደረሰኝ ለመላክ ወደ ክፍያዎች ይሂዱ"
+                            : "Go to Payments to submit your receipt"}
+                    </Link>
+                    <p className="text-xs text-text-muted text-center">
+                        {lang === "am"
+                            ? "ደረሰኙ በአስተዳዳሪ ሲረጋገጥ ዳሽቦርዱ ይከፈታል።"
+                            : "Your dashboard unlocks once an admin approves the receipt."}
+                    </p>
                 </div>
             </div>
         );
@@ -409,9 +383,13 @@ export default function StudentHome() {
                     {t("studentDashTitle")}
                 </h1>
                 <p className="text-sm text-text-secondary">
-                    {lang === "am"
-                        ? "ወደ አርኬ ወላጆች ማዕከል እንኳን ደህና መጡ። የትምህርት ካላንደር፣ የስነ-ምግባር ሪፖርቶች እና የወርሃዊ ክፍያ ሁኔታዎችን እዚህ ይከታተሉ።"
-                        : "Welcome to Arke parent portal. Monitor course calendar, moral reports, and monthly billing status."}
+                    {isYeneta
+                        ? lang === "am"
+                            ? "ወደ አርኬ ወላጆች ማዕከል እንኳን ደህና መጡ። የትምህርት ካላንደር፣ የስነ-ምግባር ሪፖርቶች እና የወርሃዊ ክፍያ ሁኔታዎችን እዚህ ይከታተሉ።"
+                            : "Welcome to Arke parent portal. Monitor course calendar, moral reports, and monthly billing status."
+                        : lang === "am"
+                          ? "ወደ አርኬ እንኳን ደህና መጡ። የትምህርት ካላንደር፣ የሂደት ሪፖርቶች እና የወርሃዊ ክፍያ ሁኔታዎችን እዚህ ይከታተሉ።"
+                          : "Welcome to Arke. Monitor your lesson calendar, progress reports, and monthly billing status."}
                 </p>
             </div>
 
@@ -437,7 +415,7 @@ export default function StudentHome() {
                                     <div className="space-y-1">
                                         <h3 className="text-xl font-bold text-white flex items-center justify-center sm:justify-start space-x-2">
                                             <span>{teacher.fullName}</span>
-                                            {teacher.christianName && (
+                                            {isYeneta && teacher.christianName && (
                                                 <span className="text-xs font-normal text-gold-primary font-ethiopic">
                                                     ({teacher.christianName})
                                                 </span>
@@ -462,7 +440,7 @@ export default function StudentHome() {
                                                 {teacher.phone}
                                             </span>
                                         </div>
-                                        {teacher.churchDocUrl && (
+                                        {isYeneta && teacher.churchDocUrl && (
                                             <div>
                                                 {lang === "am"
                                                     ? "⛪ የቤተክርስቲያን ምስክርነት: "
@@ -507,7 +485,7 @@ export default function StudentHome() {
                                         : "Enrolled Course"}
                                 </span>
                                 <span className="font-bold text-white text-base capitalize font-ethiopic">
-                                    {student?.courseId}
+                                    {courseName}
                                 </span>
                             </div>
                             <Link

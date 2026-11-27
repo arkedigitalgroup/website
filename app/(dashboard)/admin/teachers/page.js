@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react";
 import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../src/lib/firebase";
 import { useLanguage } from "../../../../src/context/LanguageContext";
+import { isYenetaUser } from "../../../../src/lib/serviceLine";
 
 export default function AdminTeachers() {
     const { t, lang } = useLanguage();
@@ -13,7 +14,7 @@ export default function AdminTeachers() {
     const [loading, setLoading] = useState(true);
     const [updatingId, setUpdatingId] = useState(null);
 
-    // Modal states for church recommendation letter view
+    // Modal states for teacher document view
     const [selectedDocUrl, setSelectedDocUrl] = useState(null);
     const [rejectionReason, setRejectionReason] = useState("");
     const [rejectingId, setRejectingId] = useState(null);
@@ -120,8 +121,8 @@ export default function AdminTeachers() {
                             : "የአስተማሪዎች ማረጋገጫ"}
                     </h1>
                     <p className="text-sm text-text-secondary">
-                        Verify submitted church recommendation letters and
-                        approve tutors to teach.
+                        Review submitted teacher documents and approve tutors
+                        to teach.
                     </p>
                 </div>
 
@@ -209,7 +210,9 @@ export default function AdminTeachers() {
                                             </div>
                                         </td>
                                         <td className="p-4 sm:p-5 space-y-2">
-                                            {/* Church Endorsement */}
+                                            {/* Church Endorsement — Yeneta teachers only */}
+                                            {isYenetaUser(teacher) && (
+                                            <>
                                             {teacher.churchDocUrl ? (
                                                 <button
                                                     onClick={() =>
@@ -228,6 +231,8 @@ export default function AdminTeachers() {
                                                         Missing
                                                     </span>
                                                 </span>
+                                            )}
+                                            </>
                                             )}
                                             {/* Government ID */}
                                             {teacher.idCardUrl ? (
@@ -345,7 +350,7 @@ export default function AdminTeachers() {
                     <div className="bg-navy-surface border border-navy-border rounded-xl max-w-4xl w-full h-[85vh] flex flex-col shadow-2xl overflow-hidden relative">
                         <div className="p-4 border-b border-navy-border flex justify-between items-center bg-navy-mid">
                             <h3 className="font-bold text-white font-ethiopic">
-                                Church Recommendation Document
+                                Document Preview
                             </h3>
                             <button
                                 onClick={() => setSelectedDocUrl(null)}
@@ -358,7 +363,7 @@ export default function AdminTeachers() {
                             <iframe
                                 src={selectedDocUrl}
                                 className="w-full h-full rounded border-0"
-                                title="Church recommendation doc preview"
+                                title="Teacher document preview"
                             />
                         </div>
                     </div>
@@ -376,7 +381,7 @@ export default function AdminTeachers() {
                             rows="4"
                             value={rejectionReason}
                             onChange={(e) => setRejectionReason(e.target.value)}
-                            placeholder="e.g. Church document signature is missing or illegible."
+                            placeholder="e.g. ID document is missing or illegible."
                             className="w-full px-3 py-2 bg-navy-mid border border-navy-border rounded-md text-white placeholder-text-muted focus:outline-none focus:border-gold-primary text-sm resize-none"
                         />
                         <div className="flex justify-end space-x-2">

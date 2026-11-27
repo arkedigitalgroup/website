@@ -18,6 +18,7 @@ import {
     getDocs,
 } from "firebase/firestore";
 import { auth, db } from "../../../src/lib/firebase";
+import { normalizePhone, phoneToAuthEmail } from "../../../src/lib/phoneAuth";
 import { useLanguage } from "../../../src/context/LanguageContext";
 import { useAuth } from "../../../src/context/AuthContext";
 import AuthNavbar from "../../../src/components/layout/AuthNavbar";
@@ -40,13 +41,30 @@ export default function LoginPage() {
         e.preventDefault();
         setError("");
         setLoading(true);
+        const input = emailOrPhone.trim();
+        // Simple check: if it contains only digits, +, -, spaces, or parentheses, or doesn't have '@', we treat it as a phone number
+        const isPhoneInput = /^[+\d\s()-]+$/.test(input) || !input.includes("@");
         try {
-            const input = emailOrPhone.trim();
-            // Simple check: if it contains only digits, +, -, spaces, or parentheses, or doesn't have '@', we treat it as a phone number
-            const isPhone = /^[+\d\s()-]+$/.test(input) || !input.includes("@");
+            const isPhone = isPhoneInput;
             let loginEmail = input;
 
             if (isPhone) {
+                // Phone + password accounts (see src/lib/phoneAuth.js)
+                const normalizedPhone = normalizePhone(input);
+                if (normalizedPhone) {
+                    try {
+                        await loginWithEmail(phoneToAuthEmail(normalizedPhone), password);
+                        return;
+                    } catch (phoneErr) {
+                        if (
+                            phoneErr.code !== "auth/invalid-credential" &&
+                            phoneErr.code !== "auth/user-not-found"
+                        )
+                            throw phoneErr;
+                        // Older accounts registered with email + phone: look the email up below.
+                    }
+                }
+
                 // Clean phone number (remove spaces, dashes, parentheses)
                 const cleanPhone = input.replace(/[^\d+]/g, "");
 
@@ -102,12 +120,18 @@ export default function LoginPage() {
             if (
                 err.code === "auth/user-not-found" ||
                 err.code === "auth/wrong-password" ||
-                err.code === "auth/invalid-credential"
+                err.code === "auth/invalid-credential" ||
+                // legacy phone lookup is read-protected for signed-out users
+                (isPhoneInput && err.code === "permission-denied")
             ) {
                 setError(
                     lang === "am"
-                        ? "የተሳሳተ ኢሜል/ስልክ ወይም የይለፍ ቃል።"
-                        : "Invalid email/phone or password.",
+                        ? isPhoneInput
+                            ? "የተሳሳተ ስልክ ቁጥር ወይም የይለፍ ቃል።"
+                            : "የተሳሳተ ኢሜል ወይም የይለፍ ቃል። በስልክ ቁጥር ከተመዘገቡ በስልክ ቁጥርዎ ይግቡ።"
+                        : isPhoneInput
+                          ? "Invalid phone number or password."
+                          : "Invalid email or password. If you registered with a phone number, sign in with your phone number.",
                 );
             } else if (
                 err.code === "auth/configuration-not-found" ||
@@ -160,8 +184,8 @@ export default function LoginPage() {
         if (isPhone) {
             setError(
                 lang === "am"
-                    ? "እባክዎ የይለፍ ቃል ለማደስ ኢሜልዎን ይጠቀሙ።"
-                    : "Please enter an email address to reset password.",
+                    ? "በስልክ ቁጥር ለተመዘገቡ መለያዎች የይለፍ ቃል ለማደስ ድጋፍን ያግኙ (+251 990 285 748)።"
+                    : "Password reset for phone-number accounts is handled by support: call +251 990 285 748.",
             );
             return;
         }

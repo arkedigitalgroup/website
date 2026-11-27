@@ -48,7 +48,7 @@ const structuredData = {
             url: SITE_URL,
             logo: `${SITE_URL}/arkelogo.png`,
             description:
-                "Academic tutoring for Grades 5–12 in Addis Ababa. Fidel is Arke's main academic service; Yeneta is a separate religious-education branch.",
+                "Academic tutoring for Grades 5–12 in Addis Ababa. Open to every learner.",
             address: {
                 "@type": "PostalAddress",
                 addressLocality: "Addis Ababa",
