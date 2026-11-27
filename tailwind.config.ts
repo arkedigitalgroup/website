@@ -54,6 +54,10 @@ const config: Config = {
                 warning: "var(--warning)",
                 error: "var(--error)",
                 info: "var(--info)",
+                "success-faint": "var(--success-faint)",
+                "warning-faint": "var(--warning-faint)",
+                "error-faint": "var(--error-faint)",
+                "info-faint": "var(--info-faint)",
             },
             fontFamily: {
                 latin: ["Inter", "system-ui", "sans-serif"],

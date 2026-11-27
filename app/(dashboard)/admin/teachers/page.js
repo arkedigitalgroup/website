@@ -6,6 +6,7 @@ import { collection, getDocs, doc, updateDoc, deleteField, writeBatch } from "fi
 import { db } from "../../../../src/lib/firebase";
 import { useLanguage } from "../../../../src/context/LanguageContext";
 import { isYenetaUser } from "../../../../src/lib/serviceLine";
+import Pager, { pageOf } from "../../../../src/components/ui/Pager";
 
 export default function AdminTeachers() {
     const { t, lang } = useLanguage();
@@ -13,6 +14,13 @@ export default function AdminTeachers() {
     const [banks, setBanks] = useState({}); // teacherBankAccounts/{uid}, admin + owner only
     const [migrating, setMigrating] = useState(false);
     const [filter, setFilter] = useState("all"); // 'all', 'pending', 'verified', 'rejected'
+    const [search, setSearch] = useState("");
+    const [page, setPage] = useState(0);
+    useEffect(() => {
+        const q = new URLSearchParams(window.location.search).get("q");
+        if (q) { setSearch(q); }
+    }, []);
+    useEffect(() => setPage(0), [filter, search]);
     const [loading, setLoading] = useState(true);
     const [updatingId, setUpdatingId] = useState(null);
 
@@ -122,9 +130,11 @@ export default function AdminTeachers() {
             setUpdatingId(null);
         }
     };
-    console.log("Teachers", teachers);
     // Filtered teachers list
+    const term = search.trim().toLowerCase();
     const filteredTeachers = teachers.filter((teacher) => {
+        if (term && ![teacher.fullName, teacher.christianName, teacher.phone, teacher.serviceId]
+            .some((v) => String(v || "").toLowerCase().includes(term))) return false;
         if (filter === "pending")
             return !teacher.verified && (teacher.hasBankAccount || teacher.bankAccount); // has filled form but not verified
         if (filter === "verified") return teacher.verified;
@@ -174,6 +184,15 @@ export default function AdminTeachers() {
                     </button>
                 )}
 
+                <input
+                    type="search"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    aria-label={lang === "am" ? "መምህር ፈልግ" : "Search teachers"}
+                    placeholder={lang === "am" ? "🔍 ስም፣ ስልክ ወይም መለያ ቁጥር" : "🔍 Name, phone or service ID"}
+                    className="px-3 py-2 bg-navy-mid border border-navy-border rounded-lg text-sm text-white placeholder-text-muted focus:outline-none focus:border-gold-primary self-start"
+                />
+
                 {/* Tab Filters */}
                 <div className="flex bg-navy-mid border border-navy-border p-1 rounded-lg self-start text-xs font-semibold">
                     {["all", "pending", "verified", "rejected"].map((item) => (
@@ -221,7 +240,7 @@ export default function AdminTeachers() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-navy-border text-sm">
-                                {filteredTeachers.map((teacher) => (
+                                {pageOf(filteredTeachers, page).rows.map((teacher) => (
                                     <tr
                                         key={teacher.id}
                                         className="hover:bg-navy-hover transition-colors"
@@ -395,6 +414,7 @@ export default function AdminTeachers() {
                         </table>
                     </div>
                 )}
+                <Pager page={pageOf(filteredTeachers, page).page} pages={pageOf(filteredTeachers, page).pages} onPage={setPage} lang={lang} />
             </div>
 
             {/* PDF View Modal */}

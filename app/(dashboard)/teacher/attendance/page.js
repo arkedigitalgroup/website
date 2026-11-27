@@ -12,6 +12,7 @@ import {
     where,
 } from "firebase/firestore";
 import { db } from "../../../../src/lib/firebase";
+import { addisDate } from "../../../../src/lib/billing";
 import { uploadToSupabase } from "../../../../src/lib/supabase";
 import { useAuth } from "../../../../src/context/AuthContext";
 import { useLanguage } from "../../../../src/context/LanguageContext";
@@ -31,7 +32,7 @@ export default function TeacherAttendance() {
 
     // Form inputs
     const [studentId, setStudentId] = useState(urlStudentId);
-    const [date, setDate] = useState(new Date().toISOString().slice(0, 10)); // YYYY-MM-DD
+    const [date, setDate] = useState(addisDate().today); // YYYY-MM-DD in Addis time
     const [topic, setTopic] = useState("");
     const [topicAm, setTopicAm] = useState("");
     const [engagementStars, setEngagementStars] = useState(5);
