@@ -1,5 +1,6 @@
 // src/lib/supabase.ts
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { auth } from "./firebase";
 
 // Created on first upload, not at import: createClient throws when the URL is
 // missing, which would crash prerendering of every page that imports this file.
@@ -19,51 +20,30 @@ function getSupabase(): SupabaseClient {
 export const DEFAULT_BUCKET = "arke-media";
 
 /**
- * Uploads a file to Supabase Storage and returns its publicly accessible URL.
- * Automatically tries the specified bucket, falling back to 'arke' or 'public' if not found.
+ * Uploads a file to Supabase Storage and returns its public URL.
+ * The server (app/api/upload-url) checks the Firebase sign-in and that the path is
+ * "<folder>/<uid>/...", then hands back a one-time signed upload token.
  *
  * @param file File or Blob to upload
- * @param path Storage destination path (e.g. `receipts/uid/filename.jpg`)
- * @param bucket Bucket name (defaults to 'arke-media')
- * @returns Promise<string> Public URL of the uploaded file
+ * @param path Storage destination path (e.g. `receipts/<uid>/filename.jpg`)
  */
-export async function uploadToSupabase(
-    file: File | Blob,
-    path: string,
-    bucket: string = DEFAULT_BUCKET
-): Promise<string> {
-    const cleanPath = path.replace(/^\/+/, "");
+export async function uploadToSupabase(file: File | Blob, path: string): Promise<string> {
+    const idToken = await auth.currentUser?.getIdToken();
+    if (!idToken) throw new Error("Sign in before uploading files.");
+
+    const res = await fetch("/api/upload-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
+        body: JSON.stringify({ path: path.replace(/^\/+/, "") }),
+    });
+    const signed = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(`Upload not allowed: ${signed.error || res.status}`);
+
     const supabase = getSupabase();
+    const { error } = await supabase.storage
+        .from(signed.bucket)
+        .uploadToSignedUrl(signed.path, signed.token, file, { cacheControl: "3600" });
+    if (error) throw new Error(`Supabase Storage Error: ${error.message}`);
 
-    // Attempt upload with overwrite enabled
-    let uploadRes = await supabase.storage
-        .from(bucket)
-        .upload(cleanPath, file, {
-            upsert: true,
-            cacheControl: "3600",
-        });
-
-    // If bucket does not exist, try common fallback bucket names
-    if (uploadRes.error && uploadRes.error.message?.includes("Bucket not found")) {
-        const fallbacks = ["arke", "media", "receipts", "images"];
-        for (const fb of fallbacks) {
-            if (fb === bucket) continue;
-            const retry = await supabase.storage.from(fb).upload(cleanPath, file, {
-                upsert: true,
-                cacheControl: "3600",
-            });
-            if (!retry.error) {
-                bucket = fb;
-                uploadRes = retry;
-                break;
-            }
-        }
-    }
-
-    if (uploadRes.error) {
-        throw new Error(`Supabase Storage Error: ${uploadRes.error.message}`);
-    }
-
-    const { data } = supabase.storage.from(bucket).getPublicUrl(cleanPath);
-    return data.publicUrl;
+    return supabase.storage.from(signed.bucket).getPublicUrl(signed.path).data.publicUrl;
 }
