@@ -1,7 +1,7 @@
 // app/(auth)/login/page.js
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -25,8 +25,14 @@ import AuthNavbar from "../../../src/components/layout/AuthNavbar";
 
 export default function LoginPage() {
     const { t, lang } = useLanguage();
-    const { loginWithEmail, loginWithPhone, loginWithGoogle, setProfile } = useAuth();
+    const { user, profile, loading: authLoading, loginWithEmail, loginWithPhone, loginWithGoogle, setProfile } = useAuth();
     const router = useRouter();
+
+    // Already signed in: go straight to the right dashboard.
+    useEffect(() => {
+        if (authLoading || !user || !profile?.role) return;
+        router.replace(profile.role === "admin" ? "/admin" : profile.role === "teacher" ? "/teacher" : "/student");
+    }, [authLoading, user, profile, router]);
 
     // Inputs
     const [emailOrPhone, setEmailOrPhone] = useState("");
