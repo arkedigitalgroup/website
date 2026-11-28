@@ -50,7 +50,11 @@ export default function RegistrationFeeCard({ uid, role, feePaid, lang }) {
             await submitRegistrationFee({ uid, role, amount, file, transactionRef });
         } catch (err) {
             console.error("Registration fee submit failed:", err);
-            setError(am ? "ደረሰኙን መላክ አልተቻለም። እንደገና ይሞክሩ።" : "Could not send the receipt. Please try again.");
+            setError(
+                err.code === "file-too-large"
+                    ? am ? "File-ኡ ከ5 MB በላይ ነው። ትንሽ ፎቶ ወይም PDF ይላኩ።" : "The file is larger than 5 MB. Please send a smaller photo or PDF."
+                    : am ? "ደረሰኙን መላክ አልተቻለም። Internet-ዎን አረጋግጠው እንደገና ይሞክሩ።" : "Could not send the receipt. Check your internet and try again.",
+            );
         } finally {
             setBusy(false);
         }

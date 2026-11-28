@@ -47,7 +47,7 @@ function DocUploadRow({
             </div>
             <div className="flex-grow min-w-0">
                 <p className="text-sm font-semibold text-white">{label}</p>
-                <p className="text-[10px] text-text-muted">{hint}</p>
+                <p className="text-[10px] text-text-muted">{hint} · Max 5 MB</p>
                 {currentUrl && (
                     <a
                         href={currentUrl}
@@ -180,9 +180,11 @@ export default function TeacherAccount() {
         } catch (e) {
             console.error("Upload failed:", e);
             setError(
-                lang === "am"
-                    ? "ፋይሉ ሊሰቀል አልቻለም። ድጋሚ ሞክር።"
-                    : "File upload failed. Please try again.",
+                e.code === "file-too-large"
+                    ? lang === "am" ? "File-ኡ ከ5 MB በላይ ነው። ትንሽ ፎቶ ወይም PDF ይስቀሉ።" : "The file is larger than 5 MB. Please upload a smaller photo or PDF."
+                    : lang === "am"
+                      ? "ፋይሉ ሊሰቀል አልቻለም። ድጋሚ ሞክር።"
+                      : "File upload failed. Please try again.",
             );
             return null;
         } finally {

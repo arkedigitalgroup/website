@@ -18,6 +18,29 @@ function getSupabase(): SupabaseClient {
 }
 
 export const DEFAULT_BUCKET = "arke-media";
+export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // arke-media bucket file size limit
+
+/**
+ * Phone photos are often 3–10 MB: too big for the bucket and slow on mobile data.
+ * Re-encode images to at most 1600px / JPEG; keep the original if that isn't smaller
+ * or the browser can't decode it (e.g. HEIC).
+ */
+async function shrinkImage(file: File | Blob): Promise<File | Blob> {
+    if (!file.type.startsWith("image/") || file.type === "image/gif" || file.type === "image/svg+xml") return file;
+    try {
+        const bitmap = await createImageBitmap(file);
+        const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(bitmap.width * scale);
+        canvas.height = Math.round(bitmap.height * scale);
+        canvas.getContext("2d")?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+        bitmap.close();
+        const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.82));
+        return blob && blob.size < file.size ? blob : file;
+    } catch {
+        return file;
+    }
+}
 
 /**
  * Uploads a file to Supabase Storage and returns its public URL.
@@ -27,7 +50,12 @@ export const DEFAULT_BUCKET = "arke-media";
  * @param file File or Blob to upload
  * @param path Storage destination path (e.g. `receipts/<uid>/filename.jpg`)
  */
-export async function uploadToSupabase(file: File | Blob, path: string): Promise<string> {
+export async function uploadToSupabase(original: File | Blob, path: string): Promise<string> {
+    const file = await shrinkImage(original);
+    if (file.size > MAX_UPLOAD_BYTES) {
+        throw Object.assign(new Error("File is larger than 5 MB."), { code: "file-too-large" });
+    }
+
     const idToken = await auth.currentUser?.getIdToken();
     if (!idToken) throw new Error("Sign in before uploading files.");
 

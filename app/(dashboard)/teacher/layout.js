@@ -7,9 +7,10 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "../../../src/context/AuthContext";
 import { useLanguage } from "../../../src/context/LanguageContext";
 import ProtectedRoute from "../../../src/components/auth/ProtectedRoute";
+import EmailVerifyGate from "../../../src/components/auth/EmailVerifyGate";
 
 export default function TeacherLayout({ children }) {
-    const { profile, logout } = useAuth();
+    const { user, profile, logout } = useAuth();
 
     const { t, lang, toggleLanguage } = useLanguage();
     const pathname = usePathname();
@@ -73,7 +74,7 @@ export default function TeacherLayout({ children }) {
 
                 {/* Sidebar */}
                 <aside
-                    className={`w-full md:w-64 bg-navy-mid border-r border-navy-border flex-shrink-0 flex flex-col fixed md:relative inset-y-0 left-0 transform md:transform-none transition-transform duration-200 z-50 ${
+                    className={`w-full md:w-64 bg-navy-mid border-r border-navy-border flex-shrink-0 flex flex-col fixed inset-y-0 left-0 md:sticky md:top-0 md:h-screen transform md:transform-none transition-transform duration-200 z-50 ${
                         sidebarOpen
                             ? "translate-x-0"
                             : "-translate-x-full md:translate-x-0"
@@ -109,7 +110,7 @@ export default function TeacherLayout({ children }) {
                     </div>
 
                     {/* Menu Items */}
-                    <nav className="flex-grow p-4 space-y-1">
+                    <nav className="flex-grow p-4 space-y-1 overflow-y-auto">
                         {menuItems.map((item) => {
                             const isActive = pathname === item.path;
                             return (
@@ -175,7 +176,9 @@ export default function TeacherLayout({ children }) {
 
                 {/* Content Area */}
                 <main className="flex-grow p-6 sm:p-10 overflow-y-auto">
-                    {children}
+                    <EmailVerifyGate user={user} profile={profile} lang={lang}>
+                        {children}
+                    </EmailVerifyGate>
                 </main>
             </div>
         </ProtectedRoute>

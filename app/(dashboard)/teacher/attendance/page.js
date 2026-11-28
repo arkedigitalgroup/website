@@ -291,6 +291,7 @@ export default function TeacherAttendance() {
                                 }
                                 className="w-full text-xs text-text-secondary border border-navy-border rounded bg-navy-mid px-3 py-2 focus:outline-none"
                             />
+                            <p className="text-[11px] text-text-muted">📎 {lang === "am" ? "File-ኡ ከ5 MB መብለጥ የለበትም (Max 5 MB)" : "Max file size: 5 MB"}</p>
                         </div>
 
                         {/* Upload status */}

@@ -85,7 +85,7 @@ export async function POST(request) {
             ].filter(Boolean);
             fileErrors = await removeSupabaseFiles(supabase, urls, [`receipts/${studentId}`, `students/${studentId}`, `registration/${studentId}`]);
         } else {
-            fileErrors = ["SUPABASE_SECRET_KEY not set — files were not deleted"];
+            fileErrors = ["Supabase URL or SUPABASE_SECRET_KEY not set for this deployment — files were not deleted"];
         }
 
         await unassignTeacher(db, studentId, teacherId);

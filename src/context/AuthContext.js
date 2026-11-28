@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import {
     onAuthStateChanged,
     signInWithEmailAndPassword,
+    signInWithCustomToken,
     signOut,
     signInWithPopup,
 } from "firebase/auth";
@@ -66,10 +67,25 @@ export function AuthProvider({ children }) {
         return () => unsubscribe();
     }, []);
 
-    const loginWithEmail = async (email, password) => {
+    const loginWithEmail = (email, password) => finishLogin(() => signInWithEmailAndPassword(auth, email, password));
+
+    /** Phone + password: the server checks the password and returns a custom token. */
+    const loginWithPhone = (phone, password) =>
+        finishLogin(async () => {
+            const r = await fetch("/api/auth/phone-login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ phone, password }),
+            });
+            const body = await r.json().catch(() => ({}));
+            if (!r.ok) throw Object.assign(new Error("Invalid phone or password"), { code: "auth/invalid-credential" });
+            return signInWithCustomToken(auth, body.token);
+        });
+
+    const finishLogin = async (signIn) => {
         setLoading(true);
         try {
-            const res = await signInWithEmailAndPassword(auth, email, password);
+            const res = await signIn();
             const userDocRef = doc(db, "users", res.user.uid);
             const userSnap = await getDoc(userDocRef);
             if (userSnap.exists()) {
@@ -144,6 +160,7 @@ export function AuthProvider({ children }) {
                 profile,
                 loading,
                 loginWithEmail,
+                loginWithPhone,
                 loginWithGoogle,
                 logout,
                 setProfile,
