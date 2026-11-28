@@ -14,8 +14,6 @@ import {
 import { db, auth } from "../../../src/lib/firebase";
 import { useAuth } from "../../../src/context/AuthContext";
 import { useLanguage } from "../../../src/context/LanguageContext";
-import { sendEmailVerification } from "firebase/auth";
-import { isPhoneAuthEmail } from "../../../src/lib/phoneAuth";
 import { isYenetaUser } from "../../../src/lib/serviceLine";
 import { useCourses } from "../../../src/hooks/Usecourses";
 import ArkeBankAccounts from "../../../src/components/payments/ArkeBankAccounts";
@@ -189,58 +187,6 @@ export default function StudentHome() {
                 <p className="text-text-secondary text-sm animate-pulse">
                     Loading parent/student dashboard...
                 </p>
-            </div>
-        );
-    }
-
-    // Firebase Email Verification Check
-    // Phone accounts use a placeholder email that can never be verified.
-    if (user && !user.emailVerified && !isPhoneAuthEmail(user.email)) {
-        return (
-            <div className="min-h-[80vh] flex items-center justify-center p-4">
-                <div className="max-w-xl w-full bg-navy-surface border border-gold-primary/30 rounded-2xl p-8 sm:p-12 shadow-2xl space-y-6 relative overflow-hidden text-center">
-                    <div className="absolute top-0 left-0 w-full h-2 bg-gold-primary" />
-                    <span className="text-5xl block animate-pulse">📧</span>
-                    <h1 className="text-2xl sm:text-3xl font-extrabold text-gold-primary font-ethiopic">
-                        {lang === "am"
-                            ? "እባክዎ ኢሜልዎን ያረጋግጡ"
-                            : "Verify Your Email Address"}
-                    </h1>
-                    <p className="text-sm text-text-secondary leading-relaxed">
-                        {lang === "am"
-                            ? `ወደ ኢሜልዎ (${user.email}) ማረጋገጫ ሊንክ ላክ። እባክዎ ኢሜልዎን ያረጋግጡ።`
-                            : `Please send a verification link to your email (${user.email}). Please verify your email to access your dashboard.`}
-                    </p>
-                    <div className="pt-4 flex flex-col sm:flex-row justify-center gap-3">
-                        <button
-                            onClick={() => window.location.reload()}
-                            className="px-6 py-2.5 rounded bg-gold-primary text-navy-deep font-bold text-sm hover:bg-gold-hover shadow-gold transition-all"
-                        >
-                            {lang === "am"
-                                ? "አረጋግጬ ጨርሻለሁ፣ አስገባኝ!!"
-                                : "I've Verified (Refresh)"}
-                        </button>
-                        <button
-                            onClick={async () => {
-                                try {
-                                    await sendEmailVerification(user);
-                                    alert(
-                                        lang === "am"
-                                            ? "የማረጋገጫ ኢሜል ተልኳል!"
-                                            : "Verification email sent!",
-                                    );
-                                } catch (e) {
-                                    console.error(e);
-                                }
-                            }}
-                            className="px-6 py-2.5 rounded border border-navy-border text-white font-bold text-sm hover:bg-navy-mid transition-all"
-                        >
-                            {lang === "am"
-                                ? "ማረጋገጫ ኢሜል ላክ"
-                                : "Send Verification Email"}
-                        </button>
-                    </div>
-                </div>
             </div>
         );
     }

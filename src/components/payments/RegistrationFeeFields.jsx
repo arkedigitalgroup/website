@@ -20,6 +20,7 @@ export default function RegistrationFeeFields({ amount, config, lang, file, onFi
                 <input id="fee-receipt" type="file" accept="image/*,application/pdf" required
                     onChange={(e) => onFile(e.target.files?.[0] || null)}
                     className="w-full text-xs text-text-secondary file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:bg-gold-primary file:text-navy-deep file:font-bold" />
+                <p className="text-[11px] text-text-muted">📎 {am ? "File-ኡ ከ5 MB መብለጥ የለበትም (Max 5 MB)" : "Max file size: 5 MB"}</p>
                 {file && <p className="text-[11px] text-text-muted">{file.name}</p>}
             </div>
             <div className="space-y-1">

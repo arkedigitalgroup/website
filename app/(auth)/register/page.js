@@ -12,13 +12,13 @@ import {
 } from "firebase/auth";
 import { doc, setDoc, getDoc, updateDoc, arrayUnion } from "firebase/firestore";
 import { auth, db, googleProvider } from "../../../src/lib/firebase";
-import { normalizePhone, phoneToAuthEmail } from "../../../src/lib/phoneAuth";
+import { normalizePhone } from "../../../src/lib/phoneAuth";
 import { useLanguage } from "../../../src/context/LanguageContext";
 import { useAuth } from "../../../src/context/AuthContext";
 import AuthNavbar from "../../../src/components/layout/AuthNavbar";
 import { useCourses } from "../../../src/hooks/Usecourses";
 import { usePlatformConfig } from "../../../src/hooks/Useplatformconfig";
-import emailjs from "@emailjs/browser";
+import { requestVerificationEmail } from "../../../src/components/auth/EmailVerifyGate";
 import { registrationFeeFor, submitRegistrationFee } from "../../../src/lib/registrationFee";
 import RegistrationFeeFields from "../../../src/components/payments/RegistrationFeeFields";
 
@@ -153,13 +153,6 @@ function RegisterPageContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    // ── EmailJS init ──
-    useEffect(() => {
-        if (process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY) {
-            emailjs.init(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY);
-        }
-    }, []);
-
     // ── URL-derived state ──
     // The general site is academic-first: only course pages that pass
     // ?line=yeneta register under Yeneta.
@@ -231,6 +224,7 @@ function RegisterPageContent() {
             email: profileEmail,
             phone: profilePhone,
             status: role === "teacher" ? "pending" : "active",
+            welcomeEmailPending: true,
             createdAt: new Date(),
         };
         await setDoc(doc(db, "users", uid), userDoc);
@@ -272,35 +266,6 @@ function RegisterPageContent() {
         }
         setProfile(userDoc);
         return userDoc;
-    };
-
-    // Welcome email is non-blocking and only sent to a real address.
-    const sendWelcome = async (toEmail, toName, serviceId) => {
-        if (!toEmail) return;
-        try {
-            await emailjs.send(
-                process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
-                role === "teacher"
-                    ? process.env.NEXT_PUBLIC_EMAILJS_TEACH_TEMPLATE_ID
-                    : process.env.NEXT_PUBLIC_EMAILJS_STU_TEMPLATE_ID,
-                {
-                    to_name: toName || toEmail,
-                    to_email: toEmail,
-                    service_id: serviceId,
-                    role: role === "teacher" ? "Teacher" : "Student",
-                    message:
-                        role === "teacher"
-                            ? lang === "am"
-                                ? "ሰላም መምህር፣ ምዝገባዎ ተሳክቷል። መገለጫዎን በዳሽቦርዱ ያጠናቅቁ።"
-                                : "Welcome Tutor! Your registration is successful. Please complete your profile in the dashboard."
-                            : lang === "am"
-                              ? "እንኳን ደህና መጡ! የተማሪ ምዝገባዎ ተሳክቷል።"
-                              : "Welcome! Your student registration was successful.",
-                },
-            );
-        } catch (notifyErr) {
-            console.error("EmailJS failed:", notifyErr);
-        }
     };
 
     const describeError = (err) => {
@@ -352,7 +317,7 @@ function RegisterPageContent() {
         setError("");
         if (!validateTeacherCourses()) return;
 
-        // Phone is the sign-in identity; email is optional contact info only.
+        // Email is the sign-in identity (verified by email link); phone is required too.
         const normalizedPhone = normalizePhone(phone);
         if (!normalizedPhone) {
             setError(
@@ -363,8 +328,12 @@ function RegisterPageContent() {
             return;
         }
         const profileEmail = email.toLowerCase().trim();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profileEmail)) {
+            setError(lang === "am" ? "ትክክለኛ Email ያስገቡ።" : "Enter a valid email address.");
+            return;
+        }
         const profilePhone = normalizedPhone;
-        const authEmail = phoneToAuthEmail(normalizedPhone);
+        const authEmail = profileEmail;
 
         // Delete the new auth user if a later step fails, so a retry is not
         // blocked by "email already in use".
@@ -380,7 +349,9 @@ function RegisterPageContent() {
                 fullName: "",
             });
             createdAuthUser = null;
-            await sendWelcome(profileEmail, "", userDoc.serviceId);
+            await requestVerificationEmail(cred.user).catch((mailErr) =>
+                console.error("Verification email failed; the dashboard offers a resend:", mailErr),
+            );
             goToDashboard(role);
         } catch (err) {
             console.error("Registration error:", err);
@@ -464,7 +435,7 @@ function RegisterPageContent() {
                 setError(
                     lang === "am"
                         ? "ይህ መለያ አስቀድሞ ተመዝግቧል። ለመግባት ትክክለኛውን የይለፍ ቃል ያስገቡ።"
-                        : "This phone number is already registered. Enter your existing password to continue.",
+                        : "This email is already registered. Enter your existing password to continue.",
                 );
             }
         } finally {
@@ -501,7 +472,6 @@ function RegisterPageContent() {
                 fullName,
             });
             createdAuthUser = null;
-            await sendWelcome(profileEmail, fullName, userDoc.serviceId);
             goToDashboard(role);
         } catch (err) {
             console.error("Google registration error:", err);
@@ -570,11 +540,12 @@ function RegisterPageContent() {
 
                         <div className="space-y-1">
                             <label htmlFor="reg-email" className="text-xs text-text-secondary font-semibold uppercase">
-                                {lang === "am" ? "ኢሜል (አማራጭ)" : "Email Address (optional)"}
+                                {lang === "am" ? "Email (የማረጋገጫ Link ይላክበታል)" : "Email Address (we'll send a verification link)"}
                             </label>
                             <input
                                 id="reg-email"
                                 type="email"
+                                required
                                 autoComplete="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}

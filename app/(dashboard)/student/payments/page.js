@@ -108,9 +108,11 @@ export default function StudentPayments() {
         } catch (err) {
             console.error("Submit payment error:", err);
             setSubmitError(
-                lang === "am"
-                    ? "ደረሰኝ መላክ አልተሳካም። እባክዎ እንደገና ሞክሩ።"
-                    : "Failed to submit receipt. Please try again."
+                err.code === "file-too-large"
+                    ? lang === "am" ? "File-ኡ ከ5 MB በላይ ነው። ትንሽ ፎቶ ይላኩ።" : "The file is larger than 5 MB. Please send a smaller photo."
+                    : lang === "am"
+                      ? "ደረሰኝ መላክ አልተሳካም። Internet-ዎን አረጋግጠው እንደገና ይሞክሩ።"
+                      : "Failed to submit receipt. Check your internet and try again."
             );
         } finally {
             setSubmitting(false);
@@ -350,6 +352,7 @@ export default function StudentPayments() {
                                 <p className="text-[11px] text-text-muted mt-1">
                                     Attach a photo of your CBE deposit slip or Telebirr confirmation screenshot for admin authentication.
                                 </p>
+                                <p className="text-[11px] text-text-muted">📎 {lang === "am" ? "File-ኡ ከ5 MB መብለጥ የለበትም (Max 5 MB)" : "Max file size: 5 MB"}</p>
                             </div>
                             {submitError && (
                                 <p className="text-xs text-error bg-error/10 border border-error/20 rounded px-3 py-2">

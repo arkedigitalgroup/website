@@ -25,7 +25,7 @@ import AuthNavbar from "../../../src/components/layout/AuthNavbar";
 
 export default function LoginPage() {
     const { t, lang } = useLanguage();
-    const { loginWithEmail, loginWithGoogle, setProfile } = useAuth();
+    const { loginWithEmail, loginWithPhone, loginWithGoogle, setProfile } = useAuth();
     const router = useRouter();
 
     // Inputs
@@ -61,55 +61,13 @@ export default function LoginPage() {
                             phoneErr.code !== "auth/user-not-found"
                         )
                             throw phoneErr;
-                        // Older accounts registered with email + phone: look the email up below.
+                        // Not an old phone-only account: try the email accounts below.
                     }
                 }
 
-                // Clean phone number (remove spaces, dashes, parentheses)
-                const cleanPhone = input.replace(/[^\d+]/g, "");
-
-                // 1. Search in /students
-                const studentsQuery = query(
-                    collection(db, "students"),
-                    where("phone", "==", cleanPhone),
-                );
-                const studentDocs = await getDocs(studentsQuery);
-                let foundUid = null;
-
-                if (!studentDocs.empty) {
-                    foundUid = studentDocs.docs[0].id;
-                } else {
-                    // 2. Search in /teachers
-                    const teachersQuery = query(
-                        collection(db, "teachers"),
-                        where("phone", "==", cleanPhone),
-                    );
-                    const teacherDocs = await getDocs(teachersQuery);
-                    if (!teacherDocs.empty) {
-                        foundUid = teacherDocs.docs[0].id;
-                    }
-                }
-
-                if (foundUid) {
-                    const userDocSnap = await getDoc(
-                        doc(db, "users", foundUid),
-                    );
-                    if (userDocSnap.exists()) {
-                        loginEmail = userDocSnap.data().email;
-                    } else {
-                        throw new Error(
-                            lang === "am"
-                                ? "የተጠቃሚ መለያ በሲስተሙ ውስጥ አልተገኘም።"
-                                : "User profile not found in system.",
-                        );
-                    }
-                } else {
-                    throw new Error(
-                        lang === "am"
-                            ? "በዚህ ስልክ ቁጥር የተመዘገበ አካውንት የለም።"
-                            : "No account found with this phone number.",
-                    );
-                }
+                // Accounts that sign in with a real email: the server finds it by phone.
+                await loginWithPhone(input, password);
+                return;
             } else {
                 loginEmail = input.toLowerCase();
             }

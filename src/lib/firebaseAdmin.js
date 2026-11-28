@@ -17,6 +17,17 @@ function app() {
 export const getAdminDb = () => getFirestore(app());
 export const getAdminAuth = () => getAuth(app());
 
+/** Returns the decoded Firebase ID token from "Authorization: Bearer …", or null. */
+export async function verifyUser(request) {
+    const token = (request.headers.get("authorization") || "").replace(/^Bearer /, "");
+    if (!token) return null;
+    try {
+        return await getAdminAuth().verifyIdToken(token);
+    } catch {
+        return null;
+    }
+}
+
 /** Returns the caller's uid if the request carries a valid ID token of an admin, else null. */
 export async function verifyAdmin(request) {
     const token = (request.headers.get("authorization") || "").replace(/^Bearer /, "");

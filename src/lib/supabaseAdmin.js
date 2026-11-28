@@ -7,8 +7,9 @@ const DEFAULT_BUCKET = "arke-media"; // same bucket as src/lib/supabase.ts uploa
 
 export function getSupabaseAdmin() {
     const key = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!key) return null;
-    return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, key, { auth: { persistSession: false } });
+    const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (!key || !url) return null; // callers report "storage not configured" instead of crashing
+    return createClient(url, key, { auth: { persistSession: false } });
 }
 
 /** Deletes files given by public URLs plus everything in the listed folders. Returns error messages. */
